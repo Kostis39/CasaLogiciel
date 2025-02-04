@@ -51,7 +51,7 @@ Surement pas à nous de gérer mais bon:
 - Club
 - Licencié + num 
 - Notes ?
-- est ce que on lis les achats annexxes au compte du client (perso je pense pas mais a voir avec Nico/Nao)
+- est ce que on lis les achats annexes au compte du client (perso je pense pas mais a voir avec Nico/Nao)
 
 
 # Idée
