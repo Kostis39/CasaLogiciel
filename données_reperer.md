@@ -26,15 +26,57 @@ AdrGrimpeur
 VilleGrimpeur
 CodePostGrimpeur
 DateInscrGrimpeur
+LicenGrimpeur
 NbSeanceGrimpeur
-DateFinAbo  (pas mis pcq a voir avec la gestion des entrés)
+DateFinAboGrimpeur  (pas mis pcq a voir avec la gestion des entrées)
 SignaReglementGrimpeur (pour réglement) (a voir le type de l'attribut)
+DateFinCotiGrimpeur
 
-NumGrimpeurClub
+DateSeance  | Deux en un
+HeureSeance |
+TypeEntree (Abo / Séance)
+
+TypeAbo (Trimestre / Année)
+PrixAbo
+DureeAbo
+
+TypeAchatSeance (Unité / Carte de 10)
+PrixAchatSeance
+NbAchatSeance (1 / 10)   
+
+IdReduc
+NomReduc (-10 ans / réduit / licence / 2ème abonnement ...)
+TypeReduc (carte de 10 / abonnement / séance / achat / all / nouveau) (nom de l'entité, nom de l'instance d'un entité, all)
+TypeCalculReduc (nouveau prix / en fonction du prix / pourcentage du prix)
+CalculReduc (284 / -5 / -10%)
+
+NomProduit (chausson / baudrier + descendeur / magnésie / bière ...)
+TypeProduit (équipement / nourriture / boisson / alcool / autre)
+PrixProduit
+
+IdTransac
+TypeTransac (abonnement / séance / achat annexe / conso / autre) (on peut peut-être récupérer l'entité de ce que pointe IdTransac)
+DateTransac     | Same
+HeureTransac    |
+PrixTransac
+TypePaiement (CB / espèce / chèque)
+Note (pour justifier une transac)
+
+IdCreneau
+DateCreneau
+HeureDebCreneau
+HeureFinCreneau
+TypeCreneau (club / scolaire)
+NbPersCreneau
+
+IdGrimpeurClub
 NomGrimpeurClub
 PrenomGrimpeurClub
 
-NumClub
+NomEtabli
+NomRefEtabli
+
+IdClub
 NomClub
 AdrClub
 CodePostClub
@@ -43,36 +85,79 @@ TelClub
 ContactClub
 SiteWebClub
 
-IdSeance
-DateSeance  | Deux en un
-HeureSeance |
-TypeEntree (Abo / Séance / club)
+DateSeanceClub  | Deux en un
+HeureSeanceClub |
 
-Perso je les mettraient ensemble... (Sacha)
-        TypeAbo (Trimestre / Année)
-        PrixAbo
 
-        TypeAchatSeance (Unité / Carte de 10)
-        PrixAchatSeance
-        NbAchatSeance (1 / 10)
 
-IdReduc
-TypeReduc (-10 ans / réduit / licence / 2ème abonnement ...)
-TypeCalculReduc (nouveau prix / en fonction du prix / pourcentage du prix)  (Je mettrais pas Type.. mais plustot réduction genre le pourcentage)
-CalculReduc (284 / -5 / -10%)
 
-Pour moi on pourra
-        TypeAchatAnnex (chausson / baudrier + descendeur / magnésie)
-        PrixAchatAnnex
 
-        IdConso
-        TypeConso (nourriture / boisson / alcool / autre)
-        NomConso
-        PrixConso
+NumGrimpeur -> NomGrimpeur
+NumGrimpeur -> PrenomGrimpeur
+NumGrimpeur -> SexeGrimpeur
+NumGrimpeur -> DateNaisGrimpeur
+NumGrimpeur -> AdrGrimpeur
+NumGrimpeur -> EmailGrimpeur
+NumGrimpeur -> VilleGrimpeur
+NumGrimpeur -> CodePostGrimpeur
+NumGrimpeur -> TelGrimpeur
+NumGrimpeur -> DateInscrGrimpeur
+NumGrimpeur -> LicenGrimpeur
+NumGrimpeur -> NbSeanceGrimpeur
+NumGrimpeur -> DateFinAbo
+NumGrimpeur -> SignaGrimpeur
+NumGrimpeur -> DateFinCotiGrimpeur
 
-IdTransac
-TypeTransac (abonnement / séance / achat annexe / conso / autre)
-DateTransac     | Same
-HeureTransac    |
-PrixTransac
-TypePaiement (CB / espèce / chèque)
+{NumGrimpeur, DateSeance, HeureSeance} -> TypeEntree (NumGrimpeur | inconnue : 0 / membre club : 1 ...)
+
+TypeAbo -> PrixAbo
+TypeAbo -> DureeAbo
+
+TypeAchatSeance -> PrixAchatSeance
+TypeAchatSeance -> NbAchatSeance
+
+IdReduc -> NomReduc
+IdReduc -> TypeReduc
+IdReduc -> TypeCalculReduc
+IdReduc -> CalculReduc
+
+NomProduit -> TypeProduit
+NomProduit -> PrixProduit
+
+IdTransac -> TypeTransac
+IdTransac -> DateTransac
+IdTransac -> HeureTransac
+IdTransac -> PrixTransac
+IdTransac -> TypePaiement
+IdTransac -> Note
+
+IdCreneau -> DateCreneau
+IdCreneau -> HeureDebCreneau
+IdCreneau -> HeureFinCreneau
+IdCreneau -> TypeCreneau (club / scolaire)
+IdCreneau -> NbPersCreneau
+
+IdGrimpeurClub -> NomGrimpeurClub
+IdGrimpeurClub -> PrenomGrimpeurClub
+
+IdClub -> NomClub
+IdClub -> AdrClub
+IdClub -> CodePostClub
+IdClub -> VilleClub
+IdClub -> TelClub
+IdClub -> ContactClub
+IdClub -> SiteWebClub
+
+NomEtabli -> NomRefEtabli
+
+IdGrimpeurClub -> IdClub
+IdClub -> IdGrimpeurClub
+
+IdTransac -> NumGrimpeur (Si inconnue : 0 / membre club : 1 ...)
+IdTransac -> (TypeAbo, TypeAchatSeance, NomProduit) type enum / Si null alors mettre note
+IdTransac -> IdReduc
+
+IdCreneau -> NomEtabli
+IdCreneau -> NomClub
+
+{IdGrimpeurClub, DateSeanceClub, HeureSeanceClub} -> IdCreneau
