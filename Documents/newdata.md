@@ -82,8 +82,8 @@ AdrClub
 CodePostClub
 VilleClub
 TelClub
-ContactClub
 SiteWebClub
+EmailClub
 
 DateSeanceClub  | Deux en un
 HeureSeanceClub |
@@ -145,8 +145,8 @@ IdClub -> AdrClub
 IdClub -> CodePostClub
 IdClub -> VilleClub
 IdClub -> TelClub
-IdClub -> ContactClub
 IdClub -> SiteWebClub
+IdClub -> EmailClub
 
 NomEtabli -> NomRefEtabli
 

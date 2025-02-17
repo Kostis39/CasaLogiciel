@@ -23,7 +23,7 @@
 | Nom du club                                         | NomClub              | élémentaire | texte   |        |           |
 | Adresse du club                                     | AdresseClub          | élémentaire | texte   |        |           |
 | Code postal du club                                 | CodePostClub         | élémentaire | texte   |        |           |
-| Contact du club                                     | ContactClub          | élémentaire | texte   |        |           |
+| Adresse mail du club                                | EmailClub          | élémentaire | texte   |        |           |
 | Date de la séance                                   | DateSeance           | élémentaire | date    |        |           |
 | Heure de la séance                                  | HeureSeance          | élémentaire | heure   |        |           |
 | Type de l'entrée (Abo,Séance,club)                  | TypeEntrée           | élémentaire | texte   |        |           |
