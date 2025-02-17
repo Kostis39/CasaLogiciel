@@ -18,20 +18,7 @@
 - Carte abo
 - Loca chausson/baudard+descendeur
 
-## Questions
-### Personne dans club ???????? 
-Surement pas à nous de gérer mais bon:
-- Fiche droit à l'image 
-- Fiche autorisation parentale
-- Fonctionnement club, réservoir grimpe
-- Stage enfants
-- Gag enfants
-- Adresse/code postal/Ville nécessaire
-- No limit carte 10 entrées
-- Notes ??
-- Reglement intérieur, signement durée
-- Cuc entrée dans salle 
-- Pour la voie savoir assurer ?
+
 
 ## Info a stocker
 
