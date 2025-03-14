@@ -37,3 +37,11 @@ Faudra setup pour établir une connection entre notre base de donnée et le code
 # Outil de monitoring
 
 Jmx ou VisualVM pour voir les perfs de l'appli
+
+
+# Nécessaire
+- JavaFx: https://gluonhq.com/products/javafx/
+- SceneBuilder: https://gluonhq.com/products/scene-builder/
+- Maven
+
+
