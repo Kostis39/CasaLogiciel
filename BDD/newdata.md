@@ -18,7 +18,7 @@ Mettre aucun accents
 NumGrimpeur
 NomGrimpeur
 PrenomGrimpeur
-SexeGrimpeur (pas mis)
+SexeGrimpeur (pas mis) pourquoi?
 DateNaisGrimpeur
 EmailGrimpeur
 TelGrimpeur

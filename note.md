@@ -16,11 +16,11 @@ Il faudra pas négliger la scalabilité donc il faudra de temps a autre partitio
 
 ##  Choix
 
-On a plusieurs choix mais je vais présenter que les plus connus:
+On a plusieurs choix, mais je vais présenter que les plus connus :
 
-- Hibernate: Un titan, il dispose de tout un tas de fonctionnalité mais il est cmplexe a prendre en mains et pt un peu obvious pour un projet aussi petit 
+- Hibernate: Un titan, il dispose de tout un tas de fonctionnalité mais il est complexe a prendre en mains et pt un peu obvious pour un projet aussi petit 
 
-- JPA: C'est l'API standard utilisé par d'autres framework like EclipsLink et DataNucleus. Il offre une portabilité grande donc on peut changer et évoluer facilement, mais il offre des fonctions moins riches que d'autres framwork. Ce N'EST PAS un framework
+- JPA: C'est l'API standard utilisé par d'autres framework like EclipsLink et DataNucleus. Il offre une portabilité grande donc on peut changer et évoluer facilement, mais il offre des fonctions moins riches que d'autres framework. Ce N'EST PAS un framework
 
 - EclipsLink: Il est bien opti et supporte des énorme base de données. Il s'intégre très bien avec d'autres JEE (Java Enteprise Edition, d'après ce que j'ai compris c'est tous plein de framework qui sont utlisée pour dév des applis en entreprise). Mais il est très complexe a setup et utilisé 
 
@@ -37,3 +37,11 @@ Faudra setup pour établir une connection entre notre base de donnée et le code
 # Outil de monitoring
 
 Jmx ou VisualVM pour voir les perfs de l'appli
+
+
+# Nécessaire
+- JavaFx: https://gluonhq.com/products/javafx/
+- SceneBuilder: https://gluonhq.com/products/scene-builder/
+- Maven
+
+
