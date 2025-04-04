@@ -19,25 +19,35 @@ SELECT NOM,PRENOM FROM Grimpeur;
 rows = cursor.fetchall()
 
 # Traitement
-formatted_rows = [(nom.upper(), prenom.capitalize()) for nom, prenom in rows]
-# for nom, prenom in formatted_rows:
-    # print("NOM:", nom, "PRENOM:", prenom)
+# formatted_rows = [(nom.upper(), prenom.capitalize()) for nom, prenom in rows]
 
 # Mise à jour
-for nom, prenom in formatted_rows:
+for nom, prenom in rows:
     cursor.execute('''
         UPDATE Grimpeur
         SET NOM = ?, PRENOM = ?
         WHERE NOM = ? AND PRENOM = ?
-        ''', (nom, prenom, nom.lower(), prenom.lower()))
+        ''', (nom.upper(), prenom.capitalize(), nom, prenom))
 conn.commit()
 
 
-
+# Detection des Edge cases
+# Abonnements DUO ?
 cursor.execute('''
                SELECT NOM,PRENOM FROM Grimpeur 
                WHERE NOM LIKE '%/%' OR PRENOM LIKE '%/%'
+               ORDER BY NUMGRIMP DESC
                ''')
+rows = cursor.fetchall()
+print(rows)
+
+# Tentative de détection des noms suspects
+cursor.execute('''
+               SELECT NOM,PRENOM FROM Grimpeur 
+               WHERE NOM LIKE '% % %' OR PRENOM LIKE '% % %'  
+               ORDER BY NUMGRIMP DESC
+               ''')
+
 rows = cursor.fetchall()
 print(rows)
 # rows = cursor.fetchall()
