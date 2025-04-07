@@ -32,7 +32,7 @@ conn.commit()
 
 
 # Detection des Edge cases
-# Abonnements DUO ?
+print("Selecton des Abonnements DUO ?")
 cursor.execute('''
                SELECT NOM,PRENOM FROM Grimpeur 
                WHERE NOM LIKE '%/%' OR PRENOM LIKE '%/%'
@@ -40,16 +40,39 @@ cursor.execute('''
                ''')
 rows = cursor.fetchall()
 print(rows)
+print('_'*12+'\n')
 
-# Tentative de détection des noms suspects
+
+print("Tentative de détection des noms suspects")
 cursor.execute('''
                SELECT NOM,PRENOM FROM Grimpeur 
                WHERE NOM LIKE '% % %' OR PRENOM LIKE '% % %'  
                ORDER BY NUMGRIMP DESC
                ''')
 
+
 rows = cursor.fetchall()
 print(rows)
+print('_'*12+'\n')
+
+
+print("Extraction des comptes doublons")
+cursor.execute('''
+               WITH G AS (SELECT NOM,PRENOM,NUMGRIMP,DATNAIS FROM Grimpeur)
+               SELECT DISTINCT GG.PRENOM, GG.NOM, GG.NUMGRIMP, GG.DATNAIS FROM Grimpeur as GG
+               JOIN G ON G.NOM = GG.NOM AND G.PRENOM = GG.PRENOM
+               WHERE G.NUMGRIMP != GG.NUMGRIMP AND G.DATNAIS=GG.DATNAIS
+               ORDER BY GG.NOM ASC
+               ''')
+
+rows = cursor.fetchall()
+row_count = len(rows)
+print(f"Number of rows: {row_count}")
+# print(rows)
+for w in rows:
+    print(w)
+print('_'*12+'\n')
+
 # rows = cursor.fetchall()
 # for elt in rows:
 #     champ = "".join(elt)
