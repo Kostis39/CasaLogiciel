@@ -89,7 +89,7 @@ conn.close()
 
 
 ## Connexion MariaDB
-
+## PENSER A SE CONNECTER AU VPN
 try:
     mariadb_conn = mariadb.connect(
         user="root",
