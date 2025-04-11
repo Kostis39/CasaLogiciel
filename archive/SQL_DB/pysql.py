@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import sqlite3
+import mariadb
+import sys
 import os
 
 path = "./archive/SQL_DB/"
@@ -83,3 +85,33 @@ print('_'*12+'\n')
 # Commit the changes and close the connection
 # conn.commit()
 conn.close()
+
+
+
+## Connexion MariaDB
+
+try:
+    mariadb_conn = mariadb.connect(
+        user="root",
+        password="Fèf6f(9c6",
+        host = "172.18.0.4",
+        port = 3306,
+        database="casabase",
+        autocommit=False
+    )
+except mariadb.Error as e:
+    print("gettin' effed up by the mariadb connection")
+    sys.exit(1) 
+
+# On essaie d'obtenir le curseur vers MariaDB
+mariadb_cur = mariadb_conn.cursor()
+
+mariadb_cur.execute(
+    "SHOW TABLES"
+)
+
+rows=mariadb_cur.fetchall()
+print("Tables dans la base de données :")
+for row in rows:
+    print(row[0])
+print('_'*12+'\n')
