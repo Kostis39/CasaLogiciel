@@ -1,39 +1,48 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
-from flask_restful import Resource,Api
-import sqlalchemy
-from sqlalchemy import text
+from flask_restful import Resource, Api
+from models import Clients
+from db import create_engine, get_session, test_connection
 
 # Flask Setup
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
 
-# Database Setup
-with open('../../vpn-auth.txt', 'r') as file:
-    lines = file.readlines()
-    secret = lines[1].strip() if len(lines) > 1 else None
-if secret is None:
-    print("Secret non trouvé")
-    exit(1)    
-engine = sqlalchemy.create_engine(f"mariadb+mariadbconnector://root:{secret}@172.18.0.4:3306/casabase", echo=True)
+# Init Base
+engine = create_engine()
+sesh = get_session(engine)
 
-# Test de la connexion
-with engine.connect() as connector:
-    result = connector.execute(text('SHOW TABLES'))
-    print(result.all())
-    
+# Test connection
+test_connection(engine)
 
+
+# Fake classes
 class Users(Resource):
     def get(self):
-        return {'users': ['Alice', 'Bob', 'Charlie']}
+        return {"users": ["Alice", "Bob", "Charlie"]}
+
 
 class Products(Resource):
     def get(self):
-        return {'products': ['Laptop', 'Smartphone', 'Tablet']}
+        return {"products": ["Laptop", "Smartphone", "Tablet"]}
 
-api.add_resource(Users, '/users')
-api.add_resource(Products, '/products')
 
-if __name__ == '__main__':
+api.add_resource(Users, "/users")
+api.add_resource(Products, "/products")
+
+
+# Vraies classes
+class Grimpeurs(Resource):
+    def get(self):
+        with sesh() as session:
+            grimpeurs = session.query(Clients.Grimpeur).all()
+            return jsonify([grimpeur.to_dict() for grimpeur in grimpeurs])
+
+    def post(self):
+        pass
+
+
+api.add_resource(Grimpeurs, "/grimpeurs")
+if __name__ == "__main__":
     app.run(debug=True)
