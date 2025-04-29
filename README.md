@@ -2,8 +2,8 @@
 
 # Interrogations actuelles
 
-- [ ] - D'ou proviennent les informations concernant les grimpeurs de club ? (Et éventuellement quelles infos sur eux dont on dipose)
-        C'est Nico chaque début d'année qui rentre tt les grimpeurs du club, et seulement le prénom et le nom
+- [ ] - D'ou proviennent les informations concernant les grimpeurs de club ? (Et éventuellement quelles infos sur eux dont on dispose)
+        C'est Nico chaque début d'année qui rentre toutes les grimpeurs du club, et seulement le prénom et le nom
 - [ ] - Comment se déroule la gestion des cours et des scolaires ?
         Same que club !
 - [ ] - A-t-on réellement besoin du site web des clubs ?
@@ -16,26 +16,29 @@
 
 
 # Cahier des charges
+- [ ] Entrer un client
+- [ ] Entrer un achat
+- [ ] Enregistrer un paiement
 
 # Etat des lieux
 
 ## Documents a disposition
 
-- Réglements intérieur
-- Signature du réglements intérieur ticket séance
-- Signature du réglement intérieur abonnements et carte de 10
+- Règlement intérieur
+- Signature du règlement intérieur ticket séance
+- Signature du règlement intérieur, abonnements et carte de 10
 - Compta achat d'entrée
 - Compta achat de bouffe
-- Logiciel entré abo annu/mensu
-- Fiche exel Cuc/pt Gag (club)
-- Fiche exel planning semaine
-- Fiche exel planning année
-- Tempon date pour ticket séance
+- Logiciel entrée abonnement annuel / mensuel
+- Fiche excel Cuc/pt Gag (club)
+- Fiche excel planning semaine
+- Fiche excel planning année
+- Tampon date pour ticket séance
 - Ticket séance avec prix et type de payement
 - Doc carte à faire/refaire
-- Carte 10 entrées 
-- Carte abo
-- Loca chausson/baudard+descendeur
+- Carte 10 entrées
+- Carte abonnement
+- Location chausson/baudrier+descendeur
 
 
 
@@ -57,18 +60,18 @@
 - Club
 - Licencié + num 
 - Notes ?
-- est ce que on lis les achats annexxes au compte du client (perso je pense pas mais a voir avec Nico/Nao)
+- Lit-on les achats annexes au compte du client (à vérifier)
 
 
 # Idée
 
-- Peut chercher la personne avec son num ou son prenom/nom
-- Pour les entrées/abo faire en sorte d'appuyer sur le tarif voulu dans le tableau des entrées
+- Peut chercher la personne avec son numéro ou son prénom/nom
+- Pour les entrées/abonnements faire en sorte d'appuyer sur le tarif voulu dans le tableau des entrées
 
 
 # Point de vue client
 
-Client classique:
+Client classique :
 
     - Se créer un compte:
         - Procédure
@@ -86,13 +89,13 @@ Client classique:
         
         - Paiement
 
-Membre de club:
+Membre de club :
 
     - S'identifier
     Achats annexes potentiels:
         - Paiement
 
-Achats annexes:
+Achats annexes :
 
     - chausson
     - baudrier + descendeur
