@@ -6,11 +6,16 @@ app = Flask(__name__)
 CORS(app)
 api = Api(app)
 
-class HelloWorld(Resource):
+class Users(Resource):
     def get(self):
-        return {'First Json':'ok'}
+        return {'users': ['Alice', 'Bob', 'Charlie']}
 
-api.add_resource(HelloWorld, '/')
+class Products(Resource):
+    def get(self):
+        return {'products': ['Laptop', 'Smartphone', 'Tablet']}
 
-if __name__=='__main__':
+api.add_resource(Users, '/users')
+api.add_resource(Products, '/products')
+
+if __name__ == '__main__':
     app.run(debug=True)
