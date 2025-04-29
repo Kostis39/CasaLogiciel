@@ -4,19 +4,21 @@ from flask_restful import Resource,Api
 import sqlalchemy
 from sqlalchemy import text
 
+# Flask Setup
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
 
+# Database Setup
 with open('../../vpn-auth.txt', 'r') as file:
     lines = file.readlines()
     secret = lines[1].strip() if len(lines) > 1 else None
 if secret is None:
     print("Secret non trouvé")
-    exit(1)
-      
+    exit(1)    
 engine = sqlalchemy.create_engine(f"mariadb+mariadbconnector://root:{secret}@172.18.0.4:3306/casabase", echo=True)
 
+# Test de la connexion
 with engine.connect() as connector:
     result = connector.execute(text('SHOW TABLES'))
     print(result.all())
