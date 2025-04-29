@@ -4,4 +4,4 @@ bin
 lib64
 profile*
 pyvenv.cfg
-vpn-auth.txt
+vpn*
