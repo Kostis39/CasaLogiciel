@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_restful import Resource, Api
 from models import Clients
@@ -37,10 +37,34 @@ class Grimpeurs(Resource):
     def get(self):
         with sesh() as session:
             grimpeurs = session.query(Clients.Grimpeur).all()
-            return jsonify([grimpeur.to_dict() for grimpeur in grimpeurs])
+            return [grimpeur.to_dict() for grimpeur in grimpeurs]
 
     def post(self):
-        pass
+        json = request.get_json()
+        nouv_grimp = Clients.Grimpeur(
+            NomGrimpeur=json["NomGrimpeur"],
+            PrenomGrimpeur=json["PrenomGrimpeur"],
+            DateNaissGrimpeur=json["DateNaissGrimpeur"],
+            EmailGrimpeur=json["EmailGrimpeur"],
+            TelGrimpeur=json["TelGrimpeur"],
+            AdresseGrimpeur=json["AdresseGrimpeur"],
+            VilleGrimpeur=json["VilleGrimpeur"],
+            CodePostGrimpeur=json["CodePostGrimpeur"],
+            DateInscrGrimpeur=json["DateInscrGrimpeur"],
+            NbSeanceRest=json["NbSeanceRest"],
+            Solde=json["Solde"],
+            DateFincCotisation=json["DateFincCotisation"],
+            AccordReglement=json["AccordReglement"],
+            SignaReglement=json["SignaReglement"],
+            DateFinAbo=json["DateFinAbo"],
+            DateFinCoti=json["DateFinCoti"],
+            NumLicenceGrimpeur=json["NumLicenceGrimpeur"],
+        )
+        with sesh() as session:
+            session.add(nouv_grimp)
+            session.commit()
+            session.refresh(nouv_grimp)
+            return nouv_grimp.to_dict(), 201
 
 
 api.add_resource(Grimpeurs, "/grimpeurs")

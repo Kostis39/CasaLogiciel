@@ -1,11 +1,12 @@
 from sqlalchemy import String, ForeignKey
+from sqlalchemy_serializer import SerializerMixin
 from datetime import date
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .Base import Casabase
 
 
-class Grimpeur(Casabase):
+class Grimpeur(Casabase, SerializerMixin):
     __tablename__ = "Grimpeur"
 
     NumGrimpeur: Mapped[int] = mapped_column(primary_key=True)
@@ -28,38 +29,34 @@ class Grimpeur(Casabase):
     NumLicenceGrimpeur: Mapped[int] = mapped_column(nullable=True)
 
     # Clés étrangères
-    TypeTicket: Mapped[str] = mapped_column(
-        String(50), ForeignKey("Ticket.TypeTicket"), nullable=True
-    )
-    TypeAbo: Mapped[str] = mapped_column(
-        String(50), ForeignKey("Abonnement.TypeAbo"), nullable=True
-    )
+    # TypeTicket: Mapped[str] = mapped_column(
+    #     String(50), ForeignKey("Ticket.TypeTicket"), nullable=True
+    # )
+    # TypeAbo: Mapped[str] = mapped_column(
+    #     String(50), ForeignKey("Abonnement.TypeAbo"), nullable=True
+    # )
 
     # Renvoi JSON
-    def to_dict(self):
-        return {
-            "NumGrimpeur": self.NumGrimpeur,
-            "NomGrimpeur": self.NomGrimpeur,
-            "PrenomGrimpeur": self.PrenomGrimpeur,
-            "DateNaissGrimpeur": (
-                self.DateNaissGrimpeur.isoformat() if self.DateNaissGrimpeur else None
-            ),
-            "EmailGrimpeur": self.EmailGrimpeur,
-            "TelGrimpeur": self.TelGrimpeur,
-            "AdresseGrimpeur": self.AdresseGrimpeur,
-            "VilleGrimpeur": self.VilleGrimpeur,
-            "CodePostGrimpeur": self.CodePostGrimpeur,
-            "DateInscrGrimpeur": self.DateInscrGrimpeur.isoformat(),
-            "NbSeanceRest": self.NbSeanceRest,
-            "Solde": self.Solde,
-            "DateFincCotisation": (
-                self.DateFincCotisation.isoformat() if self.DateFincCotisation else None
-            ),
-            "AccordReglement": self.AccordReglement,
-            "SignaReglement": self.SignaReglement,
-            "DateFinAbo": self.DateFinAbo.isoformat() if self.DateFinAbo else None,
-            "DateFinCoti": self.DateFinCoti.isoformat() if self.DateFinCoti else None,
-            "NumLicenceGrimpeur": self.NumLicenceGrimpeur,
-            "TypeTicket": self.TypeTicket,
-            "TypeAbo": self.TypeAbo,
-        }
+    def __repr__(self) -> str:
+        return (
+            f"Grimpeur("
+            f"NumGrimpeur={self.NumGrimpeur}, "
+            f"NomGrimpeur='{self.NomGrimpeur}', "
+            f"PrenomGrimpeur='{self.PrenomGrimpeur}', "
+            f"DateNaissGrimpeur='{self.DateNaissGrimpeur}', "
+            f"EmailGrimpeur='{self.EmailGrimpeur}', "
+            f"TelGrimpeur={self.TelGrimpeur}, "
+            f"AdresseGrimpeur='{self.AdresseGrimpeur}', "
+            f"VilleGrimpeur='{self.VilleGrimpeur}', "
+            f"CodePostGrimpeur={self.CodePostGrimpeur}, "
+            f"DateInscrGrimpeur='{self.DateInscrGrimpeur}', "
+            f"NbSeanceRest={self.NbSeanceRest}, "
+            f"Solde={self.Solde}, "
+            f"DateFincCotisation='{self.DateFincCotisation}', "
+            f"AccordReglement={self.AccordReglement}, "
+            f"SignaReglement='{self.SignaReglement}', "
+            f"DateFinAbo='{self.DateFinAbo}', "
+            f"DateFinCoti='{self.DateFinCoti}', "
+            f"NumLicenceGrimpeur={self.NumLicenceGrimpeur}"
+            f")"
+        )
