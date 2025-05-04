@@ -12,54 +12,46 @@ const testItems = Array.from({ length: 15 }, (_, i) => ({
 export default function SmartGrid() {
   const [expanded, setExpanded] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const initialItems = 9;
-  const displayItems = expanded ? testItems : testItems.slice(0, initialItems - 1);
+  const initialItems = 8;
+  const displayItems = expanded ? testItems : testItems.slice(0, initialItems);
 
   return (
     <>
           {/* Partie principale fixe */}
           <div className={`mb-8 p-6 bg-blue-50 rounded-lg border border-blue-200 transition-all duration-300`}>
             <h2 className="text-2xl font-bold text-blue-800">Section Fixe</h2>
-            <p className="mt-2 text-blue-600">Ce contenu reste visible mais est flouté quand "Réussi" s'affiche</p>
+            <p className="mt-2 text-blue-600">Ce contenu reste visible tout le temps</p>
           </div>
     <div className="container mx-auto p-8 relative">
 
 
       {/* Partie extensible des grimpeurs */}
       <div className={`relative transition-all ${
-        expanded ? 'fixed inset-0 bg-white z-40 pt-8 pb-20 overflow-y-auto' : ''
+        expanded ? 'fixed inset-0 z-40 pt-8 pb-20 overflow-y-auto border border-amber-950' : 'border border-amber-950'
       } ${showSuccess ? 'filter blur-sm' : ''}`}>
-        <div className={`${expanded ? 'container mx-auto' : ''}`}>
-          <h1 className="text-3xl font-bold mb-8">Liste des Grimpeurs</h1>
+        <div className='container mx-auto border border-amber-400'>
+          <h1 className="text-3xl">Liste des Grimpeurs</h1>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {displayItems.map((item) => (
-              <div key={item.id} className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                <h3 className="text-xl font-semibold">{item.name}</h3>
-                <p className={`mt-2 px-3 py-1 rounded-full text-sm w-fit ${
-                  item.level === 'Débutant' ? 'bg-blue-100 text-blue-800' :
-                  item.level === 'Intermédiaire' ? 'bg-green-100 text-green-800' :
-                  'bg-purple-100 text-purple-800'
-                }`}>
-                  {item.level}
-                </p>
+              <div key={item.id} className="border">
+                <h3>{item.name}</h3>
+                <p>{item.level}</p>
               </div>
             ))}
 
             {!expanded && testItems.length >= initialItems && (
               <button
                 onClick={() => setExpanded(true)}
-                className="flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 p-6 transition-colors"
+                className="items-center justify-center border-1 border-dashed"
               >
-                <span className="text-2xl">+</span>
-                <span className="font-medium mt-2">Voir {testItems.length - initialItems + 1} de plus</span>
+                <p className="text-2xl">+</p>
               </button>
             )}
           </div>
         </div>
 
         {expanded && (
-          <div className="sticky bottom-0 bg-white py-4 border-t border-gray-200">
             <div className="container mx-auto text-center">
               <button
                 onClick={() => setExpanded(false)}
@@ -68,7 +60,7 @@ export default function SmartGrid() {
                 Voir moins
               </button>
             </div>
-          </div>
+          
         )}
       </div>
 

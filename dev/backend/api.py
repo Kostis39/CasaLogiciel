@@ -68,5 +68,6 @@ class Grimpeurs(Resource):
 
 
 api.add_resource(Grimpeurs, "/grimpeurs")
+
 if __name__ == "__main__":
     app.run(debug=True)
