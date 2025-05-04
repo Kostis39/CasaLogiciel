@@ -4,6 +4,8 @@ from flask_restful import Resource, Api
 from models import Clients
 from db import create_engine, get_session, test_connection
 
+from controllers.grimpeur import GrimpeursListe, Grimpeur
+
 # Flask Setup
 app = Flask(__name__)
 CORS(app)
@@ -17,7 +19,7 @@ sesh = get_session(engine)
 test_connection(engine)
 
 
-# Fake classes
+# Tests classes
 class Users(Resource):
     def get(self):
         return {"users": ["Alice", "Bob", "Charlie"]}
@@ -33,40 +35,11 @@ api.add_resource(Products, "/products")
 
 
 # Vraies classes
-class Grimpeurs(Resource):
-    def get(self):
-        with sesh() as session:
-            grimpeurs = session.query(Clients.Grimpeur).all()
-            return [grimpeur.to_dict() for grimpeur in grimpeurs]
+# Api endpoints (les vrais)
 
-    def post(self):
-        json = request.get_json()
-        nouv_grimp = Clients.Grimpeur(
-            NomGrimpeur=json["NomGrimpeur"],
-            PrenomGrimpeur=json["PrenomGrimpeur"],
-            DateNaissGrimpeur=json["DateNaissGrimpeur"],
-            EmailGrimpeur=json["EmailGrimpeur"],
-            TelGrimpeur=json["TelGrimpeur"],
-            AdresseGrimpeur=json["AdresseGrimpeur"],
-            VilleGrimpeur=json["VilleGrimpeur"],
-            CodePostGrimpeur=json["CodePostGrimpeur"],
-            DateInscrGrimpeur=json["DateInscrGrimpeur"],
-            NbSeanceRest=json["NbSeanceRest"],
-            Solde=json["Solde"],
-            DateFincCotisation=json["DateFincCotisation"],
-            AccordReglement=json["AccordReglement"],
-            SignaReglement=json["SignaReglement"],
-            DateFinAbo=json["DateFinAbo"],
-            DateFinCoti=json["DateFinCoti"],
-            NumLicenceGrimpeur=json["NumLicenceGrimpeur"],
-        )
-        with sesh() as session:
-            session.add(nouv_grimp)
-            session.commit()
-            session.refresh(nouv_grimp)
-            return nouv_grimp.to_dict(), 201
+api.add_resource(GrimpeursListe, "/grimpeurs/")
+api.add_resource(Grimpeur, "/grimpeurs/<int:id>")
 
 
-api.add_resource(Grimpeurs, "/grimpeurs")
 if __name__ == "__main__":
     app.run(debug=True)
