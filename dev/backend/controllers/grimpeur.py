@@ -56,3 +56,22 @@ class Grimpeur(Resource):
                 return {"message": "Grimpeur deleted"}, 200
             else:
                 return {"message": "Grimpeur not found"}, 404
+
+
+class Seances(Resource):
+    def get(self):
+        with sesh() as session:
+            seances = session.query(Clients.Seance).all()
+            return [seance.to_dict() for seance in seances]
+
+    def post(self):
+        json = request.get_json()
+        nouv_seance = Clients.Seance()
+        for key, value in json.items():
+            setattr(nouv_seance, key, value)
+
+        with sesh() as session:
+            session.add(nouv_seance)
+            session.commit()
+            session.refresh(nouv_seance)
+            return nouv_seance.to_dict(), 201
