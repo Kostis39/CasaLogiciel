@@ -29,12 +29,12 @@ class Grimpeur(Casabase, SerializerMixin):
     NumLicenceGrimpeur: Mapped[int] = mapped_column(nullable=True)
 
     # Clés étrangères
-    # TypeTicket: Mapped[str] = mapped_column(
-    #     String(50), ForeignKey("Ticket.TypeTicket"), nullable=True
-    # )
-    # TypeAbo: Mapped[str] = mapped_column(
-    #     String(50), ForeignKey("Abonnement.TypeAbo"), nullable=True
-    # )
+    TypeTicket: Mapped[str] = mapped_column(
+        String(50), ForeignKey("Ticket.TypeTicket"), nullable=True
+    )
+    TypeAbo: Mapped[str] = mapped_column(
+        String(50), ForeignKey("Abonnement.TypeAbo"), nullable=True
+    )
 
     # Renvoi JSON
     def __repr__(self) -> str:
@@ -60,3 +60,11 @@ class Grimpeur(Casabase, SerializerMixin):
             f"NumLicenceGrimpeur={self.NumLicenceGrimpeur}"
             f")"
         )
+
+
+class Ticket(Casabase):
+    __tablename__ = "Ticket"
+
+    TypeTicket: Mapped[str] = mapped_column(primary_key=True)
+    NbSeanceTicket: Mapped[int] = mapped_column(nullable=False)
+    DateFinValidite: Mapped[date] = mapped_column(nullable=False)
