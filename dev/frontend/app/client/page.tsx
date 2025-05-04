@@ -12,6 +12,8 @@ const testItems = Array.from({ length: 15 }, (_, i) => ({
 export default function SmartGrid() {
   const [expanded, setExpanded] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [haut, setHaut] = useState(false);
+  const [bas, setBas] = useState(false);
   const initialItems = 8;
   const displayItems = expanded ? testItems : testItems.slice(0, initialItems);
 
@@ -22,12 +24,65 @@ export default function SmartGrid() {
             <h2 className="text-2xl font-bold text-blue-800">Section Fixe</h2>
             <p className="mt-2 text-blue-600">Ce contenu reste visible tout le temps</p>
           </div>
-    <div className="container mx-auto p-8 relative">
 
+    <div className='container mx-auto p-8 flex flex-col w-100 h-100 border border-black'>
+
+      {/* Partie haute */}
+      <div className={`
+        ${haut ? 'flex-1 border border-amber-950' : 'flex-grow'} 
+        ${bas ? 'hidden opacity-0 h-0 overflow-hidden' : 'opacity-100'}`
+        }>
+          <h2>Haut</h2>
+
+          {!haut && (
+              <button
+                onClick={() => setHaut(true)}
+                className="items-center justify-center border-1 border-dashed">
+                <p className="text-2xl">+ haut</p>
+              </button>
+            )}
+
+          {haut && (
+              <button
+                onClick={() => setHaut(false)}
+                className="items-center justify-center border-1 border-dashed">
+                <p className="text-2xl">- haut</p>
+              </button>
+            )}
+
+      </div>
+
+      {/* Partie basse */}
+      <div className={`
+        ${bas ? 'flex-1 border border-blue-700' : 'flex-grow'} 
+        ${haut ? 'hidden opacity-0 h-0 overflow-hidden' : 'opacity-100'}`
+        }>
+          <h2>Bas</h2>
+
+          {!bas && (
+              <button
+                onClick={() => setBas(true)}
+                className="items-center justify-center border-1 border-dashed">
+                <p className="text-2xl">+ bas</p>
+              </button>
+            )}
+
+          {bas && (
+              <button
+                onClick={() => setBas(false)}
+                className="items-center justify-center border-1 border-dashed">
+                <p className="text-2xl">- haut</p>
+              </button>
+            )}
+      </div>
+
+    </div>
+
+    <div className="container mx-auto p-8 relative">
 
       {/* Partie extensible des grimpeurs */}
       <div className={`relative transition-all ${
-        expanded ? 'fixed inset-0 z-40 pt-8 pb-20 overflow-y-auto border border-amber-950' : 'border border-amber-950'
+        expanded ? 'fixed inset-0 z-40 pt-8 pb-20 overflow-y-auto border border-amber-950' : ''
       } ${showSuccess ? 'filter blur-sm' : ''}`}>
         <div className='container mx-auto border border-amber-400'>
           <h1 className="text-3xl">Liste des Grimpeurs</h1>
