@@ -41,6 +41,5 @@ api.add_resource(GrimpeursListe, "/grimpeurs")
 api.add_resource(Grimpeur, "/grimpeurs/<int:id>")
 api.add_resource(Seances, "/seances")
 
-
 if __name__ == "__main__":
     app.run(debug=True)
