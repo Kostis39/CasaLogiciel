@@ -24,7 +24,7 @@ class Club(Casabase, SerializerMixin):
 
     IdClub: Mapped[int] = mapped_column(primary_key=True)
     NomClub: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
-    CodePostalClub: Mapped[int] = mapped_column()
+    CodePostClub: Mapped[int] = mapped_column()
     VilleClub: Mapped[str] = mapped_column(String(50))
     TelClub: Mapped[int] = mapped_column()
     EmailClub: Mapped[str] = mapped_column(String(50))
