@@ -14,3 +14,18 @@ export const fetchGrimpeurById = async (id: number) => {
     throw error;
   }
 };
+
+export const fetchGrimpeurSearch = async (query: string) => {
+  try {
+    const response = await fetch(`${API_URL}/grimpeurs//search?query=${query}`);
+    if (!response.ok) {
+      console.log(`Erreur HTTP: ${response.status}`);
+      return false;
+    }
+    return await response.json();
+    
+  } catch (error) {
+    console.error('Échec de la récupération du grimpeur:', error);
+    throw error;
+  }
+};
