@@ -1,23 +1,28 @@
+import { fetchGrimpeurById } from "@/src/services/api";
 import Image from "next/image";
 
-export function ClientCard() {
-  return (
-    <div className="flex items-center gap-5 rounded-xl border py-5 px-5 shadow-sm ">
+export async function ClientCard({ id }: { id: number }) {
+  const res = await fetchGrimpeurById(id);
+
+  if (res) {
+    return (
+      <div className="flex items-center gap-5 rounded-xl border py-5 px-5 shadow-sm">
         <div className="">
-            <Image
+          <Image
             src="/avatar.png"
             alt="Avatar"
             width={70}
             height={70}
-            />
+          />
         </div>
         <div className="">
-            <p className="text-xl font-bold mb-2">Numéro</p>
-            <p className="text-sm text-muted-foreground">Prénom</p>
-            <p className="text-sm text-muted-foreground">Nom</p>
+          <p className="text-xl font-bold mb-2">{res.NumGrimpeur}</p>
+          <p className="text-sm text-muted-foreground">{res.PrenomGrimpeur}</p>
+          <p className="text-sm text-muted-foreground">{res.NomGrimpeur}</p>
         </div>
-    </div>
-  );
+      </div>
+    );
+  }
 }
 
 export function ClientAside(){
@@ -29,7 +34,7 @@ export function ClientAside(){
         className="w-full border border-gray-300 mb-4"
       />
 
-      <ClientCard/>
+      <ClientCard id={1}/>
     </>
   );
 }
