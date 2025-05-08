@@ -23,6 +23,14 @@ export default function Home() {
         <Link href="/stats" className={buttonVariants({size: "big", variant: "outline"})}>
         Satistiques
         </Link>
+
+        <Link href="/dev/romain" className={buttonVariants({size: "big", variant: "outline"})}>
+        Dév Romain
+        </Link>
+
+        <Link href="/dev/sacha" className={buttonVariants({size: "big", variant: "outline"})}>
+        Dév Sacha
+        </Link>
         
     
         
