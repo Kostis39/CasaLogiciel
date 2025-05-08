@@ -7,7 +7,7 @@ const testItems = Array.from({ length: 15 }, (_, i) => ({
   level: ['Débutant', 'Intermédiaire', 'Expert'][i % 3],
 }));
 
-export function Content(){
+export async function Content(){
       const [expandTop, setexpandTop] = useState(false);
       const [expandBot, setexpandBot] = useState(false);
       const initialItems = 8;
@@ -16,7 +16,6 @@ export function Content(){
     
       return (    
         <div className="container flex flex-col border border-black gap-2 h-full">
-
           {/* Partie Haute, si on veut étendre le bas on hidden le haut et les bordures servent juste au débug*/}
           <div className={`
             ${expandTop ? '' : 'border border-amber-950'} 
