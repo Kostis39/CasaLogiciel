@@ -58,6 +58,29 @@ class Grimpeur(Resource):
                 return {"message": "Grimpeur not found"}, 404
 
 
+class GrimpeurSearch(Resource):
+    def get(self):
+        query_string = request.args.get("query", type=str)
+        if not query_string:
+            return {"message": "Requête de recherche vide"}, 400
+
+        with sesh() as session:
+            if query_string.isdigit():
+                grimpeurs = (
+                    session.query(Clients.Grimpeur).filter_by(
+                        NumGrimpeur=int(query_string)
+                    )
+                ).all()
+            else:
+                grimpeurs = (
+                    session.query(Clients.Grimpeur).filter(
+                        Clients.Grimpeur.NomGrimpeur.ilike(f"%{query_string}%")
+                        | Clients.Grimpeur.PrenomGrimpeur.ilike(f"%{query_string}%")
+                    )
+                ).all()
+        return [grimpeur.to_dict() for grimpeur in grimpeurs], 200
+
+
 class Seances(Resource):
     def get(self):
         with sesh() as session:

@@ -4,7 +4,7 @@ from flask_restful import Resource, Api
 from models import Clients
 from db import create_engine, get_session, test_connection
 
-from controllers.grimpeur import GrimpeursListe, Grimpeur, Seances
+from controllers.grimpeur import GrimpeursListe, Grimpeur, Seances, GrimpeurSearch
 
 # Flask Setup
 app = Flask(__name__)
@@ -40,6 +40,7 @@ api.add_resource(Products, "/products")
 api.add_resource(GrimpeursListe, "/grimpeurs")
 api.add_resource(Grimpeur, "/grimpeurs/<int:id>")
 api.add_resource(Seances, "/seances")
+api.add_resource(GrimpeurSearch, "/grimpeurs/search")
 
 if __name__ == "__main__":
     app.run(debug=True)
