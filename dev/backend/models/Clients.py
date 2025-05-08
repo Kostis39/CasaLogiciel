@@ -116,7 +116,7 @@ class Transaction(Casabase, SerializerMixin):
 
 
 class Reduction(Casabase, SerializerMixin):
-    __tablename__ = "reduction"
+    __tablename__ = "Reduction"
 
     IdReduc: Mapped[int] = mapped_column(primary_key=True)
     NomReduc: Mapped[str] = mapped_column(nullable=False, unique=True)
@@ -126,7 +126,7 @@ class Reduction(Casabase, SerializerMixin):
 
 
 class Produit(Casabase, SerializerMixin):
-    __tablename__ = "produit"
+    __tablename__ = "Produit"
 
     IdProduit: Mapped[int] = mapped_column(primary_key=True)
     NomProduit: Mapped[str] = mapped_column(nullable=False)
