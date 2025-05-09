@@ -7,20 +7,18 @@ const ClientList = async ({ query }: { query: string }) => {
     }
 
     const rep = await fetchGrimpeurSearch(query);
+    
     if (!rep) {
-        return <div>No results found</div>;
+        return <div>Pas de résultats</div>;
     }
-
     return (
-        <>
-            <div className="flex flex-col gap-5">
-                {rep.map((grimpeur) => (
-                    <div key={grimpeur.NumGrimpeur}>
-                    <ClientCard id={grimpeur.NumGrimpeur} />
-                    </div>
-                ))}
-            </div>
-        </>
+        <div className="flex flex-col gap-5">
+            {rep.map((grimpeur) => (
+                <div key={grimpeur.NumGrimpeur}>
+                <ClientCard prenom={grimpeur.PrenomGrimpeur} nom={grimpeur.NomGrimpeur} num={grimpeur.NumGrimpeur}/>
+                </div>
+            ))}
+        </div>
     );
 }
 

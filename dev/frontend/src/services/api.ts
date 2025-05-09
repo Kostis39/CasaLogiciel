@@ -22,8 +22,13 @@ export const fetchGrimpeurSearch = async (query: string) => {
       console.log(`Erreur HTTP: ${response.status}`);
       return false;
     }
-    return await response.json();
-    
+    const data = await response.json();
+    if (Array.isArray(data) && data.length > 0) {
+      return data;
+    } else {
+      console.log('Aucune donnée trouvée.');
+      return false;
+    }
   } catch (error) {
     console.error('Échec de la récupération du grimpeur:', error);
     throw error;
