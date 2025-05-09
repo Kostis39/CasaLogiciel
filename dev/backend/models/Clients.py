@@ -62,7 +62,7 @@ class Grimpeur(Casabase, SerializerMixin):
         )
 
 
-class Ticket(Casabase):
+class Ticket(Casabase, SerializerMixin):
     __tablename__ = "Ticket"
 
     TypeTicket: Mapped[str] = mapped_column(primary_key=True)
@@ -79,7 +79,7 @@ class Ticket(Casabase):
         )
 
 
-class Abonnement(Casabase):
+class Abonnement(Casabase, SerializerMixin):
     __tablename__ = "Abonnement"
 
     TypeAbo: Mapped[str] = mapped_column(primary_key=True)
@@ -87,7 +87,7 @@ class Abonnement(Casabase):
     DateFinValidite: Mapped[date] = mapped_column(nullable=False)
 
 
-class Seance(Casabase):
+class Seance(Casabase, SerializerMixin):
     __tablename__ = "Seance"
 
     IdSeance: Mapped[int] = mapped_column(primary_key=True)
@@ -100,7 +100,7 @@ class Seance(Casabase):
     )
 
 
-class Transaction(Casabase):
+class Transaction(Casabase, SerializerMixin):
     __tablename__ = "Transaction"
 
     IdTransac: Mapped[int] = mapped_column(primary_key=True)
@@ -115,8 +115,8 @@ class Transaction(Casabase):
     )
 
 
-class Reduction(Casabase):
-    __tablename__ = "reduction"
+class Reduction(Casabase, SerializerMixin):
+    __tablename__ = "Reduction"
 
     IdReduc: Mapped[int] = mapped_column(primary_key=True)
     NomReduc: Mapped[str] = mapped_column(nullable=False, unique=True)
@@ -125,8 +125,8 @@ class Reduction(Casabase):
     Calcul: Mapped[float] = mapped_column(nullable=False)
 
 
-class Produit(Casabase):
-    __tablename__ = "produit"
+class Produit(Casabase, SerializerMixin):
+    __tablename__ = "Produit"
 
     IdProduit: Mapped[int] = mapped_column(primary_key=True)
     NomProduit: Mapped[str] = mapped_column(nullable=False)
