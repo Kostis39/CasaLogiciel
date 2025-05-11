@@ -1,5 +1,28 @@
 const API_URL = 'http://localhost:5000'; // Adresse de votre API Flask
 
+interface Grimpeur {
+  NumGrimpeur: number;
+  NomGrimpeur: string;
+  PrenomGrimpeur: string;
+  EmailGrimpeur: string;
+  TelGrimpeur: string; // Les numéros de tel sont mieux en string
+  AdresseGrimpeur: string;
+  VilleGrimpeur: string;
+  CodePostGrimpeur: string; 
+  DateNaissGrimpeur: string; 
+  DateInscrGrimpeur: string;
+  NbSeanceRest: number;
+  Solde: number;
+  DateFinCoti: string;
+  DateFincCotisation: string;
+  DateFinAbo: string;
+  AccordReglement: boolean;
+  SignaReglement: string;
+  NumLicenceGrimpeur: number;
+  TypeAbo: string | null;
+  TypeTicket: string | null;
+}
+
 export const fetchGrimpeurById = async (id: number) => {
   try {
     const response = await fetch(`${API_URL}/grimpeurs/${id}`);

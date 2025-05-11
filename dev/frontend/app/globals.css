@@ -3,6 +3,28 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: 'Geist Sans';
+  src: url('/fonts/Geist-Sans.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/Geist-Mono.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+body {
+  font-family: 'Geist Sans', sans-serif;
+}
+
+code, pre {
+  font-family: 'Geist Mono', monospace;
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);

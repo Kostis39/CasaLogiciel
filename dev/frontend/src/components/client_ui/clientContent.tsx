@@ -1,5 +1,5 @@
 import { ClientAside } from "./clientAside";
-import { ClientInfo } from "./clientInfo";
+import { ClientInfo } from "./clientMenu";
 
 const ClientContent = () => {
   return (
