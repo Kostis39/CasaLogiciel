@@ -25,33 +25,6 @@ class Grimpeur(Casabase, SerializerMixin):
     DateFinCoti: Mapped[date] = mapped_column(nullable=True)
     NumLicenceGrimpeur: Mapped[int] = mapped_column(nullable=True)
 
-    # Renvoi visuel debug
-    def __repr__(
-        self,
-    ) -> str:  # Exemple de base mais grace au serializer on peut utiliser .toDict()
-        return (
-            f"Grimpeur("
-            f"NumGrimpeur={self.NumGrimpeur}, "
-            f"NomGrimpeur='{self.NomGrimpeur}', "
-            f"PrenomGrimpeur='{self.PrenomGrimpeur}', "
-            f"DateNaissGrimpeur='{self.DateNaissGrimpeur}', "
-            f"EmailGrimpeur='{self.EmailGrimpeur}', "
-            f"TelGrimpeur={self.TelGrimpeur}, "
-            f"AdresseGrimpeur='{self.AdresseGrimpeur}', "
-            f"VilleGrimpeur='{self.VilleGrimpeur}', "
-            f"CodePostGrimpeur={self.CodePostGrimpeur}, "
-            f"DateInscrGrimpeur='{self.DateInscrGrimpeur}', "
-            f"NbSeanceRest={self.NbSeanceRest}, "
-            f"Solde={self.Solde}, "
-            f"DateFincCotisation='{self.DateFincCotisation}', "
-            f"AccordReglement={self.AccordReglement}, "
-            f"SignaReglement='{self.SignaReglement}', "
-            f"DateFinAbo='{self.DateFinAbo}', "
-            f"DateFinCoti='{self.DateFinCoti}', "
-            f"NumLicenceGrimpeur={self.NumLicenceGrimpeur}"
-            f")"
-        )
-
 
 class Ticket(Casabase, SerializerMixin):
     __tablename__ = "Ticket"
