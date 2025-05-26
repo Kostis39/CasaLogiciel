@@ -25,14 +25,6 @@ class Grimpeur(Casabase, SerializerMixin):
     DateFinCoti: Mapped[date] = mapped_column(nullable=True)
     NumLicenceGrimpeur: Mapped[int] = mapped_column(nullable=True)
 
-    # Clés étrangères
-    TypeTicket: Mapped[str] = mapped_column(
-        String(50), ForeignKey("Ticket.TypeTicket"), nullable=True
-    )
-    TypeAbo: Mapped[str] = mapped_column(
-        String(50), ForeignKey("Abonnement.TypeAbo"), nullable=True
-    )
-
     # Renvoi visuel debug
     def __repr__(
         self,
