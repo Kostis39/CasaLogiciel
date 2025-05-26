@@ -16,7 +16,7 @@ export function ClientCard(
 };
 
     return (
-      <button className="flex items-center gap-5 rounded-xl border py-5 px-5 shadow-sm"
+      <button className="flex w-full items-center gap-3 rounded-xl border py-3 px-3 shadow-sm"
       onClick={handleClick}
       >
         <div className="">
@@ -33,18 +33,4 @@ export function ClientCard(
         </div>
       </button>
     );
-}
-
-export function ClientAside(){
-  return (
-    <>
-      <input
-        type="text"
-        placeholder="Rechercher un grimpeur..."
-        className="w-full border border-gray-300 mb-4"
-      />
-      <ClientCard prenom="Test" nom="Main" num={100} />
-      
-    </>
-  );
 }
