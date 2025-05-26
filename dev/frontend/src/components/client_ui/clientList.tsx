@@ -1,18 +1,24 @@
-import { fetchGrimpeurById } from "@/src/services/api"
+import { fetchGrimpeurById, fetchGrimpeurSearch } from "@/src/services/api"
 import { ClientCard } from "./clientAside";
 
 const ClientList = async ({ query }: { query: string }) => {
     if (!query) {
-        return <div>Please provide an ID</div>;
+        return <div>Please provide an entry</div>;
     }
 
-    const id = Number(query);
+    const rep = await fetchGrimpeurSearch(query);
     
-    if (isNaN(id)) {
-        return <div>Invalid ID - must be a number</div>;
+    if (!rep) {
+        return <div>Pas de résultats</div>;
     }
     return (
-            <ClientCard id={id} />
+        <div className="flex flex-col gap-5">
+            {rep.map((grimpeur) => (
+                <div key={grimpeur.NumGrimpeur}>
+                <ClientCard prenom={grimpeur.PrenomGrimpeur} nom={grimpeur.NomGrimpeur} num={grimpeur.NumGrimpeur}/>
+                </div>
+            ))}
+        </div>
     );
 }
 

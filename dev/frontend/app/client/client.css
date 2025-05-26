@@ -1,10 +1,6 @@
 .mainClientContainer {
   display: grid;
-  grid-template-columns: 1fr 5fr ;
   grid-template-rows: 1fr 9fr ;
   grid-gap: .5rem;
 }
 
-.headerClient {
-  grid-column: span 2;
-}

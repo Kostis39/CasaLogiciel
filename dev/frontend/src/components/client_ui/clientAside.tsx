@@ -1,12 +1,24 @@
-import { fetchGrimpeurById } from "@/src/services/api";
+"use client";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 
-export async function ClientCard({ id }: { id: number }) {
-  const res = await fetchGrimpeurById(id);
+export function ClientCard(
+  { prenom, nom, num }: { prenom: string , nom: string , num: number}
+) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
 
-  if (res) {
+  const handleClick = () => {
+    const params = new URLSearchParams(searchParams);
+    params.set("id", num.toString());
+    replace(`${pathname}?${params.toString()}`);
+};
+
     return (
-      <div className="flex items-center gap-5 rounded-xl border py-5 px-5 shadow-sm">
+      <button className="flex items-center gap-5 rounded-xl border py-5 px-5 shadow-sm"
+      onClick={handleClick}
+      >
         <div className="">
           <Image
             src="/avatar.png"
@@ -16,13 +28,11 @@ export async function ClientCard({ id }: { id: number }) {
           />
         </div>
         <div className="">
-          <p className="text-xl font-bold mb-2">{res.NumGrimpeur}</p>
-          <p className="text-sm text-muted-foreground">{res.PrenomGrimpeur}</p>
-          <p className="text-sm text-muted-foreground">{res.NomGrimpeur}</p>
+          <p className="font-bold mb-2">{prenom} {nom}</p>
+          <p className="text-sm">{num}</p>
         </div>
-      </div>
+      </button>
     );
-  }
 }
 
 export function ClientAside(){
@@ -33,8 +43,8 @@ export function ClientAside(){
         placeholder="Rechercher un grimpeur..."
         className="w-full border border-gray-300 mb-4"
       />
-
-      <ClientCard id={1}/>
+      <ClientCard prenom="Test" nom="Main" num={100} />
+      
     </>
   );
 }
