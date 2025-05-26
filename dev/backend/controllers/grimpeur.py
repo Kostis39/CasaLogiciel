@@ -88,7 +88,7 @@ class Seances(Resource):
             seances = session.query(Clients.Seance).all()
             return [seance.to_dict() for seance in seances]
 
-    def post(self):
+    def post(self):  # Penser à ajouter de la vérification de validité des données
         json = request.get_json()
         nouv_seance = Clients.Seance()
         for key, value in json.items():

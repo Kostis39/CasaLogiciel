@@ -65,19 +65,7 @@ class Ticket(Casabase, SerializerMixin):
     __tablename__ = "Ticket"
 
     IdTicket: Mapped[str] = mapped_column(primary_key=True, autoincrement=True)
-    NumGrimpeur: Mapped[int] =
-    def post(self):
-        json = request.get_json()
-        nouv_seance = Clients.Seance()
-        for key, value in json.items():
-            setattr(nouv_seance, key, value)
-
-        with sesh() as session:
-            session.add(nouv_seance)
-            session.commit()
-            session.refresh(nouv_seance)
-            return nouv_seance.to_dict(), 201
- mapped_column(
+    NumGrimpeur: Mapped[int] = mapped_column(
         ForeignKey("Grimpeur.NumGrimpeur"), nullable=False
     )
     NbSeanceTicket: Mapped[int] = mapped_column(nullable=False)
