@@ -12,7 +12,7 @@ def create_engine():
         exit(1)
 
     engine = sqlalchemy.create_engine(
-        f"mariadb+mariadbconnector://root:{secret}@172.18.0.4:3306/casabase", echo=True
+        f"mariadb+mariadbconnector://root:{secret}@172.18.0.5:3306/casabase", echo=True
     )
     return engine
 

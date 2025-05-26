@@ -21,10 +21,7 @@ class Grimpeur(Casabase, SerializerMixin):
     DateInscrGrimpeur: Mapped[date] = mapped_column(nullable=False)
     NbSeanceRest: Mapped[int] = mapped_column(nullable=True)
     Solde: Mapped[int] = mapped_column(nullable=False, default=0)
-    DateFincCotisation: Mapped[date] = mapped_column(nullable=True)
     AccordReglement: Mapped[bool] = mapped_column(nullable=True)
-    SignaReglement: Mapped[str] = mapped_column(String(50), nullable=False)
-    DateFinAbo: Mapped[date] = mapped_column(nullable=True)
     DateFinCoti: Mapped[date] = mapped_column(nullable=True)
     NumLicenceGrimpeur: Mapped[int] = mapped_column(nullable=True)
 
@@ -37,7 +34,9 @@ class Grimpeur(Casabase, SerializerMixin):
     )
 
     # Renvoi visuel debug
-    def __repr__(self) -> str:
+    def __repr__(
+        self,
+    ) -> str:  # Exemple de base mais grace au serializer on peut utiliser .toDict()
         return (
             f"Grimpeur("
             f"NumGrimpeur={self.NumGrimpeur}, "
@@ -65,32 +64,40 @@ class Grimpeur(Casabase, SerializerMixin):
 class Ticket(Casabase, SerializerMixin):
     __tablename__ = "Ticket"
 
-    TypeTicket: Mapped[str] = mapped_column(primary_key=True)
-    NbSeanceTicket: Mapped[int] = mapped_column(nullable=False)
-    DateFinValidite: Mapped[date] = mapped_column(nullable=False)
+    IdTicket: Mapped[str] = mapped_column(primary_key=True, autoincrement=True)
+    NumGrimpeur: Mapped[int] =
+    def post(self):
+        json = request.get_json()
+        nouv_seance = Clients.Seance()
+        for key, value in json.items():
+            setattr(nouv_seance, key, value)
 
-    def __repr__(self):
-        return (
-            f"Ticket("
-            f"TypeTicket='{self.TypeTicket}', "
-            f"NbSeanceTicket={self.NbSeanceTicket}, "
-            f"DateFinValidite='{self.DateFinValidite}'"
-            f")"
-        )
+        with sesh() as session:
+            session.add(nouv_seance)
+            session.commit()
+            session.refresh(nouv_seance)
+            return nouv_seance.to_dict(), 201
+ mapped_column(
+        ForeignKey("Grimpeur.NumGrimpeur"), nullable=False
+    )
+    NbSeanceTicket: Mapped[int] = mapped_column(nullable=False)
 
 
 class Abonnement(Casabase, SerializerMixin):
     __tablename__ = "Abonnement"
 
-    TypeAbo: Mapped[str] = mapped_column(primary_key=True)
-    NbSeanceAbo: Mapped[int] = mapped_column(nullable=False)
+    IdAbo: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    NumGrimpeur: Mapped[int] = mapped_column(
+        ForeignKey("Grimpeur.NumGrimpeur"), primary_key=True
+    )
+    DateDebutValidite: Mapped[date] = mapped_column(nullable=False)
     DateFinValidite: Mapped[date] = mapped_column(nullable=False)
 
 
 class Seance(Casabase, SerializerMixin):
     __tablename__ = "Seance"
 
-    IdSeance: Mapped[int] = mapped_column(primary_key=True)
+    IdSeance: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     DateSeance: Mapped[date] = mapped_column(nullable=False)
     HeureSeance: Mapped[time] = mapped_column(nullable=False)
     TypeEntree: Mapped[str] = mapped_column()
@@ -104,6 +111,9 @@ class Transaction(Casabase, SerializerMixin):
     __tablename__ = "Transaction"
 
     IdTransac: Mapped[int] = mapped_column(primary_key=True)
+    IdProduit: Mapped[int] = mapped_column(
+        ForeignKey("Produit.IdProduit"), nullable=False
+    )
     ModePaiment: Mapped[str] = mapped_column(nullable=False)
     DateTransac: Mapped[date] = mapped_column(nullable=False)
     HeureTransac: Mapped[time] = mapped_column(nullable=False)
@@ -111,7 +121,7 @@ class Transaction(Casabase, SerializerMixin):
     Note: Mapped[str] = mapped_column(String(100), nullable=True)
 
     NumGrimpeur: Mapped[int] = mapped_column(
-        ForeignKey("Grimpeur.NumGrimpeur"), nullable=False
+        ForeignKey("Grimpeur.NumGrimpeur"), nullable=True
     )
 
 
@@ -131,4 +141,5 @@ class Produit(Casabase, SerializerMixin):
     IdProduit: Mapped[int] = mapped_column(primary_key=True)
     NomProduit: Mapped[str] = mapped_column(nullable=False)
     TypeProduit: Mapped[str] = mapped_column(nullable=False)
+    IdReduc: Mapped[int] = mapped_column(ForeignKey("Reduction.IdReduc"), nullable=True)
     PrixProduit: Mapped[float] = mapped_column(nullable=True)
