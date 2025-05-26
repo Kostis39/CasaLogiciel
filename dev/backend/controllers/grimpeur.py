@@ -2,6 +2,7 @@ from flask import request
 from flask_restful import Resource
 from models import Clients
 from db import create_engine, get_session
+from datetime import date
 
 engine = create_engine()
 sesh = get_session(engine)
@@ -98,3 +99,19 @@ class Seances(Resource):
             session.commit()
             session.refresh(nouv_seance)
             return nouv_seance.to_dict(), 201
+
+
+class SeancesSearch(Resource):
+    def get(self, id):
+        with sesh() as session:
+            aujourd_hui = date.today()
+            seance_auj = (
+                session.query(Clients.Seance)
+                .filter_by(NumGrimpeur=id, DateSeance=aujourd_hui)
+                .one_or_none()
+            )
+            if seance_auj is None:
+                return {"message": "Aucune séance aujourd'hui"}, 404
+
+            else:
+                return {"message": "Séance aujourd'hui"}, 200
