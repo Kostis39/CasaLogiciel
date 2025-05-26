@@ -1,7 +1,23 @@
 import "./client.css";
-import ClientContent from "@/src/components/client_ui/clientContent";
 import { ClientHeader } from "@/src/components/client_ui/clientHeader";
-export  default function ClientHome() {
+import SearchClient from "@/src/components/client_ui/clientSearch";
+import ClientList from "@/src/components/client_ui/clientList";
+import { fetchGrimpeurById, isAlreadyEntered } from "@/src/services/api";
+import { ClientMenu } from "@/src/components/client_ui/clientMenu";
+
+const ClientHome = async ({
+  searchParams,
+}: {
+    searchParams?: {
+    query?: string;
+    id?: string;
+  };
+}) => {
+  const query = (await searchParams)?.query || '';
+  const id = (await searchParams)?.id;
+  const num = id ? Number(id) : null;
+  const fields = await fetchGrimpeurById(num);
+  const alreadyEntered = await isAlreadyEntered(num) || false;
 
   return (
     <div className="mainClientContainer w-full h-screen">
@@ -10,8 +26,19 @@ export  default function ClientHome() {
         <ClientHeader />
       </div>
 
-      <ClientContent />
+      <div className="grid gap-2" style={{ gridTemplateColumns: "1fr 5fr" }}>
+        <div>
+          <SearchClient />
+          <ClientList query={query} />
+        </div>
+        <div>
+          <ClientMenu fields={fields} alreadyEntered={alreadyEntered} />
+        </div>
+      </div>
 
     </div>
   );
-}
+  }
+
+
+export  default ClientHome;
