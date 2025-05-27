@@ -1,6 +1,7 @@
 'use client';
 import { isAlreadyEntered } from '@/src/services/clientApi';
 import { useState } from 'react';
+import { Button } from '../ui/button';
 
 
 type TopSectionProps = {
@@ -21,20 +22,12 @@ export function ClientMenu({ clientInfo }: { clientInfo: Client}) {
   const [expandTop, setExpandTop] = useState(false);
   const [expandBot, setExpandBot] = useState(false);
   const rep = isAlreadyEntered(clientInfo.NumGrimpeur);
-  console.log('SWR data:', rep);
   
   return (
-    <div className='flex flex-col h-full'>
-      {rep ? (
-      <p className="text-red-600">Est déjà rentré aujourd'hui</p>
-      ) : (
-      <p></p>
-      )}
-      <div className="container flex flex-col border border-black gap-2 h-full">
+      <div className="container flex flex-col border border-black gap-2 h-full relative">
         <TopSection clientInfo={clientInfo} expandTop={expandTop} expandBot={expandBot} setExpandTop={setExpandTop} />
         <BottomSection expandBot={expandBot} expandTop={expandTop} setExpandBot={setExpandBot} />
       </div>
-    </div>
   );
 }
 
@@ -72,6 +65,13 @@ function TopSection({ clientInfo, expandTop, expandBot, setExpandTop }: TopSecti
         ${!expandTop ? 'border border-amber-950' : ''}
         ${expandBot ? 'hidden opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}
     >
+      {/* Petit message qui est sensé s'afficher seulement si le Bot ne 
+      prends pas toute la place et si le grimpeur est déjà rentrée */}
+      {!expandBot && isAlreadyEntered(clientInfo.NumGrimpeur) ? (
+        <p className="absolute left-10 text-red-600">Est déjà rentré aujourd'hui</p>
+          ) : (
+          <p></p>
+      )}
       {/* Conteneur principal avec image + tableau */}
       <div className="flex gap-5 items-center justify-center h-full">
         
@@ -94,21 +94,33 @@ function TopSection({ clientInfo, expandTop, expandBot, setExpandTop }: TopSecti
           ))}
 
           {!expandTop && fieldInfoClient.length > initialItems && (
-            <button
-              onClick={() => setExpandTop(true)}
-              className="border border-dashed p-4 flex items-center justify-center"
-            >
-              <span className="text-2xl">+</span>
-            </button>
+            <>
+              <button
+                onClick={() => setExpandTop(true)}
+                className="border border-dashed p-4 flex items-center justify-center"
+              >
+                <span className="text-2xl">+</span>
+              </button>
+            </>
+
           )}
 
           {expandTop && (
-            <button
-              onClick={() => setExpandTop(false)}
-              className="border border-dashed px-6 py-3"
-            >
-              Voir moins
-            </button>
+            <>
+              <Button
+              size={"lg"}
+                className="absolute top-2 right-2 bg-blue-600 text-white "
+                onClick={() => alert('Romain doit faire ce boutton')}
+                >
+                Modifier
+              </Button>
+              <button
+                onClick={() => setExpandTop(false)}
+                className="border border-dashed px-6 py-3"
+              >
+                Voir moins
+              </button>
+            </>
           )}
         </div>
       </div>
