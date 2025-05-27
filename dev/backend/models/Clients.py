@@ -9,7 +9,7 @@ from .Base import Casabase
 class Grimpeur(Casabase, SerializerMixin):
     __tablename__ = "Grimpeur"
 
-    NumGrimpeur: Mapped[int] = mapped_column(primary_key=True)
+    NumGrimpeur: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     NomGrimpeur: Mapped[str] = mapped_column(String(50), nullable=False)
     PrenomGrimpeur: Mapped[str] = mapped_column(String(50), nullable=False)
     DateNaissGrimpeur: Mapped[date] = mapped_column(nullable=True)
@@ -19,9 +19,8 @@ class Grimpeur(Casabase, SerializerMixin):
     VilleGrimpeur: Mapped[str] = mapped_column(String(50), nullable=True)
     CodePostGrimpeur: Mapped[int] = mapped_column(nullable=True)
     DateInscrGrimpeur: Mapped[date] = mapped_column(nullable=False)
-    NbSeanceRest: Mapped[int] = mapped_column(nullable=True)
-    Solde: Mapped[int] = mapped_column(nullable=False, default=0)
     AccordReglement: Mapped[bool] = mapped_column(nullable=True)
+
     DateFinCoti: Mapped[date] = mapped_column(nullable=True)
     NumLicenceGrimpeur: Mapped[int] = mapped_column(nullable=True)
 
@@ -30,21 +29,18 @@ class Ticket(Casabase, SerializerMixin):
     __tablename__ = "Ticket"
 
     IdTicket: Mapped[str] = mapped_column(primary_key=True, autoincrement=True)
-    NumGrimpeur: Mapped[int] = mapped_column(
-        ForeignKey("Grimpeur.NumGrimpeur"), nullable=False
-    )
+    TypeTicket: Mapped[str] = mapped_column(nullable=False)
     NbSeanceTicket: Mapped[int] = mapped_column(nullable=False)
+    PrixTicket: Mapped[float] = mapped_column(nullable=False)
 
 
 class Abonnement(Casabase, SerializerMixin):
     __tablename__ = "Abonnement"
 
     IdAbo: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    NumGrimpeur: Mapped[int] = mapped_column(
-        ForeignKey("Grimpeur.NumGrimpeur"), primary_key=True
-    )
-    DateDebutValidite: Mapped[date] = mapped_column(nullable=False)
-    DateFinValidite: Mapped[date] = mapped_column(nullable=False)
+    DureeAbo: Mapped[int] = mapped_column(nullable=False)
+    TypeAbo: Mapped[str] = mapped_column(nullable=False)
+    PrixAbo: Mapped[float] = mapped_column(nullable=False)
 
 
 class Seance(Casabase, SerializerMixin):
@@ -63,10 +59,9 @@ class Seance(Casabase, SerializerMixin):
 class Transaction(Casabase, SerializerMixin):
     __tablename__ = "Transaction"
 
-    IdTransac: Mapped[int] = mapped_column(primary_key=True)
-    IdProduit: Mapped[int] = mapped_column(
-        ForeignKey("Produit.IdProduit"), nullable=False
-    )
+    IdTransac: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    TypeObjet: Mapped[str] = mapped_column(nullable=False)
+    IdObjet: Mapped[int] = mapped_column(nullable=False)
     ModePaiment: Mapped[str] = mapped_column(nullable=False)
     DateTransac: Mapped[date] = mapped_column(nullable=False)
     HeureTransac: Mapped[time] = mapped_column(nullable=False)
@@ -92,6 +87,9 @@ class Produit(Casabase, SerializerMixin):
     __tablename__ = "Produit"
 
     IdProduit: Mapped[int] = mapped_column(primary_key=True)
+    IdProduitParent: Mapped[int] = mapped_column(
+        ForeignKey("Produit.IdProduit"), nullable=True
+    )
     NomProduit: Mapped[str] = mapped_column(nullable=False)
     TypeProduit: Mapped[str] = mapped_column(nullable=False)
     IdReduc: Mapped[int] = mapped_column(ForeignKey("Reduction.IdReduc"), nullable=True)
