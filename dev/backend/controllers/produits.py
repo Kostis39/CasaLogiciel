@@ -16,23 +16,6 @@ class Produit(Resource):
             else:
                 return {"message": "Produit not found"}, 404
 
-    def post(self):
-        json = request.get_json()
-        if json is None:
-            return {"message": "No JSON data provided"}, 400
-
-        nouv_produit = Clients.Produit()
-        for key, value in json.items():
-            if not hasattr(nouv_produit, key):
-                return {"message": f"Invalid field: {key}"}, 400
-            setattr(Clients.Produit, key, value)
-
-        with sesh() as session:
-            session.add(nouv_produit)
-            session.commit()
-            session.refresh(nouv_produit)
-            return nouv_produit.to_dict(), 201
-
     def delete(self, id):
         with sesh() as session:
             produit = session.query(Clients.Produit).filter_by(IdProduit=id).first()
@@ -66,3 +49,30 @@ class RacineProduits(Resource):
                 return [produit.to_dict() for produit in produits], 200
             else:
                 return {"message": "No root products found"}, 404
+
+
+class Produits(Resource):
+    def get(self):
+        with sesh() as session:
+            produits = session.query(Clients.Produit).all()
+            if produits:
+                return [produit.to_dict() for produit in produits], 200
+            else:
+                return {"message": "No products found"}, 404
+
+    def post(self):
+        json = request.get_json()
+        if json is None:
+            return {"message": "No JSON data provided"}, 400
+
+        nouv_produit = Clients.Produit()
+        for key, value in json.items():
+            if not hasattr(nouv_produit, key):
+                return {"message": f"Invalid field: {key}"}, 400
+            setattr(Clients.Produit, key, value)
+
+        with sesh() as session:
+            session.add(nouv_produit)
+            session.commit()
+            session.refresh(nouv_produit)
+            return nouv_produit.to_dict(), 201

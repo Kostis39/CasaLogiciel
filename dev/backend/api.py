@@ -41,11 +41,12 @@ api.add_resource(Products, "/products")
 api.add_resource(GrimpeursListe, "/grimpeurs")
 api.add_resource(Grimpeur, "/grimpeurs/<int:id>")
 api.add_resource(Seances, "/seances")
-api.add_resource(SeancesSearch, "/seances/<int:id>")
+api.add_resource(SeancesSearch, "/seances/<int:idGrimpeur>")
 api.add_resource(GrimpeurSearch, "/grimpeurs/search")
 api.add_resource(Produit, "/produit/<int:id>")
 api.add_resource(SousProduit, "/sousproduits/<int:idParent>")
 api.add_resource(RacineProduits, "/racineproduits")
+api.add_resource(Produits, "/produits")
 
 if __name__ == "__main__":
     app.run(debug=True)
