@@ -1,11 +1,11 @@
 'use client';
+import { isAlreadyEntered } from '@/src/services/clientApi';
 import { useState } from 'react';
-/**
- * 
- */
-// Types
+import { Button } from '../ui/button';
+
+
 type TopSectionProps = {
-  fieldInfoClient: FieldInfoClient[];
+  clientInfo: Client;
   expandTop: boolean;
   expandBot: boolean;
   setExpandTop: (value: boolean) => void;
@@ -17,14 +17,26 @@ type BottomSectionProps = {
   setExpandBot: (value: boolean) => void;
 };
 
-type FieldInfoClient = { label: string; value: string | number };
-
 // Composant principal
 export function ClientMenu({ clientInfo }: { clientInfo: Client}) {
   const [expandTop, setExpandTop] = useState(false);
   const [expandBot, setExpandBot] = useState(false);
+  const rep = isAlreadyEntered(clientInfo.NumGrimpeur);
+  
+  return (
+      <div className="container flex flex-col border border-black gap-2 h-full relative">
+        <TopSection clientInfo={clientInfo} expandTop={expandTop} expandBot={expandBot} setExpandTop={setExpandTop} />
+        <BottomSection expandBot={expandBot} expandTop={expandTop} setExpandBot={setExpandBot} />
+      </div>
+  );
+}
 
-  const fieldInfoClient: FieldInfoClient[] = [
+
+
+
+// Partie haute
+function TopSection({ clientInfo, expandTop, expandBot, setExpandTop }: TopSectionProps) {
+    const fieldInfoClient = [
       { label: "Nom", value: clientInfo.NomGrimpeur },
       { label: "Prénom", value: clientInfo.PrenomGrimpeur },
       { label: "Date de naissance", value: clientInfo.DateNaissGrimpeur },
@@ -44,20 +56,6 @@ export function ClientMenu({ clientInfo }: { clientInfo: Client}) {
       { label: "Date d'inscription", value: clientInfo.DateInscrGrimpeur },
       { label: "Accord règlement", value: clientInfo.AccordReglement ? "Oui" : "Non" },
     ];
-
-  return (      
-      <div className="container flex flex-col border border-black gap-2 h-full">
-        <TopSection fieldInfoClient={fieldInfoClient} expandTop={expandTop} expandBot={expandBot} setExpandTop={setExpandTop} />
-        <BottomSection expandBot={expandBot} expandTop={expandTop} setExpandBot={setExpandBot} />
-      </div>
-  );
-}
-
-
-
-
-// Partie haute
-function TopSection({ fieldInfoClient, expandTop, expandBot, setExpandTop }: TopSectionProps) {
   const initialItems = 8;
   const displayedFields = expandTop ? fieldInfoClient : fieldInfoClient.slice(0, initialItems);
 
@@ -67,6 +65,13 @@ function TopSection({ fieldInfoClient, expandTop, expandBot, setExpandTop }: Top
         ${!expandTop ? 'border border-amber-950' : ''}
         ${expandBot ? 'hidden opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}
     >
+      {/* Petit message qui est sensé s'afficher seulement si le Bot ne 
+      prends pas toute la place et si le grimpeur est déjà rentrée */}
+      {!expandBot && isAlreadyEntered(clientInfo.NumGrimpeur) ? (
+        <p className="absolute left-10 text-red-600">Est déjà rentré aujourd'hui</p>
+          ) : (
+          <p></p>
+      )}
       {/* Conteneur principal avec image + tableau */}
       <div className="flex gap-5 items-center justify-center h-full">
         
@@ -89,21 +94,33 @@ function TopSection({ fieldInfoClient, expandTop, expandBot, setExpandTop }: Top
           ))}
 
           {!expandTop && fieldInfoClient.length > initialItems && (
-            <button
-              onClick={() => setExpandTop(true)}
-              className="border border-dashed p-4 flex items-center justify-center"
-            >
-              <span className="text-2xl">+</span>
-            </button>
+            <>
+              <button
+                onClick={() => setExpandTop(true)}
+                className="border border-dashed p-4 flex items-center justify-center"
+              >
+                <span className="text-2xl">+</span>
+              </button>
+            </>
+
           )}
 
           {expandTop && (
-            <button
-              onClick={() => setExpandTop(false)}
-              className="border border-dashed px-6 py-3"
-            >
-              Voir moins
-            </button>
+            <>
+              <Button
+              size={"lg"}
+                className="absolute top-2 right-2 bg-blue-600 text-white "
+                onClick={() => alert('Romain doit faire ce boutton')}
+                >
+                Modifier
+              </Button>
+              <button
+                onClick={() => setExpandTop(false)}
+                className="border border-dashed px-6 py-3"
+              >
+                Voir moins
+              </button>
+            </>
           )}
         </div>
       </div>
