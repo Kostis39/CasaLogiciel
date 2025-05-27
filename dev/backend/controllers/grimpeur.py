@@ -54,7 +54,7 @@ class Grimpeur(Resource):
             if grimpeur:
                 session.delete(grimpeur)
                 session.commit()
-                return {"message": "Grimpeur deleted"}, 200
+                return {"message": "Grimpeur deleted"}, 204
             else:
                 return {"message": "Grimpeur not found"}, 404
 
@@ -104,14 +104,14 @@ class Seances(Resource):
 class SeancesSearch(Resource):
     def get(self, id):
         with sesh() as session:
+            grimpeur = session.query(Clients.Grimpeur).filter_by(NumGrimpeur=id).first()
+            if not grimpeur:
+                return {"message": "Grimpeur not found"}, 404
+
             aujourd_hui = date.today()
             seance_auj = (
                 session.query(Clients.Seance)
                 .filter_by(NumGrimpeur=id, DateSeance=aujourd_hui)
                 .one_or_none()
             )
-            if seance_auj is None:
-                return {"message": "Aucune séance aujourd'hui"}, 404
-
-            else:
-                return {"message": "Séance aujourd'hui"}, 200
+            return {"est_la": seance_auj is not None}, 200
