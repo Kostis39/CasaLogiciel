@@ -102,7 +102,7 @@ export default function ProduitsPage() {
       IdReduc: null,
       PrixProduit: dialogType === 'produit' ? parseFloat(prix) : null,
     };
-    await fetch('http://localhost:5000/produit', {
+    await fetch('http://localhost:5000/produits', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
