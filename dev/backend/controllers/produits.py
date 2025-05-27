@@ -16,6 +16,23 @@ class Produit(Resource):
             else:
                 return {"message": "Produit not found"}, 404
 
+    def post(self):
+        json = request.get_json()
+        if json is None:
+            return {"message": "No JSON data provided"}, 400
+
+        nouv_produit = Clients.Produit()
+        for key, value in json.items():
+            if not hasattr(nouv_produit, key):
+                return {"message": f"Invalid field: {key}"}, 400
+            setattr(Clients.Produit, key, value)
+
+        with sesh() as session:
+            session.add(nouv_produit)
+            session.commit()
+            session.refresh(nouv_produit)
+            return nouv_produit.to_dict(), 201
+
 
 class SousProduit(Resource):
     def get(self, idParent):
