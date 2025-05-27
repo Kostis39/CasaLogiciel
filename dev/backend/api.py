@@ -5,6 +5,7 @@ from models import Clients
 from db import create_engine, get_session, test_connection
 
 from controllers.grimpeur import *
+from controllers.produits import *
 
 # Flask Setup
 app = Flask(__name__)
@@ -42,6 +43,9 @@ api.add_resource(Grimpeur, "/grimpeurs/<int:id>")
 api.add_resource(Seances, "/seances")
 api.add_resource(SeancesSearch, "/seances/<int:id>")
 api.add_resource(GrimpeurSearch, "/grimpeurs/search")
+api.add_resource(Produit, "/produit/<int:id>")
+api.add_resource(SousProduit, "/sousproduits/<int:idParent>")
+api.add_resource(RacineProduits, "/racineproduits")
 
 if __name__ == "__main__":
     app.run(debug=True)
