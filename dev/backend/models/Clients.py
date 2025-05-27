@@ -9,7 +9,7 @@ from .Base import Casabase
 class Grimpeur(Casabase, SerializerMixin):
     __tablename__ = "Grimpeur"
 
-    NumGrimpeur: Mapped[int] = mapped_column(primary_key=True)
+    NumGrimpeur: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     NomGrimpeur: Mapped[str] = mapped_column(String(50), nullable=False)
     PrenomGrimpeur: Mapped[str] = mapped_column(String(50), nullable=False)
     DateNaissGrimpeur: Mapped[date] = mapped_column(nullable=True)
