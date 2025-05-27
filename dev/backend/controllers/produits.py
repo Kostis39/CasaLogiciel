@@ -33,6 +33,16 @@ class Produit(Resource):
             session.refresh(nouv_produit)
             return nouv_produit.to_dict(), 201
 
+    def delete(self, id):
+        with sesh() as session:
+            produit = session.query(Clients.Produit).filter_by(IdProduit=id).first()
+            if produit:
+                session.delete(produit)
+                session.commit()
+                return {"message": "Produit deleted"}, 204
+            else:
+                return {"message": "Produit not found"}, 404
+
 
 class SousProduit(Resource):
     def get(self, idParent):
