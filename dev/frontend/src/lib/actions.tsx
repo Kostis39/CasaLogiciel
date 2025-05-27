@@ -49,10 +49,21 @@ export type State = {
     codePostGrimpeur?: string[];
   };
   message?: string | null;
+  values?: {
+    nomGrimpeur?: string;
+    prenomGrimpeur?: string;
+    dateNaissGrimpeur?: string;
+    emailGrimpeur?: string;
+    telGrimpeur?: string;
+    adresseGrimpeur?: string;
+    villeGrimpeur?: string;
+    codePostGrimpeur?: string;
+  };
 };
 
+
 export async function createGrimpeur(prevState: State, formData: FormData) {
-  const validatedFields = CreateGrimpeur.safeParse({
+  const rawValues = {
     nomGrimpeur: String(formData.get('nomGrimpeur') ?? ''),
     prenomGrimpeur: String(formData.get('prenomGrimpeur') ?? ''),
     dateNaissGrimpeur: String(formData.get('dateNaissGrimpeur') ?? ''),
@@ -61,16 +72,19 @@ export async function createGrimpeur(prevState: State, formData: FormData) {
     adresseGrimpeur: String(formData.get('adresseGrimpeur') ?? ''),
     villeGrimpeur: String(formData.get('villeGrimpeur') ?? ''),
     codePostGrimpeur: String(formData.get('codePostGrimpeur') ?? ''),
-  });
+  };
+
+  const validatedFields = CreateGrimpeur.safeParse(rawValues);
 
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: 'Champs manquants ou invalides. Échec de la création.',
+      values: rawValues, // <-- ceci permet de pré-remplir les champs en cas d’erreur
     };
   }
 
-  const { 
+  const {
     nomGrimpeur,
     prenomGrimpeur,
     dateNaissGrimpeur,
@@ -88,7 +102,7 @@ export async function createGrimpeur(prevState: State, formData: FormData) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        NumGrimpeur: 11,
+        NumGrimpeur: 124,
         NomGrimpeur: nomGrimpeur,
         PrenomGrimpeur: prenomGrimpeur,
         DateNaissGrimpeur: dateNaissGrimpeur,
@@ -99,19 +113,22 @@ export async function createGrimpeur(prevState: State, formData: FormData) {
         CodePostGrimpeur: codePostGrimpeur,
         DateInscrGrimpeur: new Date().toISOString().split('T')[0],
         Solde: 0,
-        AccordReglement: true // ou false
+        AccordReglement: true
       })
     });
+
     if (!response.ok) throw new Error('Erreur API');
   } catch (error) {
     return {
       message: 'Erreur lors de la création du grimpeur.',
+      values: rawValues,
     };
   }
-  
-  //revalidatePath('/client');
-  //redirect('/client');
+
+  revalidatePath('/client');
+  redirect('/client');
 }
+
 
 export async function updateGrimpeur(
   id: string,

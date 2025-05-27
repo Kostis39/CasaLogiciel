@@ -14,9 +14,9 @@ import { createGrimpeur, State } from '@/src/lib/actions';
 import { useActionState } from 'react';
 
 export default function Form() {
-  const initialState: State = { message: null, errors: {} };
+  const initialState: State = { message: null, errors: {}, values: {} };
   const [state, formAction] = useActionState(createGrimpeur, initialState);
-  
+
   return (
     <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
@@ -31,19 +31,16 @@ export default function Form() {
               name="nomGrimpeur"
               type="text"
               placeholder="Entrez le nom"
+              defaultValue={state.values?.nomGrimpeur ?? ''}
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               aria-describedby="nomGrimpeur-error"
             />
             <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
-
           <div id="nomGrimpeur-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.nomGrimpeur &&
-              state.errors.nomGrimpeur.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
+            {state.errors?.nomGrimpeur?.map((error: string) => (
+              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
+            ))}
           </div>
         </div>
 
@@ -58,19 +55,16 @@ export default function Form() {
               name="prenomGrimpeur"
               type="text"
               placeholder="Entrez le prénom"
+              defaultValue={state.values?.prenomGrimpeur ?? ''}
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               aria-describedby="prenomGrimpeur-error"
             />
             <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
-
           <div id="prenomGrimpeur-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.prenomGrimpeur &&
-              state.errors.prenomGrimpeur.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
+            {state.errors?.prenomGrimpeur?.map((error: string) => (
+              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
+            ))}
           </div>
         </div>
 
@@ -84,19 +78,16 @@ export default function Form() {
               id="dateNaissGrimpeur"
               name="dateNaissGrimpeur"
               type="date"
+              defaultValue={state.values?.dateNaissGrimpeur ?? ''}
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               aria-describedby="dateNaissGrimpeur-error"
             />
             <CakeIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
-
           <div id="dateNaissGrimpeur-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.dateNaissGrimpeur &&
-              state.errors.dateNaissGrimpeur.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
+            {state.errors?.dateNaissGrimpeur?.map((error: string) => (
+              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
+            ))}
           </div>
         </div>
 
@@ -111,19 +102,16 @@ export default function Form() {
               name="emailGrimpeur"
               type="email"
               placeholder="Entrez l'email"
+              defaultValue={state.values?.emailGrimpeur ?? ''}
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               aria-describedby="emailGrimpeur-error"
             />
             <EnvelopeIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
-
           <div id="emailGrimpeur-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.emailGrimpeur &&
-              state.errors.emailGrimpeur.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
+            {state.errors?.emailGrimpeur?.map((error: string) => (
+              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
+            ))}
           </div>
         </div>
 
@@ -138,19 +126,16 @@ export default function Form() {
               name="telGrimpeur"
               type="tel"
               placeholder="Entrez le numéro de téléphone"
+              defaultValue={state.values?.telGrimpeur ?? ''}
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               aria-describedby="telGrimpeur-error"
             />
             <PhoneIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
-
           <div id="telGrimpeur-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.telGrimpeur &&
-              state.errors.telGrimpeur.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
+            {state.errors?.telGrimpeur?.map((error: string) => (
+              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
+            ))}
           </div>
         </div>
 
@@ -165,19 +150,16 @@ export default function Form() {
               name="adresseGrimpeur"
               type="text"
               placeholder="Entrez l'adresse"
+              defaultValue={state.values?.adresseGrimpeur ?? ''}
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               aria-describedby="adresseGrimpeur-error"
             />
             <HomeIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
-
           <div id="adresseGrimpeur-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.adresseGrimpeur &&
-              state.errors.adresseGrimpeur.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
+            {state.errors?.adresseGrimpeur?.map((error: string) => (
+              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
+            ))}
           </div>
         </div>
 
@@ -192,19 +174,16 @@ export default function Form() {
               name="villeGrimpeur"
               type="text"
               placeholder="Entrez la ville"
+              defaultValue={state.values?.villeGrimpeur ?? ''}
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               aria-describedby="villeGrimpeur-error"
             />
             <MapPinIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
-
           <div id="villeGrimpeur-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.villeGrimpeur &&
-              state.errors.villeGrimpeur.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
+            {state.errors?.villeGrimpeur?.map((error: string) => (
+              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
+            ))}
           </div>
         </div>
 
@@ -219,28 +198,27 @@ export default function Form() {
               name="codePostGrimpeur"
               type="text"
               placeholder="Entrez le code postal"
+              defaultValue={state.values?.codePostGrimpeur ?? ''}
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               aria-describedby="codePostGrimpeur-error"
             />
             <MapPinIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
-
           <div id="codePostGrimpeur-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.codePostGrimpeur &&
-              state.errors.codePostGrimpeur.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
+            {state.errors?.codePostGrimpeur?.map((error: string) => (
+              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
+            ))}
           </div>
         </div>
 
+        {/* Message général */}
         <div aria-live="polite" aria-atomic="true">
-          {state.message ? (
+          {state.message && (
             <p className="mt-2 text-sm text-red-500">{state.message}</p>
-          ) : null}
+          )}
         </div>
       </div>
+
       <div className="mt-6 flex justify-end gap-4">
         <Link
           href="/client"
