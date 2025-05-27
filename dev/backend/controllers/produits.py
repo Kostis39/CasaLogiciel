@@ -34,6 +34,7 @@ class Produit(Resource):
                 )
                 if produit:
                     session.delete(produit)
+                    session.flush()
 
             produit = session.query(Clients.Produit).filter_by(IdProduit=id).first()
             if not produit:
@@ -42,6 +43,7 @@ class Produit(Resource):
             delete_recursive(id)
             session.commit()
             return {"message": "Produit and its descendants deleted"}, 200
+
 
     def put(self, id):
         json_data = request.get_json()

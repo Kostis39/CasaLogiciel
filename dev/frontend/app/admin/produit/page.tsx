@@ -133,10 +133,10 @@ export default function ProduitsPage() {
   const renderProduit = (id: number, level = 0) => {
     const p = produits[id];
     if (!p) return null;
-
+  
     const isEnsemble = p.PrixProduit === null;
     const isExpanded = p.expanded;
-
+  
     return (
       <div key={id}>
         <div
@@ -145,20 +145,10 @@ export default function ProduitsPage() {
           }`}
           style={{ paddingLeft: 0 }}
           onClick={() => {
-            if (isEnsemble) {
-              toggleExpand(id);
-            }
+            setSelection(selection === id ? null : id);
           }}
           onContextMenu={(e) => {
             e.preventDefault();
-            if (selection === id) {
-              setSelection(null);
-            } else {
-              setSelection(id);
-            }
-          }}
-          onDoubleClick={() => {
-            // Ouvrir la popup détail
             setDetailProduit(p);
             setNom(p.NomProduit);
             setPrix(p.PrixProduit !== null ? p.PrixProduit.toString() : '');
@@ -166,19 +156,26 @@ export default function ProduitsPage() {
           }}
         >
           <IndentBars level={level} />
-
-          <div className="w-4">
+  
+          {/* Icône de flèche avec clic dédié */}
+          <div
+            className="w-4 cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation(); // Empêche la sélection quand on clique sur la flèche
+              if (isEnsemble) toggleExpand(id);
+            }}
+          >
             {isEnsemble ? (isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />) : <div style={{ width: 16 }} />}
           </div>
-
+  
           <div className="w-4">{isEnsemble ? <Folder size={16} /> : <File size={16} />}</div>
-
+  
           <div className="flex-1 flex justify-between pr-2">
             <span>{p.NomProduit}</span>
             {p.PrixProduit !== null && <span className="text-sm text-gray-500">{p.PrixProduit.toFixed(2)} €</span>}
           </div>
         </div>
-
+  
         {isExpanded &&
           (p.enfants || [])
             .sort((a, b) => {
@@ -192,14 +189,17 @@ export default function ProduitsPage() {
       </div>
     );
   };
+  
 
   const handleCreate = async () => {
+    const selectedProduit = selection !== null ? produits[selection] : null;
+
     const body: any = {
       IdProduitParent:
-        selection !== null
-          ? produits[selection].PrixProduit !== null
-            ? produits[selection].IdProduitParent
-            : selection
+        selectedProduit !== null
+          ? selectedProduit.PrixProduit !== null
+            ? selectedProduit.IdProduitParent
+            : selectedProduit.IdProduit
           : null,
       NomProduit: nom,
       IdReduc: null,
@@ -281,6 +281,16 @@ export default function ProduitsPage() {
         <Button onClick={() => setDialogType('produit')} className="flex items-center gap-2">
           <File size={18} /> ajout produit
         </Button>
+        <div className="mt-6 p-4 bg-gray-50 rounded border text-sm text-gray-700">
+          <p><strong>Instructions d'utilisation :</strong></p>
+          <ul className="list-disc list-inside space-y-1">
+            <li><strong>Clic sur la flèche :</strong> ouvrir / fermer un ensemble</li>
+            <li><strong>Clic gauche sur un produit :</strong> sélectionner</li>
+            <li><strong>Clic droit sur un produit :</strong> afficher les détails</li>
+          </ul>
+
+          <p className="mt-6">L'ajout d'un produit / ensemble se fait à l'endroit de la sélection.</p>
+        </div>
       </div>
 
       {/* Dialog ajout */}
@@ -349,11 +359,12 @@ export default function ProduitsPage() {
               </div>
             )}
 
-            {detailProduit && detailProduit.IdProduitParent !== null && (
+            {detailProduit?.IdProduitParent != null && (
               <div>
                 <strong>Parent:</strong> {detailProduit.IdProduitParent}
               </div>
             )}
+            
 
             {detailProduit && detailProduit.IdReduc !== null && (
               <div>
