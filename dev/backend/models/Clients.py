@@ -20,9 +20,10 @@ class Grimpeur(Casabase, SerializerMixin):
     CodePostGrimpeur: Mapped[int] = mapped_column(nullable=True)
     DateInscrGrimpeur: Mapped[date] = mapped_column(nullable=False)
     AccordReglement: Mapped[bool] = mapped_column(nullable=True)
-
     DateFinCoti: Mapped[date] = mapped_column(nullable=True)
     NumLicenceGrimpeur: Mapped[int] = mapped_column(nullable=True)
+    DateFinAbo: Mapped[date] = mapped_column(nullable=True)
+    NbSeancesRest: Mapped[int] = mapped_column(nullable=True)
 
 
 class Ticket(Casabase, SerializerMixin):
@@ -86,7 +87,7 @@ class Reduction(Casabase, SerializerMixin):
 class Produit(Casabase, SerializerMixin):
     __tablename__ = "Produit"
 
-    IdProduit: Mapped[int] = mapped_column(primary_key=True)
+    IdProduit: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     IdProduitParent: Mapped[int] = mapped_column(
         ForeignKey("Produit.IdProduit"), nullable=True
     )
