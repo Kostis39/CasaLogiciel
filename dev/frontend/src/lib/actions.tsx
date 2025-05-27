@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+const API_URL = 'http://localhost:5000';
+
 const GrimpeurSchema = z.object({
   id: z.string(),
   nomGrimpeur: z.string({
@@ -51,14 +53,14 @@ export type State = {
 
 export async function createGrimpeur(prevState: State, formData: FormData) {
   const validatedFields = CreateGrimpeur.safeParse({
-    nomGrimpeur: formData.get('nomGrimpeur'),
-    prenomGrimpeur: formData.get('prenomGrimpeur'),
-    dateNaissGrimpeur: formData.get('dateNaissGrimpeur'),
-    emailGrimpeur: formData.get('emailGrimpeur'),
-    telGrimpeur: formData.get('telGrimpeur'),
-    adresseGrimpeur: formData.get('adresseGrimpeur'),
-    villeGrimpeur: formData.get('villeGrimpeur'),
-    codePostGrimpeur: formData.get('codePostGrimpeur'),
+    nomGrimpeur: String(formData.get('nomGrimpeur') ?? ''),
+    prenomGrimpeur: String(formData.get('prenomGrimpeur') ?? ''),
+    dateNaissGrimpeur: String(formData.get('dateNaissGrimpeur') ?? ''),
+    emailGrimpeur: String(formData.get('emailGrimpeur') ?? ''),
+    telGrimpeur: String(formData.get('telGrimpeur') ?? ''),
+    adresseGrimpeur: String(formData.get('adresseGrimpeur') ?? ''),
+    villeGrimpeur: String(formData.get('villeGrimpeur') ?? ''),
+    codePostGrimpeur: String(formData.get('codePostGrimpeur') ?? ''),
   });
 
   if (!validatedFields.success) {
@@ -80,28 +82,35 @@ export async function createGrimpeur(prevState: State, formData: FormData) {
   } = validatedFields.data;
 
   try {
-    // const response = await fetch('/api/grimpeurs', {
-    //   method: 'POST',
-    //   body: JSON.stringify({
-    //     nom: nomGrimpeur,
-    //     prenom: prenomGrimpeur,
-    //     date_naissance: dateNaissGrimpeur,
-    //     email: emailGrimpeur,
-    //     telephone: telGrimpeur,
-    //     adresse: adresseGrimpeur,
-    //     ville: villeGrimpeur,
-    //     code_postal: codePostGrimpeur
-    //   })
-    // });
-    // if (!response.ok) throw new Error('Erreur API');
+    const response = await fetch(`${API_URL}/grimpeurs`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        NumGrimpeur: 11,
+        NomGrimpeur: nomGrimpeur,
+        PrenomGrimpeur: prenomGrimpeur,
+        DateNaissGrimpeur: dateNaissGrimpeur,
+        EmailGrimpeur: emailGrimpeur,
+        TelGrimpeur: telGrimpeur,
+        AdresseGrimpeur: adresseGrimpeur,
+        VilleGrimpeur: villeGrimpeur,
+        CodePostGrimpeur: codePostGrimpeur,
+        DateInscrGrimpeur: new Date().toISOString().split('T')[0],
+        Solde: 0,
+        AccordReglement: true // ou false
+      })
+    });
+    if (!response.ok) throw new Error('Erreur API');
   } catch (error) {
     return {
       message: 'Erreur lors de la création du grimpeur.',
     };
   }
-
-  revalidatePath('/client');
-  redirect('/client');
+  
+  //revalidatePath('/client');
+  //redirect('/client');
 }
 
 export async function updateGrimpeur(
@@ -109,15 +118,15 @@ export async function updateGrimpeur(
   prevState: State,
   formData: FormData,
 ) {
-  const validatedFields = UpdateGrimpeur.safeParse({
-    nomGrimpeur: formData.get('nomGrimpeur'),
-    prenomGrimpeur: formData.get('prenomGrimpeur'),
-    dateNaissGrimpeur: formData.get('dateNaissGrimpeur'),
-    emailGrimpeur: formData.get('emailGrimpeur'),
-    telGrimpeur: formData.get('telGrimpeur'),
-    adresseGrimpeur: formData.get('adresseGrimpeur'),
-    villeGrimpeur: formData.get('villeGrimpeur'),
-    codePostGrimpeur: formData.get('codePostGrimpeur'),
+  const validatedFields = CreateGrimpeur.safeParse({
+    nomGrimpeur: String(formData.get('nomGrimpeur') ?? ''),
+    prenomGrimpeur: String(formData.get('prenomGrimpeur') ?? ''),
+    dateNaissGrimpeur: String(formData.get('dateNaissGrimpeur') ?? ''),
+    emailGrimpeur: String(formData.get('emailGrimpeur') ?? ''),
+    telGrimpeur: String(formData.get('telGrimpeur') ?? ''),
+    adresseGrimpeur: String(formData.get('adresseGrimpeur') ?? ''),
+    villeGrimpeur: String(formData.get('villeGrimpeur') ?? ''),
+    codePostGrimpeur: String(formData.get('codePostGrimpeur') ?? ''),
   });
 
   if (!validatedFields.success) {
@@ -139,20 +148,20 @@ export async function updateGrimpeur(
   } = validatedFields.data;
 
   try {
-    // const response = await fetch(`/api/grimpeurs/${id}`, {
-    //   method: 'PUT',
-    //   body: JSON.stringify({
-    //     nom: nomGrimpeur,
-    //     prenom: prenomGrimpeur,
-    //     date_naissance: dateNaissGrimpeur,
-    //     email: emailGrimpeur,
-    //     telephone: telGrimpeur,
-    //     adresse: adresseGrimpeur,
-    //     ville: villeGrimpeur,
-    //     code_postal: codePostGrimpeur
-    //   })
-    // });
-    // if (!response.ok) throw new Error('Erreur API');
+    const response = await fetch(`/api/grimpeurs/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        nom: nomGrimpeur,
+        prenom: prenomGrimpeur,
+        date_naissance: dateNaissGrimpeur,
+        email: emailGrimpeur,
+        telephone: telGrimpeur,
+        adresse: adresseGrimpeur,
+        ville: villeGrimpeur,
+        code_postal: codePostGrimpeur
+      })
+    });
+    if (!response.ok) throw new Error('Erreur API');
   } catch (error) {
     return { message: 'Erreur lors de la mise à jour du grimpeur.' };
   }
@@ -163,10 +172,10 @@ export async function updateGrimpeur(
 
 export async function deleteGrimpeur(id: string) {
   try {
-    // const response = await fetch(`/api/grimpeurs/${id}`, {
-    //   method: 'DELETE'
-    // });
-    // if (!response.ok) throw new Error('Erreur API');
+    const response = await fetch(`/api/grimpeurs/${id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Erreur API');
     
     revalidatePath('/client');
   } catch (error) {
