@@ -17,6 +17,16 @@ class Produit(Resource):
                 return {"message": "Produit not found"}, 404
 
     def delete(self, id):
+        def delete_children(session, produit):
+            enfants = (
+                session.query(Clients.Produit)
+                .filter_by(IdProduitParent=produit.IdProduit)
+                .all()
+            )
+            for enfant in enfants:
+                delete_children(session, enfant)
+                session.delete(enfant)
+
         with sesh() as session:
             produit = session.query(Clients.Produit).filter_by(IdProduit=id).first()
             if produit:
@@ -67,7 +77,7 @@ class Produits(Resource):
 
         nouv_produit = Clients.Produit()
         for key, value in json.items():
-            setattr(Clients.Produit, key, value)
+            setattr(nouv_produit, key, value)
 
         with sesh() as session:
             session.add(nouv_produit)
