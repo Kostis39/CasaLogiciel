@@ -91,6 +91,30 @@ class Seances(Resource):
     def post(self):  # Penser à ajouter de la vérification de validité des données
         json = request.get_json()
         nouv_seance = Clients.Seance()
+
+        # Vérification de l'existence du grimpeur
+        with sesh() as session:
+            grimpeur = (
+                session.query(Clients.Grimpeur)
+                .filter_by(NumGrimpeur=json.get("NumGrimpeur"))
+                .first()
+            )
+            if not grimpeur:
+                return {"message": "Grimpeur not found"}, 404
+
+        # Maintenant on vérifie que le grimpeur peut accéder à la salle
+        # C'est à dire qu'il a un abonnement valide ou des séances restantes
+
+        if not grimpeur.AccordReglement:
+            return {"message": "Le grimpeur doit signer le règlement"}, 403
+
+        # Si l'abonnement est inexistant ou expiré, on vérifie les séances restantes
+        if grimpeur.DateFinAbo is None or grimpeur.DateFinAbo <= date.today():
+            if grimpeur.NbSeancesRest <= 0:
+                return {"message": "Le grimpeur n'a pas d'entrée valide"}, 403
+            else:
+                grimpeur.NbSeancesRest -= 1
+
         for key, value in json.items():
             setattr(nouv_seance, key, value)
 
@@ -102,9 +126,13 @@ class Seances(Resource):
 
 
 class SeancesSearch(Resource):
-    def get(self, id):
+    def get(self, idGrimpeur):
         with sesh() as session:
-            grimpeur = session.query(Clients.Grimpeur).filter_by(NumGrimpeur=id).first()
+            grimpeur = (
+                session.query(Clients.Grimpeur)
+                .filter_by(NumGrimpeur=idGrimpeur)
+                .first()
+            )
             if not grimpeur:
                 return {"message": "Grimpeur not found"}, 404
 
