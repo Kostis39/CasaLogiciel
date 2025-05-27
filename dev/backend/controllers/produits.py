@@ -43,6 +43,23 @@ class Produit(Resource):
             session.commit()
             return {"message": "Produit and its descendants deleted"}, 200
 
+    def put(self, id):
+        json_data = request.get_json()
+        if not json_data:
+            return {"message": "No input data provided"}, 400
+
+        with sesh() as session:
+            produit = session.query(Clients.Produit).filter_by(IdProduit=id).first()
+            if not produit:
+                return {"message": "Produit not found"}, 404
+
+            for key, value in json_data.items():
+                if hasattr(produit, key):
+                    setattr(produit, key, value)
+
+            session.commit()
+            return produit.to_dict(), 200
+
 
 class SousProduit(Resource):
     def get(self, idParent):
