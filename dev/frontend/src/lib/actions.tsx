@@ -32,6 +32,9 @@ const GrimpeurSchema = z.object({
   codePostGrimpeur: z.string().regex(/^\d{5}$/, {
     message: 'Le code postal doit contenir 5 chiffres',
   }),
+  accordReglement: z.literal(true, {
+    errorMap: () => ({ message: 'Vous devez accepter le règlement.' }),
+  }),
 });
 
 const CreateGrimpeur = GrimpeurSchema.omit({ id: true});
@@ -47,12 +50,25 @@ export type State = {
     adresseGrimpeur?: string[];
     villeGrimpeur?: string[];
     codePostGrimpeur?: string[];
+    accordReglement?: string[];
   };
   message?: string | null;
+  values?: {
+    nomGrimpeur?: string;
+    prenomGrimpeur?: string;
+    dateNaissGrimpeur?: string;
+    emailGrimpeur?: string;
+    telGrimpeur?: string;
+    adresseGrimpeur?: string;
+    villeGrimpeur?: string;
+    codePostGrimpeur?: string;
+    accordReglement?: boolean;
+  };
 };
 
+
 export async function createGrimpeur(prevState: State, formData: FormData) {
-  const validatedFields = CreateGrimpeur.safeParse({
+  const rawValues = {
     nomGrimpeur: String(formData.get('nomGrimpeur') ?? ''),
     prenomGrimpeur: String(formData.get('prenomGrimpeur') ?? ''),
     dateNaissGrimpeur: String(formData.get('dateNaissGrimpeur') ?? ''),
@@ -61,16 +77,20 @@ export async function createGrimpeur(prevState: State, formData: FormData) {
     adresseGrimpeur: String(formData.get('adresseGrimpeur') ?? ''),
     villeGrimpeur: String(formData.get('villeGrimpeur') ?? ''),
     codePostGrimpeur: String(formData.get('codePostGrimpeur') ?? ''),
-  });
+    accordReglement: formData.get('accordReglement') === 'on',
+  };
+
+  const validatedFields = CreateGrimpeur.safeParse(rawValues);
 
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: 'Champs manquants ou invalides. Échec de la création.',
+      values: rawValues,
     };
   }
 
-  const { 
+  const {
     nomGrimpeur,
     prenomGrimpeur,
     dateNaissGrimpeur,
@@ -78,17 +98,18 @@ export async function createGrimpeur(prevState: State, formData: FormData) {
     telGrimpeur,
     adresseGrimpeur,
     villeGrimpeur,
-    codePostGrimpeur
+    codePostGrimpeur,
+    accordReglement,
   } = validatedFields.data;
 
   try {
     const response = await fetch(`${API_URL}/grimpeurs`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        NumGrimpeur: 11,
+        NumGrimpeur: 126,
         NomGrimpeur: nomGrimpeur,
         PrenomGrimpeur: prenomGrimpeur,
         DateNaissGrimpeur: dateNaissGrimpeur,
@@ -99,37 +120,23 @@ export async function createGrimpeur(prevState: State, formData: FormData) {
         CodePostGrimpeur: codePostGrimpeur,
         DateInscrGrimpeur: new Date().toISOString().split('T')[0],
         Solde: 0,
-        AccordReglement: true // ou false
-      })
+        AccordReglement: accordReglement,
+      }),
     });
-    if (!response.ok) {
-      const contentType = response.headers.get('content-type');
-      let errorMsg;
-      if (contentType && contentType.includes('application/json')) {
-        const errorJson = await response.json();
-        errorMsg = JSON.stringify(errorJson);
-      } else {
-        errorMsg = await response.text();
-      }
-      throw new Error(`Erreur API ${response.status} : ${errorMsg}`);
-    }
-  
-    const data = await response.json();
+
+    if (!response.ok) throw new Error('Erreur API');
+  } catch (error) {
     return {
-      message: 'Grimpeur créé avec succès.',
-      errors: {}
-    };
-  
-  } catch (err) {
-    console.error('Erreur lors de la création du grimpeur:', err.message);
-    return {
-      message: `Erreur lors de la création du grimpeur : ${err.message}`,
-      errors: {}
+      message: 'Erreur lors de la création du grimpeur.',
+      values: rawValues,
     };
   }
-  //revalidatePath('/client');
-  //redirect('/client');
+
+  revalidatePath('/client');
+  redirect('/client');
 }
+
+
 
 export async function updateGrimpeur(
   id: string,

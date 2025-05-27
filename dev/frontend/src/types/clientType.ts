@@ -1,0 +1,22 @@
+type Client = {
+  CodePostGrimpeur: number;
+  NumGrimpeur: number;
+  NumLicenceGrimpeur: number;
+  EmailGrimpeur: string;
+  PrenomGrimpeur: string;
+  TelGrimpeur: number;
+  AccordReglement: boolean;
+  NomGrimpeur: string;
+  TypeTicket: string | null;
+  Solde: number;
+  DateNaissGrimpeur: string; 
+  SignaReglement: string;
+  NbSeanceRest: number;
+  AdresseGrimpeur: string;
+  DateInscrGrimpeur: string;
+  VilleGrimpeur: string;
+  DateFinAbo: string;
+  DateFinCoti: string;
+  TypeAbo: string | null;
+  DateFincCotisation: string;
+};

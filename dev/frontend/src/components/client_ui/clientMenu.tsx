@@ -1,9 +1,11 @@
 'use client';
 import { useState } from 'react';
-
+/**
+ * 
+ */
 // Types
 type TopSectionProps = {
-  fields: Field[];
+  fieldInfoClient: FieldInfoClient[];
   expandTop: boolean;
   expandBot: boolean;
   setExpandTop: (value: boolean) => void;
@@ -14,19 +16,40 @@ type BottomSectionProps = {
   expandTop: boolean;
   setExpandBot: (value: boolean) => void;
 };
-type Field = { label: string; value: string | number };
+
+type FieldInfoClient = { label: string; value: string | number };
 
 // Composant principal
-export function ClientMenu({ fields, alreadyEntered }: { fields: Field[], alreadyEntered?: boolean }) {
+export function ClientMenu({ clientInfo }: { clientInfo: Client}) {
   const [expandTop, setExpandTop] = useState(false);
   const [expandBot, setExpandBot] = useState(false);
 
-  return (
-    
-    <div className="container flex flex-col border border-black gap-2 h-full">
-      <TopSection fields={fields} expandTop={expandTop} expandBot={expandBot} setExpandTop={setExpandTop} />
-      <BottomSection expandBot={expandBot} expandTop={expandTop} setExpandBot={setExpandBot} />
-    </div>
+  const fieldInfoClient: FieldInfoClient[] = [
+      { label: "Nom", value: clientInfo.NomGrimpeur },
+      { label: "Prénom", value: clientInfo.PrenomGrimpeur },
+      { label: "Date de naissance", value: clientInfo.DateNaissGrimpeur },
+      { label: "Numéro de grimpeur", value: clientInfo.NumGrimpeur },
+      { label: "Numéro de licence", value: clientInfo.NumLicenceGrimpeur },
+      { label: "Téléphone", value: clientInfo.TelGrimpeur },
+      { label: "Email", value: clientInfo.EmailGrimpeur },
+      { label: "Adresse", value: clientInfo.AdresseGrimpeur },
+      { label: "Code postal", value: clientInfo.CodePostGrimpeur },
+      { label: "Ville", value: clientInfo.VilleGrimpeur },
+      { label: "Type d'abonnement", value: clientInfo.TypeAbo ?? "—" },
+      { label: "Type de ticket", value: clientInfo.TypeTicket ?? "—" },
+      { label: "Fin d'abonnement", value: clientInfo.DateFinAbo },
+      { label: "Fin de cotisation", value: clientInfo.DateFinCoti },
+      { label: "Nombre de séances restantes", value: clientInfo.NbSeanceRest },
+      { label: "Solde", value: clientInfo.Solde + " €" },
+      { label: "Date d'inscription", value: clientInfo.DateInscrGrimpeur },
+      { label: "Accord règlement", value: clientInfo.AccordReglement ? "Oui" : "Non" },
+    ];
+
+  return (      
+      <div className="container flex flex-col border border-black gap-2 h-full">
+        <TopSection fieldInfoClient={fieldInfoClient} expandTop={expandTop} expandBot={expandBot} setExpandTop={setExpandTop} />
+        <BottomSection expandBot={expandBot} expandTop={expandTop} setExpandBot={setExpandBot} />
+      </div>
   );
 }
 
@@ -34,9 +57,9 @@ export function ClientMenu({ fields, alreadyEntered }: { fields: Field[], alread
 
 
 // Partie haute
-function TopSection({ fields, expandTop, expandBot, setExpandTop }: TopSectionProps) {
+function TopSection({ fieldInfoClient, expandTop, expandBot, setExpandTop }: TopSectionProps) {
   const initialItems = 8;
-  const displayedFields = expandTop ? fields : fields.slice(0, initialItems);
+  const displayedFields = expandTop ? fieldInfoClient : fieldInfoClient.slice(0, initialItems);
 
   return (
     <div
@@ -65,7 +88,7 @@ function TopSection({ fields, expandTop, expandBot, setExpandTop }: TopSectionPr
             </div>
           ))}
 
-          {!expandTop && fields.length > initialItems && (
+          {!expandTop && fieldInfoClient.length > initialItems && (
             <button
               onClick={() => setExpandTop(true)}
               className="border border-dashed p-4 flex items-center justify-center"

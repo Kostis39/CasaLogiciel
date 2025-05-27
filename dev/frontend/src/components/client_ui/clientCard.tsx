@@ -6,14 +6,12 @@ export function ClientCard(
   { prenom, nom, num }: { prenom: string , nom: string , num: number}
 ) {
   const searchParams = useSearchParams();
-  const pathname = usePathname();
   const { replace } = useRouter();
 
   const handleClick = () => {
     const params = new URLSearchParams(searchParams);
     params.set("id", num.toString());
-    replace(`${pathname}?${params.toString()}`);
-};
+    replace(`?${params.toString()}`);};
 
     return (
       <button className="flex w-full items-center gap-3 rounded-xl border py-3 px-3 shadow-sm"
