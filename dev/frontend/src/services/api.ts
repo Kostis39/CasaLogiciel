@@ -112,11 +112,4 @@ export const fetchGrimpeurSearch = async (query: string) => {
   }
 };
 
-export const isAlreadyEntered = async (id: number) => {
-  if (USE_MOCK) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    return true;
-  }else {
-    return fetch(`${API_URL}/grimpeurs/seance/${id}`);
-  }
-};
+

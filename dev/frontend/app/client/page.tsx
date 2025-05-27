@@ -5,7 +5,7 @@ import ClientList from "@/src/components/client_ui/clientList";
 import { fetchGrimpeurById } from "@/src/services/api";
 import { ClientMenu } from "@/src/components/client_ui/clientMenu";
 
-const ClientHome = async ({
+const ClientMain = async ({
   searchParams,
 }: {
     searchParams?: {
@@ -16,8 +16,7 @@ const ClientHome = async ({
   const query = (await searchParams)?.query || '';
   const id = (await searchParams)?.id;
   const num = id ? Number(id) : null;
-  const clientInfo = await fetchGrimpeurById(num);
-  console.log("Client Info:", clientInfo);
+  const clientInfo = num !== null ? await fetchGrimpeurById(num) : null;
 
   return (
     <div className="mainClientContainer w-full h-screen">
@@ -42,4 +41,4 @@ const ClientHome = async ({
   }
 
 
-export  default ClientHome;
+export  default ClientMain;
