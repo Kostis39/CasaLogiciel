@@ -17,16 +17,15 @@ type BottomSectionProps = {
 type Field = { label: string; value: string | number };
 
 // Composant principal
-export function ClientMenu({ fields, alreadyEntered }: { fields: Field[], alreadyEntered?: boolean }) {
+export function ClientMenu({ fields }: { fields: Field[]}) {
   const [expandTop, setExpandTop] = useState(false);
   const [expandBot, setExpandBot] = useState(false);
 
-  return (
-    
-    <div className="container flex flex-col border border-black gap-2 h-full">
-      <TopSection fields={fields} expandTop={expandTop} expandBot={expandBot} setExpandTop={setExpandTop} />
-      <BottomSection expandBot={expandBot} expandTop={expandTop} setExpandBot={setExpandBot} />
-    </div>
+  return (      
+      <div className="container flex flex-col border border-black gap-2 h-full">
+        <TopSection fields={fields} expandTop={expandTop} expandBot={expandBot} setExpandTop={setExpandTop} />
+        <BottomSection expandBot={expandBot} expandTop={expandTop} setExpandBot={setExpandBot} />
+      </div>
   );
 }
 

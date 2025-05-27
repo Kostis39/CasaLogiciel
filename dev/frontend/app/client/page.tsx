@@ -17,7 +17,6 @@ const ClientHome = async ({
   const id = (await searchParams)?.id;
   const num = id ? Number(id) : null;
   const fields = await fetchGrimpeurById(num);
-  const alreadyEntered = await isAlreadyEntered(num) || false;
 
   return (
     <div className="mainClientContainer w-full h-screen">
@@ -32,7 +31,8 @@ const ClientHome = async ({
           <ClientList query={query} />
         </div>
         <div>
-          <ClientMenu fields={fields} alreadyEntered={alreadyEntered} />
+          {fields ? <ClientMenu fields={fields} />: <p>Veuillez vous connecter.</p>}
+          
         </div>
       </div>
 
