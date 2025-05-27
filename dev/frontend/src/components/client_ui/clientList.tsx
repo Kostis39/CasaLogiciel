@@ -1,5 +1,5 @@
 import { fetchGrimpeurById, fetchGrimpeurSearch } from "@/src/services/api"
-import { ClientCard } from "./clientAside";
+import { ClientCard } from "./clientCard";
 
 const ClientList = async ({ query }: { query: string }) => {
     if (!query) {

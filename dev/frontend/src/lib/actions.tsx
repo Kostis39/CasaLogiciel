@@ -102,7 +102,7 @@ export async function createGrimpeur(prevState: State, formData: FormData) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        NumGrimpeur: 124,
+        NumGrimpeur: 15,
         NomGrimpeur: nomGrimpeur,
         PrenomGrimpeur: prenomGrimpeur,
         DateNaissGrimpeur: dateNaissGrimpeur,
