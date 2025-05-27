@@ -102,31 +102,13 @@ export async function createGrimpeur(prevState: State, formData: FormData) {
         AccordReglement: true // ou false
       })
     });
-    if (!response.ok) {
-      const contentType = response.headers.get('content-type');
-      let errorMsg;
-      if (contentType && contentType.includes('application/json')) {
-        const errorJson = await response.json();
-        errorMsg = JSON.stringify(errorJson);
-      } else {
-        errorMsg = await response.text();
-      }
-      throw new Error(`Erreur API ${response.status} : ${errorMsg}`);
-    }
-  
-    const data = await response.json();
+    if (!response.ok) throw new Error('Erreur API');
+  } catch (error) {
     return {
-      message: 'Grimpeur créé avec succès.',
-      errors: {}
-    };
-  
-  } catch (err) {
-    console.error('Erreur lors de la création du grimpeur:', err.message);
-    return {
-      message: `Erreur lors de la création du grimpeur : ${err.message}`,
-      errors: {}
+      message: 'Erreur lors de la création du grimpeur.',
     };
   }
+  
   //revalidatePath('/client');
   //redirect('/client');
 }
