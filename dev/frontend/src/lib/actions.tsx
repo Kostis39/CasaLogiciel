@@ -32,6 +32,9 @@ const GrimpeurSchema = z.object({
   codePostGrimpeur: z.string().regex(/^\d{5}$/, {
     message: 'Le code postal doit contenir 5 chiffres',
   }),
+  accordReglement: z.literal(true, {
+    errorMap: () => ({ message: 'Vous devez accepter le règlement.' }),
+  }),
 });
 
 const CreateGrimpeur = GrimpeurSchema.omit({ id: true});
@@ -47,6 +50,7 @@ export type State = {
     adresseGrimpeur?: string[];
     villeGrimpeur?: string[];
     codePostGrimpeur?: string[];
+    accordReglement?: string[];
   };
   message?: string | null;
   values?: {
@@ -58,6 +62,7 @@ export type State = {
     adresseGrimpeur?: string;
     villeGrimpeur?: string;
     codePostGrimpeur?: string;
+    accordReglement?: boolean;
   };
 };
 
@@ -72,6 +77,7 @@ export async function createGrimpeur(prevState: State, formData: FormData) {
     adresseGrimpeur: String(formData.get('adresseGrimpeur') ?? ''),
     villeGrimpeur: String(formData.get('villeGrimpeur') ?? ''),
     codePostGrimpeur: String(formData.get('codePostGrimpeur') ?? ''),
+    accordReglement: formData.get('accordReglement') === 'on',
   };
 
   const validatedFields = CreateGrimpeur.safeParse(rawValues);
@@ -80,7 +86,7 @@ export async function createGrimpeur(prevState: State, formData: FormData) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: 'Champs manquants ou invalides. Échec de la création.',
-      values: rawValues, // <-- ceci permet de pré-remplir les champs en cas d’erreur
+      values: rawValues,
     };
   }
 
@@ -92,17 +98,18 @@ export async function createGrimpeur(prevState: State, formData: FormData) {
     telGrimpeur,
     adresseGrimpeur,
     villeGrimpeur,
-    codePostGrimpeur
+    codePostGrimpeur,
+    accordReglement,
   } = validatedFields.data;
 
   try {
     const response = await fetch(`${API_URL}/grimpeurs`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        NumGrimpeur: 15,
+        NumGrimpeur: 126,
         NomGrimpeur: nomGrimpeur,
         PrenomGrimpeur: prenomGrimpeur,
         DateNaissGrimpeur: dateNaissGrimpeur,
@@ -113,8 +120,8 @@ export async function createGrimpeur(prevState: State, formData: FormData) {
         CodePostGrimpeur: codePostGrimpeur,
         DateInscrGrimpeur: new Date().toISOString().split('T')[0],
         Solde: 0,
-        AccordReglement: true
-      })
+        AccordReglement: accordReglement,
+      }),
     });
 
     if (!response.ok) throw new Error('Erreur API');
@@ -128,6 +135,7 @@ export async function createGrimpeur(prevState: State, formData: FormData) {
   revalidatePath('/client');
   redirect('/client');
 }
+
 
 
 export async function updateGrimpeur(
