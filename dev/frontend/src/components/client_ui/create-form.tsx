@@ -211,13 +211,39 @@ export default function Form() {
           </div>
         </div>
 
+        {/* Accord au règlement intérieur */}
+        <div className="mb-4">
+          <div className="flex items-center space-x-2">
+            <input
+              id="accordReglement"
+              name="accordReglement"
+              type="checkbox"
+              defaultChecked={state.values?.accordReglement ?? false}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              aria-describedby="accordReglement-error"
+            />
+            <label htmlFor="accordReglement" className="text-sm text-gray-700">
+              J'accepte le{' '}
+              <Link href="../reglement" className="text-blue-600 underline hover:text-blue-800">
+                règlement intérieur
+              </Link>
+            </label>
+          </div>
+          <div id="accordReglement-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.accordReglement?.map((error: string) => (
+              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
+            ))}
+          </div>
+        </div>
+      </div>
+
         {/* Message général */}
         <div aria-live="polite" aria-atomic="true">
           {state.message && (
             <p className="mt-2 text-sm text-red-500">{state.message}</p>
           )}
         </div>
-      </div>
+
 
       <div className="mt-6 flex justify-end gap-4">
         <Link
