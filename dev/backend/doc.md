@@ -17,7 +17,7 @@
       - [`GET /seances`](#get-seances)
       - [`POST /seances`](#post-seances)
     - [Ressource `SeancesSearch`](#ressource-seancessearch)
-    - [`GET /seances/<int:id>`](#get-seancesintid)
+      - [`GET /seances/<int:id>`](#get-seancesintid)
   
 ## Guide
 Une ressource `indiquée de cette façon` en titre de niveau 3 est une classe python située dans le dossier `backend/controllers`.
@@ -78,7 +78,7 @@ Le titre de niveau 4 indique la méthode HTTP et le chemin d'accès de l'endpoin
 - **Réponse** : Objet séance créé avec son identifiant `HTTP 201 Created`.
 
 ### Ressource `SeancesSearch`
-### `GET /seances/<int:id>`
+#### `GET /seances/<int:id>`
 - **Description** : Indique si le grimpeur est déjà venu aujourd'hui.
 - **Paramètres** :
     - `id` (*int*) : NumGrimpeur, identifiant unique du grimpeur.
