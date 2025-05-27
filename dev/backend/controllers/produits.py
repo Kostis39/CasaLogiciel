@@ -67,8 +67,6 @@ class Produits(Resource):
 
         nouv_produit = Clients.Produit()
         for key, value in json.items():
-            if not hasattr(nouv_produit, key):
-                return {"message": f"Invalid field: {key}"}, 400
             setattr(Clients.Produit, key, value)
 
         with sesh() as session:
