@@ -159,14 +159,25 @@ export default function ProduitsPage() {
   
           {/* Icône de flèche avec clic dédié */}
           <div
-            className="w-4 cursor-pointer"
+            className="cursor-pointer flex items-center justify-center"
+            style={{
+              width: 24,
+              height: 24,
+              padding: 4,
+              marginRight: 4,
+            }}
             onClick={(e) => {
-              e.stopPropagation(); // Empêche la sélection quand on clique sur la flèche
+              e.stopPropagation(); // Ne déclenche pas la sélection
               if (isEnsemble) toggleExpand(id);
             }}
           >
-            {isEnsemble ? (isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />) : <div style={{ width: 16 }} />}
+            {isEnsemble ? (
+              isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />
+            ) : (
+              <div style={{ width: 16 }} />
+            )}
           </div>
+
   
           <div className="w-4">{isEnsemble ? <Folder size={16} /> : <File size={16} />}</div>
   
