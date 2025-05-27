@@ -17,24 +17,31 @@ class Produit(Resource):
                 return {"message": "Produit not found"}, 404
 
     def delete(self, id):
-        def delete_children(session, produit):
-            enfants = (
-                session.query(Clients.Produit)
-                .filter_by(IdProduitParent=produit.IdProduit)
-                .all()
-            )
-            for enfant in enfants:
-                delete_children(session, enfant)
-                session.delete(enfant)
-
         with sesh() as session:
+
+            def delete_recursive(produit_id):
+                enfants = (
+                    session.query(Clients.Produit)
+                    .filter_by(IdProduitParent=produit_id)
+                    .all()
+                )
+                for enfant in enfants:
+                    delete_recursive(enfant.IdProduit)
+                produit = (
+                    session.query(Clients.Produit)
+                    .filter_by(IdProduit=produit_id)
+                    .first()
+                )
+                if produit:
+                    session.delete(produit)
+
             produit = session.query(Clients.Produit).filter_by(IdProduit=id).first()
-            if produit:
-                session.delete(produit)
-                session.commit()
-                return {"message": "Produit deleted"}, 204
-            else:
+            if not produit:
                 return {"message": "Produit not found"}, 404
+
+            delete_recursive(id)
+            session.commit()
+            return {"message": "Produit and its descendants deleted"}, 200
 
 
 class SousProduit(Resource):
