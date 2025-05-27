@@ -1,11 +1,8 @@
 'use client';
 import { useState } from 'react';
-/**
- * 
- */
-// Types
+
 type TopSectionProps = {
-  fieldInfoClient: FieldInfoClient[];
+  clientInfo: Client;
   expandTop: boolean;
   expandBot: boolean;
   setExpandTop: (value: boolean) => void;
@@ -17,14 +14,27 @@ type BottomSectionProps = {
   setExpandBot: (value: boolean) => void;
 };
 
-type FieldInfoClient = { label: string; value: string | number };
-
 // Composant principal
 export function ClientMenu({ clientInfo }: { clientInfo: Client}) {
   const [expandTop, setExpandTop] = useState(false);
   const [expandBot, setExpandBot] = useState(false);
 
-  const fieldInfoClient: FieldInfoClient[] = [
+
+
+  return (      
+      <div className="container flex flex-col border border-black gap-2 h-full">
+        <TopSection clientInfo={clientInfo} expandTop={expandTop} expandBot={expandBot} setExpandTop={setExpandTop} />
+        <BottomSection expandBot={expandBot} expandTop={expandTop} setExpandBot={setExpandBot} />
+      </div>
+  );
+}
+
+
+
+
+// Partie haute
+function TopSection({ clientInfo, expandTop, expandBot, setExpandTop }: TopSectionProps) {
+    const fieldInfoClient = [
       { label: "Nom", value: clientInfo.NomGrimpeur },
       { label: "Prénom", value: clientInfo.PrenomGrimpeur },
       { label: "Date de naissance", value: clientInfo.DateNaissGrimpeur },
@@ -44,20 +54,6 @@ export function ClientMenu({ clientInfo }: { clientInfo: Client}) {
       { label: "Date d'inscription", value: clientInfo.DateInscrGrimpeur },
       { label: "Accord règlement", value: clientInfo.AccordReglement ? "Oui" : "Non" },
     ];
-
-  return (      
-      <div className="container flex flex-col border border-black gap-2 h-full">
-        <TopSection fieldInfoClient={fieldInfoClient} expandTop={expandTop} expandBot={expandBot} setExpandTop={setExpandTop} />
-        <BottomSection expandBot={expandBot} expandTop={expandTop} setExpandBot={setExpandBot} />
-      </div>
-  );
-}
-
-
-
-
-// Partie haute
-function TopSection({ fieldInfoClient, expandTop, expandBot, setExpandTop }: TopSectionProps) {
   const initialItems = 8;
   const displayedFields = expandTop ? fieldInfoClient : fieldInfoClient.slice(0, initialItems);
 
@@ -145,4 +141,3 @@ function BottomSection({ expandBot, expandTop, setExpandBot }: BottomSectionProp
     </div>
   );
 }
-
