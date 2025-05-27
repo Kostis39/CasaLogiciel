@@ -1,0 +1,41 @@
+from flask import request
+from flask_restful import Resource
+from models import Clients
+from db import create_engine, get_session
+
+engine = create_engine()
+sesh = get_session(engine)
+
+
+class Produit(Resource):
+    def get(self, id):
+        with sesh() as session:
+            produit = session.query(Clients.Produit).filter_by(IdProduit=id).first()
+            if produit:
+                return produit.to_dict(), 200
+            else:
+                return {"message": "Produit not found"}, 404
+
+
+class SousProduit(Resource):
+    def get(self, idParent):
+        with sesh() as session:
+            produits = (
+                session.query(Clients.Produit).filter_by(IdProduitParent=idParent).all()
+            )
+            if produits:
+                return [produit.to_dict() for produit in produits], 200
+            else:
+                return {"message": "No sous-produits found"}, 404
+
+
+class RacineProduits(Resource):
+    def get(self):
+        with sesh() as session:
+            produits = (
+                session.query(Clients.Produit).filter_by(IdProduitParent=None).all()
+            )
+            if produits:
+                return [produit.to_dict() for produit in produits], 200
+            else:
+                return {"message": "No root products found"}, 404
