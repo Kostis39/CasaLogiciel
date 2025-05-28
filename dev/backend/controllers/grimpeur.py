@@ -78,7 +78,7 @@ class GrimpeurSearch(Resource):
                         Clients.Grimpeur.NomGrimpeur.ilike(f"%{query_string}%")
                         | Clients.Grimpeur.PrenomGrimpeur.ilike(f"%{query_string}%")
                     )
-                ).all()
+                ).limit(80)
         return [grimpeur.to_dict() for grimpeur in grimpeurs], 200
 
 
@@ -90,13 +90,19 @@ class Seances(Resource):
 
     def post(self):  # Penser à ajouter de la vérification de validité des données
         json = request.get_json()
+        idgrimpeur = json.get("NumGrimpeur")
+        date = json.get("DateSeance")
+        heure = json.get("HeureSeance")
+        if not idgrimpeur or not date or not heure:
+            return {"message": "Missing fields in  JSON data"}, 400
+
         nouv_seance = Clients.Seance()
 
         # Vérification de l'existence du grimpeur
         with sesh() as session:
             grimpeur = (
                 session.query(Clients.Grimpeur)
-                .filter_by(NumGrimpeur=json.get("NumGrimpeur"))
+                .filter_by(NumGrimpeur=idgrimpeur)
                 .first()
             )
             if not grimpeur:
@@ -114,9 +120,11 @@ class Seances(Resource):
                 return {"message": "Le grimpeur n'a pas d'entrée valide"}, 403
             else:
                 grimpeur.NbSeancesRest -= 1
+                nouv_seance.TypeEntree = "Ticket"
 
-        for key, value in json.items():
-            setattr(nouv_seance, key, value)
+        nouv_seance.NumGrimpeur = idgrimpeur
+        nouv_seance.DateSeance = date
+        nouv_seance.HeureSeance = heure
 
         with sesh() as session:
             session.add(nouv_seance)

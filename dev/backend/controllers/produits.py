@@ -168,3 +168,6 @@ class Produits(Resource):
             session.commit()
             session.refresh(nouv_produit)
             return nouv_produit.to_dict(), 201
+
+
+# class VisibiliteProduit(Resource):

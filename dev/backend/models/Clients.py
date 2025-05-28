@@ -93,4 +93,5 @@ class Produit(Casabase, SerializerMixin):
     )
     NomProduit: Mapped[str] = mapped_column(nullable=False)
     IdReduc: Mapped[int] = mapped_column(ForeignKey("Reduction.IdReduc"), nullable=True)
+    Visibilite: Mapped[bool] = mapped_column(default=True)
     PrixProduit: Mapped[float] = mapped_column(nullable=True)
