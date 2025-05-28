@@ -46,6 +46,12 @@
       - [`GET /abonnements/<int:id>`](#get-abonnementsintid)
       - [`PUT /abonnements/<int:id>`](#put-abonnementsintid)
       - [`DELETE /abonnements/<int:id>`](#delete-abonnementsintid)
+  - [Transactions](#transactions)
+    - [Ressource `Transactions`](#ressource-transactions)
+      - [`GET /transactions`](#get-transactions)
+      - [`POST /transactions`](#post-transactions)
+    - [Ressource `TransactionByDate`](#ressource-transactionbydate)
+      - [`GET /transactions?date=<date>`](#get-transactionsdatedate)
   
 ## Guide
 Une ressource `indiquée de cette façon` en titre de niveau 3 est une classe python située dans le dossier `backend/controllers`.
@@ -228,3 +234,22 @@ aucun produit racine n'existe.
 - **Paramètres** :
   - `id` (*int*) : Identifiant unique de l'abonnement.
 - **Réponse** : `HTTP 200 OK`{"message": "Abonnement deleted"} si la suppression est réussie, `HTTP 404`{"message": "Abonnement not found"} si l'abonnement n'existe pas.
+
+## Transactions
+
+### Ressource `Transactions`
+#### `GET /transactions`
+- **Description** : Récupère la liste de toutes les transactions.
+- **Réponse** : Liste d'objets transaction `HTTP 200 OK`.
+
+#### `POST /transactions`
+- **Description** : Crée une nouvelle transaction.
+- **Entrée** : JSON correctement formaté représentant une transaction.
+- **Réponse** : Objet transaction créé avec son identifiant `HTTP 201 Created`, `HTTP 400 Bad Request` si aucune donnée JSON n'est fournie.
+
+### Ressource `TransactionByDate`
+#### `GET /transactions?date=<date>`
+- **Description** : Récupère une transaction spécifique par son identifiant.
+- **Paramètres** :
+  - `date` (*str*) : Date au format `YYYY-MM-DD`.
+- **Réponse** : JSON de la transaction et `HTTP 200 OK` si trouvée, `HTTP 404`{"message": "Transaction not found"} si non trouvée.
