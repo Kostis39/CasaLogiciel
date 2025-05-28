@@ -30,6 +30,22 @@
     - [Ressource `Produits`](#ressource-produits)
       - [`GET /produits`](#get-produits)
       - [`POST /produits`](#post-produits)
+  - [Tickets](#tickets)
+    - [Ressource `Tickets`](#ressource-tickets)
+      - [`GET /tickets`](#get-tickets)
+      - [`POST /tickets`](#post-tickets)
+    - [Ressource `Ticket`](#ressource-ticket)
+      - [`GET /tickets/<int:id>`](#get-ticketsintid)
+      - [`PUT /tickets/<int:id>`](#put-ticketsintid)
+      - [`DELETE /tickets/<int:id>`](#delete-ticketsintid)
+  - [Abonnements](#abonnements)
+    - [Ressource `Abonnements`](#ressource-abonnements)
+      - [`GET /abonnements`](#get-abonnements)
+      - [`POST /abonnements`](#post-abonnements)
+    - [Ressource `Abonnement`](#ressource-abonnement)
+      - [`GET /abonnements/<int:id>`](#get-abonnementsintid)
+      - [`PUT /abonnements/<int:id>`](#put-abonnementsintid)
+      - [`DELETE /abonnements/<int:id>`](#delete-abonnementsintid)
   
 ## Guide
 Une ressource `indiquée de cette façon` en titre de niveau 3 est une classe python située dans le dossier `backend/controllers`.
@@ -144,3 +160,71 @@ aucun produit racine n'existe.
 - **Description** : Crée un nouveau produit.
 - **Entrée** : JSON correctement formaté représentant un produit.
 - **Réponse** : Objet produit créé avec son identifiant `HTTP 201 Created`, `HTTP 400 Bad Request` si le format du JSON est incorrect.
+
+## Tickets
+
+### Ressource `Tickets`
+
+#### `GET /tickets`
+- **Description** : Récupère la liste de tous les tickets.
+- **Réponse** : Liste d'objets ticket `HTTP 200 OK`.
+
+#### `POST /tickets`
+- **Description** : Crée un nouveau ticket.
+- **Entrée** : JSON correctement formaté représentant un ticket.
+- **Réponse** : Objet ticket créé avec son identifiant `HTTP 201 Created`, `HTTP 400 Bad Request` si aucune donnée JSON n'est fournie.
+
+### Ressource `Ticket`
+
+#### `GET /tickets/<int:id>`
+- **Description** : Récupère un ticket spécifique par son identifiant.
+- **Paramètres** :
+  - `id` (*int*) : Identifiant unique du ticket.
+- **Réponse** : JSON du ticket et `HTTP 200 OK` si trouvé, `HTTP 404`{"message": "Ticket not found"} si non trouvé.
+
+#### `PUT /tickets/<int:id>`
+- **Description** : Met à jour un ticket spécifique.
+- **Paramètres** :
+  - `id` (*int*) : Identifiant unique du ticket.
+- **Entrée** : JSON correctement formaté représentant les nouvelles informations du ticket.
+- **Réponse** : Objet ticket mis à jour `HTTP 200 OK` si trouvé, `HTTP 404`{"message": "Ticket not found"} si non trouvé, `HTTP 400 Bad Request` si aucune donnée n'est fournie.
+
+#### `DELETE /tickets/<int:id>`
+- **Description** : Supprime un ticket spécifique via son identifiant.
+- **Paramètres** :
+  - `id` (*int*) : Identifiant unique du ticket.
+- **Réponse** : `HTTP 200 OK`{"message": "Ticket deleted"} si la suppression est réussie, `HTTP 404`{"message": "Ticket not found"} si le ticket n'existe pas.
+
+## Abonnements
+
+### Ressource `Abonnements`
+
+#### `GET /abonnements`
+- **Description** : Récupère la liste de tous les abonnements.
+- **Réponse** : Liste d'objets abonnement `HTTP 200 OK`.
+
+#### `POST /abonnements`
+- **Description** : Crée un nouvel abonnement.
+- **Entrée** : JSON correctement formaté représentant un abonnement.
+- **Réponse** : Objet abonnement créé avec son identifiant `HTTP 201 Created`, `HTTP 400 Bad Request` si aucune donnée JSON n'est fournie.
+
+### Ressource `Abonnement`
+
+#### `GET /abonnements/<int:id>`
+- **Description** : Récupère un abonnement spécifique par son identifiant.
+- **Paramètres** :
+  - `id` (*int*) : Identifiant unique de l'abonnement.
+- **Réponse** : JSON de l'abonnement et `HTTP 200 OK` si trouvé, `HTTP 404`{"message": "Abonnement not found"} si non trouvé.
+
+#### `PUT /abonnements/<int:id>`
+- **Description** : Met à jour un abonnement spécifique.
+- **Paramètres** :
+  - `id` (*int*) : Identifiant unique de l'abonnement.
+- **Entrée** : JSON correctement formaté représentant les nouvelles informations de l'abonnement.
+- **Réponse** : Objet abonnement mis à jour `HTTP 200 OK` si trouvé, `HTTP 404`{"message": "Abonnement not found"} si non trouvé, `HTTP 400 Bad Request` si aucune donnée n'est fournie.
+
+#### `DELETE /abonnements/<int:id>`
+- **Description** : Supprime un abonnement spécifique via son identifiant.
+- **Paramètres** :
+  - `id` (*int*) : Identifiant unique de l'abonnement.
+- **Réponse** : `HTTP 200 OK`{"message": "Abonnement deleted"} si la suppression est réussie, `HTTP 404`{"message": "Abonnement not found"} si l'abonnement n'existe pas.
