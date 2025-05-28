@@ -14,7 +14,7 @@ export function ClientHeader(){
             </Link>
 
             <Link 
-            href="client/inscription" 
+            href="inscription" 
             className={`${buttonVariants({size: "lg", variant: "outline"})} flex-2`}
             >
                 Inscription
