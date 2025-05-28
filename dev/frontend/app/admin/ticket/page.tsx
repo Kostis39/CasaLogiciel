@@ -162,7 +162,7 @@ export default function TicketsPage() {
             >
               <div className="font-medium">{ticket.TypeTicket}</div>
               <div className="text-gray-600 flex gap-6 min-w-[150px] justify-end">
-                <div>Durée: {ticket.NbSeanceTicket} séance(s)</div>
+                <div>Quantité: {ticket.NbSeanceTicket} séance(s)</div>
                 <div>Prix: {ticket.PrixTicket.toFixed(2)} €</div>
               </div>
             </div>
