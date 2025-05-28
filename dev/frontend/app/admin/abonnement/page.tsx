@@ -13,10 +13,10 @@ import { Input } from '@/src/components/ui/input';
 import { Plus } from 'lucide-react';
 
 interface Abonnement {
-  IdAbonnement: number;
-  NomAbonnement: string;
-  DureeAbonnement: number;
-  PrixAbonnement: number;
+  IdAbo: number;
+  TypeAbo: string;
+  DureeAbo: number;
+  PrixAbo: number;
 }
 
 export default function AbonnementsPage() {
@@ -58,9 +58,9 @@ export default function AbonnementsPage() {
 
   const openDetailDialog = (abonnement: Abonnement) => {
     setSelectedAbonnement(abonnement);
-    setNomAbonnement(abonnement.NomAbonnement);
-    setDureeAbonnement(abonnement.DureeAbonnement.toString());
-    setPrixAbonnement(abonnement.PrixAbonnement.toString());
+    setNomAbonnement(abonnement.TypeAbo);
+    setDureeAbonnement(abonnement.DureeAbo.toString());
+    setPrixAbonnement(abonnement.PrixAbo.toString());
     setEditMode(false);
     setIsDetailDialogOpen(true);
     setConfirmDelete(false);
@@ -68,9 +68,9 @@ export default function AbonnementsPage() {
 
   const handleCreate = async () => {
     const body = {
-      NomAbonnement: nomAbonnement,
-      DureeAbonnement: parseInt(dureeAbonnement),
-      PrixAbonnement: parseFloat(prixAbonnement),
+      TypeAbo: nomAbonnement,
+      DureeAbo: parseInt(dureeAbonnement),
+      PrixAbo: parseFloat(prixAbonnement),
     };
 
     try {
@@ -92,13 +92,13 @@ export default function AbonnementsPage() {
     if (!selectedAbonnement) return;
 
     const body = {
-      NomAbonnement: nomAbonnement,
-      DureeAbonnement: parseInt(dureeAbonnement),
-      PrixAbonnement: parseFloat(prixAbonnement),
+      TypeAbo: nomAbonnement,
+      DureeAbo: parseInt(dureeAbonnement),
+      PrixAbo: parseFloat(prixAbonnement),
     };
 
     try {
-      const res = await fetch(`http://localhost:5000/abonnement/${selectedAbonnement.IdAbonnement}`, {
+      const res = await fetch(`http://localhost:5000/abonnement/${selectedAbonnement.IdAbo}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -121,7 +121,7 @@ export default function AbonnementsPage() {
     }
 
     try {
-      const res = await fetch(`http://localhost:5000/abonnement/${selectedAbonnement.IdAbonnement}`, {
+      const res = await fetch(`http://localhost:5000/abonnement/${selectedAbonnement.IdAbo}`, {
         method: 'DELETE',
       });
       if (res.ok) {
@@ -144,7 +144,7 @@ export default function AbonnementsPage() {
         ) : (
           abonnements.map((abonnement) => (
             <div
-              key={abonnement.IdAbonnement}
+              key={abonnement.IdAbo}
               className="flex justify-between items-center border-b py-3 cursor-pointer hover:bg-blue-50"
               onClick={() => openDetailDialog(abonnement)}
               onContextMenu={(e) => {
@@ -152,10 +152,10 @@ export default function AbonnementsPage() {
                 openDetailDialog(abonnement);
               }}
             >
-              <div className="font-medium">{abonnement.NomAbonnement}</div>
+              <div className="font-medium">{abonnement.TypeAbo}</div>
               <div className="text-gray-600 flex gap-6 min-w-[150px] justify-end">
-                <div>Durée: {abonnement.DureeAbonnement} mois</div>
-                <div>Prix: {abonnement.PrixAbonnement.toFixed(2)} €</div>
+                <div>Durée: {abonnement.DureeAbo} jours</div>
+                <div>Prix: {abonnement.PrixAbo.toFixed(2)} €</div>
               </div>
             </div>
           ))
@@ -191,7 +191,7 @@ export default function AbonnementsPage() {
               <Input type="number" min={1} value={dureeAbonnement} onChange={(e) => setDureeAbonnement(e.target.value)} />
             </div>
             <div>
-              <label className="block font-semibold mb-1">Prix (€)</label>
+              <label className="block font-semibold mb-1">Prix</label>
               <Input type="number" min={0} step="0.01" value={prixAbonnement} onChange={(e) => setPrixAbonnement(e.target.value)} />
             </div>
           </div>
@@ -220,11 +220,11 @@ export default function AbonnementsPage() {
               <Input value={nomAbonnement} onChange={(e) => setNomAbonnement(e.target.value)} disabled={!editMode} />
             </div>
             <div>
-              <label className="block font-semibold mb-1">Durée (mois)</label>
+              <label className="block font-semibold mb-1">Durée (jours)</label>
               <Input type="number" min={1} value={dureeAbonnement} onChange={(e) => setDureeAbonnement(e.target.value)} disabled={!editMode} />
             </div>
             <div>
-              <label className="block font-semibold mb-1">Prix (€)</label>
+              <label className="block font-semibold mb-1">Prix</label>
               <Input type="number" step="0.01" value={prixAbonnement} onChange={(e) => setPrixAbonnement(e.target.value)} disabled={!editMode} />
             </div>
           </div>
