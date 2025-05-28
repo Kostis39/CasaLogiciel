@@ -8,6 +8,7 @@ from controllers.grimpeur import *
 from controllers.produits import *
 from controllers.abonnement import *
 from controllers.ticket import *
+from controllers.transaction import *
 
 # Flask Setup
 app = Flask(__name__)
@@ -42,17 +43,21 @@ api.add_resource(Products, "/products")
 
 api.add_resource(GrimpeursListe, "/grimpeurs")
 api.add_resource(Grimpeur, "/grimpeurs/<int:id>")
+api.add_resource(GrimpeurSearch, "/grimpeurs/search")
 api.add_resource(Seances, "/seances")
 api.add_resource(SeancesSearch, "/seances/<int:idGrimpeur>")
-api.add_resource(GrimpeurSearch, "/grimpeurs/search")
 api.add_resource(Produit, "/produit/<int:id>")
 api.add_resource(SousProduit, "/sousproduits/<int:idParent>")
 api.add_resource(RacineProduits, "/racineproduits")
 api.add_resource(Produits, "/produits")
-api.add_resource(Tickets, '/tickets')
-api.add_resource(Ticket, '/ticket/<int:id>')
-api.add_resource(Abonnements, '/abonnements')
-api.add_resource(Abonnement, '/abonnement/<int:id>')
+api.add_resource(Tickets, "/tickets")
+api.add_resource(Ticket, "/ticket/<int:id>")
+api.add_resource(Abonnements, "/abonnements")
+api.add_resource(Abonnement, "/abonnement/<int:id>")
+api.add_resource(Transactions, "/transactions")
+api.add_resource(
+    TransactionByDate, "/transaction"
+)  # Note: utiliser querystring ?date="date"
 
 
 if __name__ == "__main__":
