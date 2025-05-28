@@ -113,3 +113,19 @@ export const fetchGrimpeurSearch = async (query: string) => {
 };
 
 
+export const isAlreadyEntered = async (id: number): Promise<boolean> => {
+    if (USE_MOCK) {
+        return true;
+    } else {
+        try {
+            const response = await fetch(`${API_URL}/grimpeurs/seances/${id}`);
+            if (!response.ok) {
+                return false;
+            }
+            const data = await response.json();
+            return data.est_la === true;
+        } catch (error) {
+            return false;
+        }
+    }
+};

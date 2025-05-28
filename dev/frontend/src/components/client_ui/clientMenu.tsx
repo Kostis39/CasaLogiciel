@@ -133,12 +133,12 @@ function TopSection({ clientInfo, expandTop, expandBot, setExpandTop }: TopSecti
 function BottomSection({ expandBot, expandTop, setExpandBot }: BottomSectionProps) {
   const buttons = ['Entrée', 'Achat Entrée', 'Achat Abonnement', 'Achat Annexe'];
 
-  return (
-    <div
-      className={`flex-1 flex items-center justify-center transition-all duration-300
-        ${!expandBot ? 'border border-blue-700' : ''}
+  if (!expandBot){
+    return (
+      <div
+      className={`flex-1 flex items-center justify-center transition-all duration-300 border border-blue-700
         ${expandTop ? 'hidden opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}
-    >
+      >
       <div className="grid grid-cols-2 grid-rows-2 gap-5">
         {buttons.map((label) => (
           <button
@@ -160,6 +160,44 @@ function BottomSection({ expandBot, expandTop, setExpandBot }: BottomSectionProp
         )}
       </div>
     </div>
-  );
-}
+  
+    );
+  }
 
+  return (
+    <div className="flex gap-4">
+      <Button
+      onClick={() => setExpandBot(false)}
+      size={"lg"}
+      className="flex-1"
+      >
+      Achat Entrée
+      </Button>
+
+      <Button
+      onClick={() => setExpandBot(false)}
+      size={"lg"}
+      className="flex-1"
+      >
+      Achat Abonnement
+      </Button>
+
+      <Button
+      onClick={() => setExpandBot(false)}
+      size={"lg"}
+      className="flex-1"
+      >
+      Achat Annexe
+      </Button>
+
+      <Button
+      onClick={() => setExpandBot(false)}
+      size={"lg"}
+      className="flex-1"
+      >
+      Retour
+      </Button>
+    </div>
+  );
+    
+}

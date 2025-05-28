@@ -6,6 +6,8 @@ from db import create_engine, get_session, test_connection
 
 from controllers.grimpeur import *
 from controllers.produits import *
+from controllers.abonnement import *
+from controllers.ticket import *
 
 # Flask Setup
 app = Flask(__name__)
@@ -47,6 +49,11 @@ api.add_resource(Produit, "/produit/<int:id>")
 api.add_resource(SousProduit, "/sousproduits/<int:idParent>")
 api.add_resource(RacineProduits, "/racineproduits")
 api.add_resource(Produits, "/produits")
+api.add_resource(Tickets, '/tickets')
+api.add_resource(Ticket, '/ticket/<int:id>')
+api.add_resource(Abonnements, '/abonnements')
+api.add_resource(Abonnement, '/abonnement/<int:id>')
+
 
 if __name__ == "__main__":
     app.run(debug=True)

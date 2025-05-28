@@ -17,16 +17,16 @@ export default function ChoixPage() {
           Ticket
         </Button>
         <Button
-          onClick={() => router.push('/admin/abonnement')}
-          className="w-60 h-20 text-xl font-semibold rounded-2xl shadow-lg"
-        >
-          Abonnement
-        </Button>
-        <Button
           onClick={() => router.push('/admin/produit')}
           className="w-60 h-20 text-xl font-semibold rounded-2xl shadow-lg"
         >
           Produit
+        </Button>
+        <Button
+          onClick={() => router.push('/admin/abonnement')}
+          className="w-60 h-20 text-xl font-semibold rounded-2xl shadow-lg"
+        >
+          Abonnement
         </Button>
       </div>
     </main>
