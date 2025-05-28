@@ -1,7 +1,7 @@
 
 const API_URL = 'http://localhost:5000';
 
-const USE_MOCK = false;
+const USE_MOCK = true;
 
 export const fetchGrimpeurById = async (id: number) => {
   if (USE_MOCK) {
