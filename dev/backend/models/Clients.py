@@ -29,7 +29,7 @@ class Grimpeur(Casabase, SerializerMixin):
 class Ticket(Casabase, SerializerMixin):
     __tablename__ = "Ticket"
 
-    IdTicket: Mapped[str] = mapped_column(primary_key=True, autoincrement=True)
+    IdTicket: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     TypeTicket: Mapped[str] = mapped_column(nullable=False)
     NbSeanceTicket: Mapped[int] = mapped_column(nullable=False)
     PrixTicket: Mapped[float] = mapped_column(nullable=False)
@@ -39,8 +39,8 @@ class Abonnement(Casabase, SerializerMixin):
     __tablename__ = "Abonnement"
 
     IdAbo: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    DureeAbo: Mapped[int] = mapped_column(nullable=False)
     TypeAbo: Mapped[str] = mapped_column(nullable=False)
+    DureeAbo: Mapped[int] = mapped_column(nullable=False)
     PrixAbo: Mapped[float] = mapped_column(nullable=False)
 
 
