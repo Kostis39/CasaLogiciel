@@ -1,4 +1,4 @@
-import { fetchGrimpeurById, fetchGrimpeurSearch } from "@/src/services/api"
+import { fetchGrimpeurSearch } from "@/src/services/api"
 import { ClientCard } from "./clientCard";
 
 const ClientList = async ({ query }: { query: string }) => {
@@ -7,7 +7,7 @@ const ClientList = async ({ query }: { query: string }) => {
     }
 
     const rep = await fetchGrimpeurSearch(query);
-    
+        
     if (!rep) {
         return <div>Pas de résultats</div>;
     }
