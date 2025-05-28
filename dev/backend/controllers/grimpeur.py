@@ -94,7 +94,7 @@ class Seances(Resource):
         date = json.get("DateSeance")
         heure = json.get("HeureSeance")
         if not idgrimpeur or not date or not heure:
-            return {"message": "Missing fields in  JSON data"}, 400
+            return {"message": "Missing field(s) in  JSON data"}, 400
 
         nouv_seance = Clients.Seance()
 
@@ -116,10 +116,10 @@ class Seances(Resource):
 
         # Si l'abonnement est inexistant ou expiré, on vérifie les séances restantes
         if grimpeur.DateFinAbo is None or grimpeur.DateFinAbo <= date.today():
-            if grimpeur.NbSeancesRest <= 0:
+            if grimpeur.NbSeanceRest <= 0:
                 return {"message": "Le grimpeur n'a pas d'entrée valide"}, 403
             else:
-                grimpeur.NbSeancesRest -= 1
+                grimpeur.NbSeanceRest -= 1
                 nouv_seance.TypeEntree = "Ticket"
 
         nouv_seance.NumGrimpeur = idgrimpeur
