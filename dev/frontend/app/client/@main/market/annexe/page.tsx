@@ -1,4 +1,4 @@
-import { buttonVariants } from "@/src/components/ui/button";
+import { Button, buttonVariants } from "@/src/components/ui/button";
 import Link from "next/link";
 
 const InfoListPage = async ({
@@ -18,6 +18,12 @@ const InfoListPage = async ({
         href={`/client?query=${query}&id=${id}`}
         className={`${buttonVariants({size: "lg", variant: "outline"})}`}>
             Retour
+        </Link>
+        <Link href={`/client/market/abo?query=${query}&id=${id}`}>
+            <Button variant="outline">Achat Abonnement</Button>
+        </Link>
+        <Link href={`/client/market/entrance?query=${query}&id=${id}`}>
+            <Button variant="outline">Achat Entrée</Button>
         </Link>
         AnnexePage
     </div>
