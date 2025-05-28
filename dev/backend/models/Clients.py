@@ -23,7 +23,7 @@ class Grimpeur(Casabase, SerializerMixin):
     DateFinCoti: Mapped[date] = mapped_column(nullable=True)
     NumLicenceGrimpeur: Mapped[int] = mapped_column(nullable=True)
     DateFinAbo: Mapped[date] = mapped_column(nullable=True)
-    NbSeancesRest: Mapped[int] = mapped_column(nullable=False, default=0)
+    NbSeancesRest: Mapped[int] = mapped_column(default=0)
 
 
 class Ticket(Casabase, SerializerMixin):
