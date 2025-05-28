@@ -101,7 +101,23 @@ class Produit(Resource):
 
 
 class SousProduit(Resource):
+
     def get(self, idParent):
+        """
+        Récupère tous les sous-produits associés à un identifiant de produit parent donné.
+
+        Args:
+            idParent (int): L'identifiant du produit parent pour lequel récupérer les sous-produits.
+
+        Returns:
+            tuple: Un tuple contenant :
+            - list de dict : Liste des sous-produits représentés sous forme de dictionnaires si trouvés.
+            - int : Code de statut HTTP 200 si des sous-produits sont trouvés, sinon 404.
+
+        Réponses:
+            200 : Sous-produits récupérés avec succès.
+            404 : Aucun sous-produit trouvé pour l'identifiant de produit parent donné.
+        """
         with sesh() as session:
             produits = (
                 session.query(Clients.Produit).filter_by(IdProduitParent=idParent).all()
@@ -168,3 +184,25 @@ class Produits(Resource):
             session.commit()
             session.refresh(nouv_produit)
             return nouv_produit.to_dict(), 201
+
+
+class VisibiliteProduit(Resource):
+    def get(self, idProduit):
+        """Retourne la visibilité d'un produit spécifique.
+
+        Args:
+            idProduit (int): L'identifiant du produit dont on veut connaître la visibilité.
+
+        Returns:
+            tuple: Un tuple contenant :
+            - dict : Dictionnaire avec l'état de visibilité du produit.
+            - int : Code de statut HTTP 200 si le produit est trouvé, sinon 404.
+        """
+        with sesh() as session:
+            produit = (
+                session.query(Clients.Produit).filter_by(IdProduit=idProduit).first()
+            )
+            if produit:
+                return {"visible": produit.Visible}, 200
+            else:
+                return {"message": "Produit not found"}, 404
