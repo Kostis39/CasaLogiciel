@@ -1,7 +1,7 @@
 
 const API_URL = 'http://localhost:5000';
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 export const fetchGrimpeurById = async (id: number) => {
   if (USE_MOCK) {
@@ -129,3 +129,40 @@ export const isAlreadyEntered = async (id: number): Promise<boolean> => {
         }
     }
 };
+
+function haveDateJSON() {
+  const date = new Date();
+  const isoString = date.toISOString();
+  const [fullDate, timeWithMs] = isoString.split('T');
+  const time = timeWithMs.split('.')[0];
+  return {
+    date: fullDate,
+    hour: time
+  };
+}
+
+
+export const SeanceClient = async (id: number) => {
+  try {
+    const date = haveDateJSON();
+    const body = {
+      NumGrimpeur: id,
+      DateSeance: date.date,
+      HeureSeance: date.hour,
+    }
+
+    const res = await fetch(`${API_URL}/seances`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(
+      body),
+    });
+    
+    if (res.ok) {
+    }
+  } catch (error) {
+    console.error('Erreur update abonnement:', error);
+  }
+}
+
+console.log(SeanceClient(1));

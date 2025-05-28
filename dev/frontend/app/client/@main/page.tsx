@@ -1,5 +1,6 @@
+import { ClientEntrance } from "@/src/components/client_ui/clientEntrance";
 import { Button, buttonVariants } from "@/src/components/ui/button";
-import { fetchGrimpeurById, isAlreadyEntered } from "@/src/services/api";
+import { fetchGrimpeurById, isAlreadyEntered, SeanceClient } from "@/src/services/api";
 import Link from "next/link";
 
 const MainPage = async ({
@@ -77,8 +78,7 @@ const MainPage = async ({
 
       <div className="flex-1 flex items-center justify-center transition-all duration-300 border border-blue-700">
         
-        {/* Boutons d'action */}
-        
+        <ClientEntrance num={num}/>
         <Link href={`/client/market/abo?query=${query}&id=${id}`}>
           <Button variant="outline">Achat Abonnement</Button>
         </Link>
