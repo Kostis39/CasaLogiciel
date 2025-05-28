@@ -191,7 +191,7 @@ export default function AbonnementsPage() {
               <Input type="number" min={1} value={dureeAbonnement} onChange={(e) => setDureeAbonnement(e.target.value)} />
             </div>
             <div>
-              <label className="block font-semibold mb-1">Prix</label>
+              <label className="block font-semibold mb-1">Prix (€)</label>
               <Input type="number" min={0} step="0.01" value={prixAbonnement} onChange={(e) => setPrixAbonnement(e.target.value)} />
             </div>
           </div>
