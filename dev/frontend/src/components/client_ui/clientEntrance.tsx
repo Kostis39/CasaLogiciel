@@ -4,12 +4,12 @@ import { Button } from "../ui/button";
 
 export function ClientEntrance({num}:{num:number | null}){
     return (
-        <Button
+        <Button /*
           onClick={async () => {
             if (num !== null) {
               await SeanceClient(num);
             }
-          }}
+          }}*/
         >
           Entrée
         </Button>

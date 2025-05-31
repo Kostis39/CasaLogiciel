@@ -79,14 +79,8 @@ const MainPage = async ({
       <div className="flex-1 flex items-center justify-center transition-all duration-300 border border-blue-700">
         
         <ClientEntrance num={num}/>
-        <Link href={`/client/market/abo?query=${query}&id=${id}`}>
-          <Button variant="outline">Achat Abonnement</Button>
-        </Link>
-        <Link href={`/client/market/entrance?query=${query}&id=${id}`}>
-          <Button variant="outline">Achat Entrée</Button>
-        </Link>
-        <Link href={`/client/market/annexe?query=${query}&id=${id}`}>
-          <Button variant="outline">Achat Annexe</Button>
+        <Link href={`/client/market?query=${query}&id=${id}`}>
+          <Button variant="outline">Achats</Button>
         </Link>
 
       </div>
