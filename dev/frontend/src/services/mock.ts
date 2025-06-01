@@ -83,7 +83,7 @@ export const mockService = {
                 "DureeAbo": 30,
                 "TypeAbo": "Mensuel",
                 "IdAbo": 1,
-                "PrixAbo": 45.0
+                "PrixAbo": 45.5
             },
             {
                 "DureeAbo": 90,

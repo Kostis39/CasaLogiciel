@@ -1,6 +1,6 @@
 import { ClientEntrance } from "@/src/components/client_ui/clientEntrance";
-import { Button, buttonVariants } from "@/src/components/ui/button";
-import { fetchGrimpeurById, isAlreadyEntered, SeanceClient } from "@/src/services/api";
+import { Button } from "@/src/components/ui/button";
+import { fetchGrimpeurById, isAlreadyEntered } from "@/src/services/api";
 import Link from "next/link";
 
 const MainPage = async ({

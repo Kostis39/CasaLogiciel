@@ -22,7 +22,7 @@ export const realService = {
 
     fetchGrimpeurSearch: async (query: string) => {
         try {
-            const response = await fetch(`${API_URL}/grimpeurs//search?query=${query}`);
+            const response = await fetch(`${API_URL}/grimpeurs/search?query=${query}`);
             if (!response.ok) {
                 console.log(`Erreur HTTP: ${response.status}`);
                 return [];

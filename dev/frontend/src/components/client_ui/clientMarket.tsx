@@ -12,7 +12,7 @@ type ItemCardProps = {
 export const ItemCard = ({ id, name, price, duration, type }: ItemCardProps) => {
   const { cartItems, addToCart, removeOneFromCart } = useCart();
   const quantity = cartItems.find((item) => item.id === id && item.type === type)?.quantity || 0;
-  const color = (type === "abonnement" || type === "ticket") ? "blue" : "green";
+  const color = "blue";
 
   return (
     <div
