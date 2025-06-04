@@ -11,6 +11,7 @@ import {
 } from '@/src/components/ui/dialog';
 import { Input } from '@/src/components/ui/input';
 import { Plus } from 'lucide-react';
+import { deleteAbonnement, fetchAbonnements, postAbonnement, updateAbonnement } from '@/src/services/api';
 
 interface Abonnement {
   IdAbo: number;
@@ -33,13 +34,12 @@ export default function AbonnementsPage() {
   const [prixAbonnement, setPrixAbonnement] = useState('');
 
   useEffect(() => {
-    fetchAbonnements();
+    storeAbo();
   }, []);
 
-  const fetchAbonnements = async () => {
+  const storeAbo = async () => {
     try {
-      const res = await fetch('http://localhost:5000/abonnements');
-      const data = await res.json();
+      const data = await fetchAbonnements();
       setAbonnements(data);
     } catch (error) {
       console.error('Erreur fetch abonnements:', error);
@@ -74,13 +74,9 @@ export default function AbonnementsPage() {
     };
 
     try {
-      const res = await fetch('http://localhost:5000/abonnements', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      if (res.ok) {
-        fetchAbonnements();
+      const res = await postAbonnement(body);
+      if (res && res.ok) {
+        storeAbo();
         setIsCreateDialogOpen(false);
       }
     } catch (error) {
@@ -98,13 +94,9 @@ export default function AbonnementsPage() {
     };
 
     try {
-      const res = await fetch(`http://localhost:5000/abonnement/${selectedAbonnement.IdAbo}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      if (res.ok) {
-        fetchAbonnements();
+      const res = await updateAbonnement(selectedAbonnement.IdAbo, body);
+      if (res && res.ok) {
+        storeAbo();
         setEditMode(false);
       }
     } catch (error) {
@@ -121,11 +113,9 @@ export default function AbonnementsPage() {
     }
 
     try {
-      const res = await fetch(`http://localhost:5000/abonnement/${selectedAbonnement.IdAbo}`, {
-        method: 'DELETE',
-      });
-      if (res.ok) {
-        fetchAbonnements();
+      const res = await deleteAbonnement(selectedAbonnement.IdAbo);
+      if (res && res.ok) {
+        storeAbo();
         setIsDetailDialogOpen(false);
         setConfirmDelete(false);
       }
@@ -212,7 +202,7 @@ export default function AbonnementsPage() {
       }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Détails de l’abonnement</DialogTitle>
+            <DialogTitle>Détails de l'abonnement</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>

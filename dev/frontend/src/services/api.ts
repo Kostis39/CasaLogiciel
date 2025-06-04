@@ -11,10 +11,25 @@ export const {
   fetchAbonnements,
   fetchTickets,
   fetchProduits,
+  fetchRacineProduits,
+  fetchSousProduits,
 
 //------- Posters -------
   postSeanceClient,
+  postAbonnement,
+  postTicket,
+  postProduit,
 
+//------- Putters -------
+  updateAbonnement,
+  updateTicket,
+  updateProduit,
+
+//------- Deleters -------
+  deleteAbonnement,
+  deleteTicket,
+  deleteProduit,
+  
 //------- Others -------
   isAlreadyEntered,
 } = api;

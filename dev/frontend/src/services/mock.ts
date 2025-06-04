@@ -138,6 +138,72 @@ export const mockService = {
         ];
     },
 
+    fetchRacineProduits: async () => {
+        return [
+    {
+        "IdReduc": null,
+        "Visibilite": true,
+        "PrixProduit": null,
+        "NomProduit": "\u00c9quipement d'escalade",
+        "IdProduitParent": null,
+        "IdProduit": 1
+    },
+    {
+        "IdReduc": null,
+        "Visibilite": true,
+        "PrixProduit": null,
+        "NomProduit": "Boisson",
+        "IdProduitParent": null,
+        "IdProduit": 6
+    },
+    {
+        "IdReduc": null,
+        "Visibilite": true,
+        "PrixProduit": null,
+        "NomProduit": "Friandises",
+        "IdProduitParent": null,
+        "IdProduit": 19
+    }
+]
+    },
+
+    fetchSousProduits: async (idParent: number) => {
+        return [
+    {
+        "IdReduc": null,
+        "Visibilite": true,
+        "PrixProduit": 2.0,
+        "NomProduit": "Chausson d'escalade",
+        "IdProduitParent": 1,
+        "IdProduit": 2
+    },
+    {
+        "IdReduc": null,
+        "Visibilite": true,
+        "PrixProduit": 2.0,
+        "NomProduit": "Baudrier + Descendeur",
+        "IdProduitParent": 1,
+        "IdProduit": 3
+    },
+    {
+        "IdReduc": null,
+        "Visibilite": true,
+        "PrixProduit": 10.9,
+        "NomProduit": "Magn\u00e9sie liquide 150ml",
+        "IdProduitParent": 1,
+        "IdProduit": 4
+    },
+    {
+        "IdReduc": null,
+        "Visibilite": true,
+        "PrixProduit": 15.9,
+        "NomProduit": "Magn\u00e9sie liquide 250ml",
+        "IdProduitParent": 1,
+        "IdProduit": 5
+    }
+]
+    },
+
 //----------------------------------- Posters -----------------------------------
     postSeanceClient: async (id: number) => {
         const date = haveDateJSON();
@@ -149,6 +215,67 @@ export const mockService = {
         console.log("Mock POST Seance Client:", body);
     },
 
+    postAbonnement: async (abonnementData: {
+        TypeAbo: string;
+        DureeAbo: number;
+        PrixAbo: number;
+    }) => {
+        console.log("Mock POST Abonnement:", JSON.stringify(abonnementData));
+    },
+
+    postTicket: async (ticketData: {
+        TypeTicket: string;
+        NbSeanceTicket: number;
+        PrixTicket: number;
+    }) => {
+        console.log("Mock POST Ticket:", JSON.stringify(ticketData));
+    },
+
+    postProduit: async (produitData: {
+        IdProduitParent: number | null;
+        NomProduit: string;
+        IdReduc: number | null;
+        PrixProduit: number | null;
+    }) => {
+        console.log("Mock POST Produit:", JSON.stringify(produitData));
+    },
+
+//----------------------------------- Putters -----------------------------------
+    updateAbonnement: async (idAbonnement: number, abonnementData: {
+        TypeAbo: string;
+        DureeAbo: number;
+        PrixAbo: number;
+    }) => {
+        console.log(`Mock PUT Abonnement ${idAbonnement}:`, JSON.stringify(abonnementData));
+    },
+
+    updateTicket: async (idTicket: number, ticketData: {
+        TypeTicket: string;
+        NbSeanceTicket: number;
+        PrixTicket: number;
+    }) => {
+        console.log(`Mock PUT Ticket ${idTicket}:`, JSON.stringify(ticketData));
+    },
+
+    updateProduit: async (idProduit: number, produitData: {
+        NomProduit: string;
+        PrixProduit?: number;
+    }) => {
+        console.log(`Mock PUT Produit ${idProduit}:`, JSON.stringify(produitData));
+    },
+
+//----------------------------------- Deleters -----------------------------------
+    deleteAbonnement: async (idAbonnement: number) => {
+        console.log(`Mock DELETE Abonnement ${idAbonnement}`);
+    },
+
+    deleteTicket: async (idTicket: number) => {
+        console.log(`Mock DELETE Ticket ${idTicket}`);
+    },
+
+    deleteProduit: async (idProduit: number) => {
+        console.log(`Mock DELETE Produit ${idProduit}`);
+    },
 //----------------------------------- Others -----------------------------------
     isAlreadyEntered: async (id: number) => {
         return true;

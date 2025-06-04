@@ -1,3 +1,4 @@
+import { ClientGrid } from "@/src/components/client_ui/clientInfo";
 import { buttonVariants } from "@/src/components/ui/button";
 import { fetchGrimpeurById, isAlreadyEntered } from "@/src/services/api";
 import Link from "next/link";
@@ -35,50 +36,48 @@ const InfoListPage = async ({
       { label: "Accord règlement", value: clientInfo.AccordReglement ? "Oui" : "Non" },
     ];
 
-  return (
-    <div>
-        <div className="flex-1 border border-amber-950">
-            {await isAlreadyEntered(clientInfo.NumGrimpeur) ? (
-            <p className=" left-10 text-red-600">Est déjà rentré aujourd'hui</p>
-                ) : (
-                <p></p>
-            )}
-        <div className="flex gap-5 items-center justify-center h-full">
-        
-        {/* Image à gauche */}
-        <div className="flex-[1]">
-            <img 
-            src="/avatar.png"
-            alt="Grimpeur" 
-            className="w-full h-auto rounded"
-              />
-        </div>
+return (
+  <div className="pr-5 h-full w-full relative">
+    {await isAlreadyEntered(clientInfo.NumGrimpeur) ? (
+      <p className="absolute left-10 text-red-600">Est déjà rentré aujourd'hui</p>
+        ) : (
+      <p></p>
+    )}
 
-        {/* Grille des grimpeurs */}
-        <div className="flex-[4] grid grid-cols-1 md:grid-cols-3 gap-6">
-          {fieldInfoClient.map(({ label, value }) => (
-            <div key={label} className="border p-2 rounded bg-white shadow">
-              <strong className="block text-sm font-semibold text-gray-700">{label}</strong>
-              <span className="text-base">{value}</span>
-            </div>
-          ))}
-        <Link 
-        href={`/client?query=${query}&id=${id}`}
-        className="border border-dashed p-4 flex items-center justify-center">
-            Voir moins
+    <div className="flex gap-5 items-center justify-center h-full">
+      {/* Image à gauche */}
+      <div className="flex-[1]">
+          <img 
+          src="/avatar.png"
+          alt="Grimpeur" 
+          className="w-full h-auto rounded"
+            />
+      </div>
+
+      {/* Grille des grimpeurs */}
+      <div className="flex-[4] grid grid-cols-1 md:grid-cols-3 gap-6">
+        <ClientGrid fieldInfoClient={fieldInfoClient} />
+
+        {/* Boutons */}
+        <Link
+          href={`/client?query=${query}&id=${id}`}
+          className="border border-dashed p-4 rounded flex items-center justify-center text-center text-sm col-span-full md:col-span-1"
+        >
+          Voir moins
         </Link>
 
         <Link
-        href={`/client?query=${query}&id=${id}`} //  Lien vers la page de modification
-        className={`${buttonVariants({size: "lg"})}  right-2 bg-blue-600 text-white`}
+          href={`/client?query=${query}&id=${id}`}
+          className={`${buttonVariants({ size: "lg" })} bg-blue-600 text-white col-span-full md:col-span-1`}
         >
-            Modifier
+          Modifier
         </Link>
+      </div>
     </div>
-    </div>
-    </div>
-    </div>
-  );
+  </div>
+);
+
 }
 
 export default InfoListPage;
+

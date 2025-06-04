@@ -11,6 +11,7 @@ import {
 } from '@/src/components/ui/dialog';
 import { Input } from '@/src/components/ui/input';
 import { Plus } from 'lucide-react';
+import { deleteTicket, fetchTickets, postTicket, updateTicket } from '@/src/services/api';
 
 interface Ticket {
   IdTicket: number;
@@ -36,13 +37,12 @@ export default function TicketsPage() {
   const [prixTicket, setPrixTicket] = useState('');
 
   useEffect(() => {
-    fetchTickets();
+    storeTickets();
   }, []);
 
-  const fetchTickets = async () => {
+  const storeTickets = async () => {
     try {
-      const res = await fetch('http://localhost:5000/tickets');
-      const data = await res.json();
+      const data = await fetchTickets();
       setTickets(data);
     } catch (error) {
       console.error('Erreur fetch tickets:', error);
@@ -81,13 +81,9 @@ export default function TicketsPage() {
     };
 
     try {
-      const res = await fetch('http://localhost:5000/tickets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      if (res.ok) {
-        fetchTickets();
+      const res = await postTicket(body);
+      if (res && res.ok) {
+        storeTickets();
         setIsCreateDialogOpen(false);
       }
     } catch (error) {
@@ -105,13 +101,9 @@ export default function TicketsPage() {
     };
 
     try {
-      const res = await fetch(`http://localhost:5000/ticket/${selectedTicket.IdTicket}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      if (res.ok) {
-        fetchTickets();
+      const res = await updateTicket(selectedTicket.IdTicket, body);
+      if (res && res.ok) {
+        storeTickets();
         setEditMode(false);
       }
     } catch (error) {
@@ -128,11 +120,9 @@ export default function TicketsPage() {
     }
 
     try {
-      const res = await fetch(`http://localhost:5000/ticket/${selectedTicket.IdTicket}`, {
-        method: 'DELETE',
-      });
-      if (res.ok) {
-        fetchTickets();
+      const res = await deleteTicket(selectedTicket.IdTicket);
+      if (res && res.ok) {
+        storeTickets();
         setIsDetailDialogOpen(false);
         setConfirmDelete(false);
       }

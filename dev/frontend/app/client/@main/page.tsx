@@ -1,4 +1,5 @@
 import { ClientEntrance } from "@/src/components/client_ui/clientEntrance";
+import { ClientGrid } from "@/src/components/client_ui/clientInfo";
 import { Button } from "@/src/components/ui/button";
 import { fetchGrimpeurById, isAlreadyEntered } from "@/src/services/api";
 import Link from "next/link";
@@ -36,15 +37,15 @@ const MainPage = async ({
     ];
 
   return (
-    <div className="container flex flex-col gap-2 h-full relative">
+    <div className="pr-5 flex flex-col gap-2 h-full relative">
 
-      <div className="border border-amber-950 flex-1 transition-all duration-300">
+      <div className="border rounded flex-1">
         {/* Petit message qui est sensé s'afficher seulement si le Bot ne 
         prends pas toute la place et si le grimpeur est déjà rentrée */}
         {await isAlreadyEntered(clientInfo.NumGrimpeur) ? (
           <p className="absolute left-10 text-red-600">Est déjà rentré aujourd'hui</p>
             ) : (
-            <p></p>
+          <p></p>
         )}
         {/* Conteneur principal avec image + tableau */}
         <div className="flex gap-5 items-center justify-center h-full">
@@ -60,12 +61,7 @@ const MainPage = async ({
 
           {/* Grille des grimpeurs */}
           <div className="flex-[4] grid grid-cols-1 md:grid-cols-3 gap-6">
-            {fieldInfoClient.map(({ label, value }) => (
-              <div key={label} className="border p-2 rounded bg-white shadow">
-                <strong className="block text-sm font-semibold text-gray-700">{label}</strong>
-                <span className="text-base">{value}</span>
-              </div>
-            ))}
+            <ClientGrid fieldInfoClient={fieldInfoClient} />
             <Link 
             href={`/client/info?query=${query}&id=${id}`}
             className="border border-dashed p-4 flex items-center justify-center"
@@ -76,7 +72,7 @@ const MainPage = async ({
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center transition-all duration-300 border border-blue-700">
+      <div className="border rounded flex-1 flex items-center justify-center">
         
         <ClientEntrance num={num}/>
         <Link href={`/client/market?query=${query}&id=${id}`}>

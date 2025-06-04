@@ -16,7 +16,7 @@ export const ItemCard = ({ id, name, price, duration, type }: ItemCardProps) => 
 
   return (
     <div
-      className={`relative bg-white border rounded-xl shadow-sm p-4 transition-transform duration-200 hover:shadow-md hover:scale-[1.01] cursor-pointer
+      className={`relative bg-white border rounded-xl shadow-sm p-4 transition-transform hover:shadow-md hover:scale-[1.01] cursor-pointer
         ${quantity > 0 ? `border-${color}-500 ring-1 ring-${color}-200 bg-${color}-50` : `hover:border-${color}-300`}
       `}
       onClick={() =>

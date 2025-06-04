@@ -13,6 +13,7 @@ import { Input } from '@/src/components/ui/input';
 import { Folder, File } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ChevronRight, ChevronDown } from 'lucide-react';
+import { deleteProduit, fetchRacineProduits, fetchSousProduits, postProduit, updateProduit } from '@/src/services/api';
 
 interface Produit {
   IdProduit: number;
@@ -43,34 +44,40 @@ export default function ProduitsPage() {
   }, []);
 
   const fetchProduits = async () => {
-    const res = await fetch('http://localhost:5000/racineproduits');
-    const data = await res.json();
-    const map: ProduitMap = {};
-    data.forEach((p: Produit) => {
-      map[p.IdProduit] = p;
-    });
-    setProduits(map);
-    setRacines(data.map((p: Produit) => p.IdProduit));
+    try {
+      const data = await fetchRacineProduits();
+      const map: ProduitMap = {};
+      data.forEach((p: Produit) => {
+        map[p.IdProduit] = p;
+      });
+      setProduits(map);
+      setRacines(data.map((p: Produit) => p.IdProduit));
+    } catch (error) {
+      console.error('Erreur lors de la récupération des produits:', error);
+    }
   };
 
   const fetchEnfants = async (idParent: number) => {
-    const res = await fetch(`http://localhost:5000/sousproduits/${idParent}`);
-    const data = await res.json();
+    try {
+      const data = await fetchSousProduits(idParent);
 
-    if (!Array.isArray(data)) {
-      console.warn('Réponse inattendue de /sousproduits/', data);
-      return;
+      if (!Array.isArray(data)) {
+        console.warn('Réponse inattendue de /sousproduits/', data);
+        return;
+      }
+
+      const nouveaux = { ...produits };
+      nouveaux[idParent].enfants = data;
+      nouveaux[idParent].expanded = true;
+
+      data.forEach((p: Produit) => {
+        nouveaux[p.IdProduit] = p;
+      });
+
+      setProduits(nouveaux);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des enfants:', error);
     }
-
-    const nouveaux = { ...produits };
-    nouveaux[idParent].enfants = data;
-    nouveaux[idParent].expanded = true;
-
-    data.forEach((p: Produit) => {
-      nouveaux[p.IdProduit] = p;
-    });
-
-    setProduits(nouveaux);
   };
 
   const toggleExpand = async (id: number) => {
@@ -203,55 +210,56 @@ export default function ProduitsPage() {
   
 
   const handleCreate = async () => {
-    const selectedProduit = selection !== null ? produits[selection] : null;
+    try {
+      const selectedProduit = selection !== null ? produits[selection] : null;
 
-    const body: any = {
-      IdProduitParent:
-        selectedProduit !== null
-          ? selectedProduit.PrixProduit !== null
-            ? selectedProduit.IdProduitParent
-            : selectedProduit.IdProduit
-          : null,
-      NomProduit: nom,
-      IdReduc: null,
-      PrixProduit: dialogType === 'produit' ? parseFloat(prix) : null,
-    };
-    await fetch('http://localhost:5000/produits', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    setDialogType(null);
-    setNom('');
-    setPrix('');
-    fetchProduits();
+      const body = {
+        IdProduitParent:
+          selectedProduit !== null
+            ? selectedProduit.PrixProduit !== null
+              ? selectedProduit.IdProduitParent
+              : selectedProduit.IdProduit
+            : null,
+        NomProduit: nom,
+        IdReduc: null,
+        PrixProduit: dialogType === 'produit' ? parseFloat(prix) : null,
+      };
+
+      await postProduit(body);
+      setDialogType(null);
+      setNom('');
+      setPrix('');
+      fetchProduits();
+    } catch (error) {
+      console.error('Erreur lors de la création du produit:', error);
+    }
   };
 
   const handleUpdate = async () => {
     if (!detailProduit) return;
 
-    const body: any = { NomProduit: nom };
-    if (detailProduit.PrixProduit !== null) {
-      // feuille => prix modifiable
-      body.PrixProduit = parseFloat(prix);
-      if (isNaN(body.PrixProduit)) {
-        return;
+    try {
+      const body: any = { NomProduit: nom };
+      if (detailProduit.PrixProduit !== null) {
+        // feuille => prix modifiable
+        body.PrixProduit = parseFloat(prix);
+        if (isNaN(body.PrixProduit)) {
+          return;
+        }
       }
-    }
 
-    const res = await fetch(`http://localhost:5000/produit/${detailProduit.IdProduit}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
+      const res = await updateProduit(detailProduit.IdProduit, body);
 
-    if (res.ok) {
-      setEditMode(false);
-      fetchProduits();
-      // Mettre à jour detailProduit localement aussi
-      setDetailProduit((prev) =>
-        prev ? { ...prev, NomProduit: nom, PrixProduit: body.PrixProduit ?? prev.PrixProduit } : null
-      );
+      if (res && res.ok) {
+        setEditMode(false);
+        fetchProduits();
+        // Mettre à jour detailProduit localement aussi
+        setDetailProduit((prev) =>
+          prev ? { ...prev, NomProduit: nom, PrixProduit: body.PrixProduit ?? prev.PrixProduit } : null
+        );
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du produit:', error);
     }
   };
 
@@ -261,14 +269,16 @@ export default function ProduitsPage() {
       setConfirmDelete(true);
       return;
     }
-    // Appel suppression API
-    const res = await fetch(`http://localhost:5000/produit/${detailProduit.IdProduit}`, {
-      method: 'DELETE',
-    });
-    if (res.ok) {
-      setDetailProduit(null);
-      setConfirmDelete(false);
-      fetchProduits();
+
+    try {
+      const res = await deleteProduit(detailProduit.IdProduit);
+      if (res && res.ok) {
+        setDetailProduit(null);
+        setConfirmDelete(false);
+        fetchProduits();
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression du produit:', error);
     }
   };
 

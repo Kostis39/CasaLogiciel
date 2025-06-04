@@ -1,26 +1,16 @@
-// app/client/@aside/@list/default.tsx
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
-import ClientList from "@/src/components/client_ui/clientList";
+import { ClientListClientComponent } from "@/src/components/client_ui/clientListDefault";
 
-const ListDefaultContent = () => {
+const ListDefault = () => {
   const searchParams = useSearchParams();
-  const query = searchParams.get('query') || '';
+  const query = searchParams.get("query") || '';
 
   return (
     <div className="overflow-auto max-h-[80vh]">
-      <ClientList query={query} />
+      <ClientListClientComponent query={query} />
     </div>
-  );
-};
-
-const ListDefault = () => {
-  return (
-    <Suspense fallback={<div>Chargement...</div>}>
-      <ListDefaultContent />
-    </Suspense>
   );
 };
 
