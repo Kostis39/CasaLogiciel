@@ -8,7 +8,7 @@ const ListDefault = () => {
   const query = searchParams.get("query") || '';
 
   return (
-    <div className="overflow-auto max-h-[80vh]">
+    <div className="overflow-auto max-h-[83vh]">
       <ClientListClientComponent query={query} />
     </div>
   );

@@ -12,12 +12,11 @@ type ItemCardProps = {
 export const ItemCard = ({ id, name, price, duration, type }: ItemCardProps) => {
   const { cartItems, addToCart, removeOneFromCart } = useCart();
   const quantity = cartItems.find((item) => item.id === id && item.type === type)?.quantity || 0;
-  const color = "blue";
 
   return (
     <div
-      className={`relative bg-white border rounded-xl shadow-sm p-4 transition-transform hover:shadow-md hover:scale-[1.01] cursor-pointer
-        ${quantity > 0 ? `border-${color}-500 ring-1 ring-${color}-200 bg-${color}-50` : `hover:border-${color}-300`}
+      className={`relative bg-white border rounded-xl shadow-sm p-4 hover:shadow-md hover:scale-[1.01] cursor-pointer
+        ${quantity > 0 ? `border-blue-500 bg-blue-50` : `hover:border-blue-300`}
       `}
       onClick={() =>
         addToCart({
@@ -33,7 +32,7 @@ export const ItemCard = ({ id, name, price, duration, type }: ItemCardProps) => 
       }}
     >
       {quantity > 0 && (
-        <div className={`absolute top-2 right-2 bg-${color}-600 text-white text-xs px-2 py-0.5 rounded-full shadow`}>
+        <div className={`absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full shadow`}>
           x{quantity}
         </div>
       )}
@@ -47,7 +46,7 @@ export const ItemCard = ({ id, name, price, duration, type }: ItemCardProps) => 
         {type === "ticket" && duration !== undefined && (
           <div>Séances : {duration}</div>
         )}
-        <div>Prix : {price.toFixed(2)} €</div>
+        <div>Prix : {price/*.toFixed(2)*/} €</div>
       </div>
     </div>
   );

@@ -28,28 +28,45 @@ const MarketPageContent = () => {
   const [viewType, setViewType] = useState<"abo&ticket" | "produits">("abo&ticket");
   const [items, setItems] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     fetchTickets().then(setTickets);
     fetchAbonnements().then(setItems);
     setViewType("abo&ticket");
+    setLoading(false);
+
   }, []);
 
   const handleLoadAbonnements = async () => {
+    setLoading(true);
     const data = await fetchAbonnements();
     setItems(data);
     setViewType("abo&ticket");
+    setLoading(false);
   };
 
   const handleLoadProduits = async () => {
+    setLoading(true);
     const data = await fetchProduits();
     setItems(data);
     setViewType("produits");
+    setLoading(false);
   };
 
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center">
+        <p className="text-gray-600">Chargement des données...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full flex flex-col p-4 gap-4">
-      <div className="flex gap-2">
+    <div className="w-full h-full flex flex-col gap-4 pr-2">
+      <div className="flex gap-2 pl-1 pr-1">
         <Button className="flex-1" size="lg" variant="outline" onClick={handleLoadAbonnements}>
           Achat Entrée
         </Button>
@@ -116,7 +133,7 @@ const MarketPageContent = () => {
         </Dialog>
       </div>
 
-      <div className="mt-4 space-y-2">
+      <div className="mt-4 p-0.5 space-y-2 overflow-auto max-h-[79vh]">
         {viewType === "abo&ticket" && (
           <div className="space-y-8">
             <ItemListCantainer titre="Abonnements" itemLenght={items.length}>

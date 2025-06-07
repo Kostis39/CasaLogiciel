@@ -10,7 +10,7 @@ export default function ClientLayout({
 }) {
   return (
       <div className="mainClientContainer w-full h-screen">
-        <div className=" bg-blue-50 ">
+        <div className=" bg-gray-50 ">
           <ClientHeader />
         </div>
 

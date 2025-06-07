@@ -11,7 +11,6 @@ import {
 } from '@/src/components/ui/dialog';
 import { Input } from '@/src/components/ui/input';
 import { Folder, File } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { ChevronRight, ChevronDown } from 'lucide-react';
 import { deleteProduit, fetchRacineProduits, fetchSousProduits, postProduit, updateProduit } from '@/src/services/api';
 
@@ -37,7 +36,6 @@ export default function ProduitsPage() {
   const [nom, setNom] = useState('');
   const [prix, setPrix] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     fetchProduits();
