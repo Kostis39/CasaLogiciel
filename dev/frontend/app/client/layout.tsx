@@ -19,7 +19,7 @@ export default function ClientLayout({
             {aside}
           </div>
           <div>
-            {main}          
+            {main}
           </div>
         </div>
       </div>
