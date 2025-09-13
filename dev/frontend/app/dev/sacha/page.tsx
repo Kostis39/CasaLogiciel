@@ -1,3 +1,10 @@
-export default function SachaPage() {
-  return <div>zretbyuvtcer</div>;
-}
+
+const Panier = () => {
+
+  return (
+    <div className="bg-red-600 grid"></div>
+  );
+  
+};
+
+export default Panier;

@@ -1,10 +1,11 @@
-import Link from "next/link";
-
+import { CartProvider } from "@/src/components/client_ui/cardContext";
 
 export default function ProfilLayout({ children }: { children: React.ReactNode }) {
   return (
     <div>
-            {children}      
+      <CartProvider>
+            {children}
+      </CartProvider>   
     </div>
   );
 }

@@ -39,6 +39,10 @@ class Seances(Resource):
 
         if not grimpeur.AccordReglement:
             return {"message": "Le grimpeur doit signer le règlement"}, 403
+        
+        if grimpeur.DateFinCoti is None or grimpeur.DateFinCoti < date.today():
+            return {"message": "Le grimpeur n'est pas cotisant"}, 403
+
 
         # Si l'abonnement est inexistant ou expiré, on vérifie les séances restantes
         if grimpeur.DateFinAbo is None or grimpeur.DateFinAbo <= date.today():

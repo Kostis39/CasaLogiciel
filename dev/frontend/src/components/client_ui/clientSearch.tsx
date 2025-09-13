@@ -1,5 +1,5 @@
 "use client";
-import { Search, Sidebar } from "lucide-react"
+import { Search } from "lucide-react"
 import { Label } from "@/src/components/ui/label";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";

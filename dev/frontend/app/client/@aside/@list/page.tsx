@@ -8,7 +8,9 @@ const ListPage = async ({
     };}) => {
     const query = (await searchParams)?.query || '';
     return (
-        <ClientList query={query} />
+        <div className="overflow-auto max-h-[83vh]">
+            <ClientList query={query} />
+        </div>
     );
 }
 export  default ListPage;
