@@ -46,6 +46,7 @@ api.add_resource(GrimpeursListe, "/grimpeurs")
 api.add_resource(Grimpeur, "/grimpeurs/<int:id>")
 api.add_resource(GrimpeurSearch, "/grimpeurs/search")
 api.add_resource(Seances, "/seances")  # Note: pour le post envoyer un JSON
+api.add_resource(SeancesByDate, "/seancesbydate")
 api.add_resource(SeancesSearch, "/seances/<int:idGrimpeur>")
 api.add_resource(Produit, "/produit/<int:id>")
 api.add_resource(SousProduit, "/sousproduits/<int:idParent>")

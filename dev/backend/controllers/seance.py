@@ -1,3 +1,4 @@
+from datetime import date
 from flask import request
 from flask_restful import Resource
 from models import Clients
@@ -76,3 +77,20 @@ class SeancesSearch(Resource):
                 .one_or_none()
             )
             return {"est_la": seance_auj is not None}, 200
+
+class SeancesByDate(Resource): # Ressource pour filtrer les séances par date
+    def get(self):
+        date_debut = request.args.get("date_debut") # Si date_fin est fourni, on filtre entre les deux dates sinon c'est la date du jour précisé
+        date_fin = request.args.get("date_fin")
+        with sesh() as session:
+            query = session.query(Clients.Seance)
+            if date_debut and date_fin:
+                query = query.filter(
+                    Clients.Seance.DateSeance >= date_debut,
+                    Clients.Seance.DateSeance <= date_fin
+                )
+            elif date_debut:
+                query = query.filter(Clients.Seance.DateSeance == date_debut)
+            seances = query.all()
+            return [seance.to_dict() for seance in seances], 200
+            
