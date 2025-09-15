@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>doc</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css" />
+</head>
+<body>
+<h1 id="documentation-des-endpoints-api">Documentation des Endpoints
+API</h1>
+<ul>
+<li><a href="#documentation-des-endpoints-api">Documentation des
+Endpoints API</a>
+<ul>
+<li><a href="#guide">Guide</a></li>
+<li><a href="#grimpeurs">Grimpeurs</a>
+<ul>
+<li><a href="#ressource-grimpeursliste">Ressource
+<code>GrimpeursListe</code></a>
+<ul>
+<li><a href="#get-grimpeurs"><code>GET /grimpeurs</code></a></li>
+<li><a href="#post-grimpeurs"><code>POST /grimpeurs</code></a></li>
+</ul></li>
+<li><a href="#ressource-grimpeur">Ressource <code>Grimpeur</code></a>
+<ul>
+<li><a
+href="#get-grimpeursintid"><code>GET /grimpeurs/&lt;int:id&gt;</code></a></li>
+<li><a
+href="#post-grimpeursintid"><code>POST /grimpeurs/&lt;int:id&gt;</code></a></li>
+<li><a
+href="#delete-grimpeursintid"><code>DELETE /grimpeurs/&lt;int:id&gt;</code></a></li>
+</ul></li>
+<li><a href="#ressource-grimpeurssearch">Ressource
+<code>GrimpeursSearch</code></a>
+<ul>
+<li><a
+href="#get-grimpeurssearch"><code>GET /grimpeurs/search</code></a></li>
+</ul></li>
+</ul></li>
+<li><a href="#séances">Séances</a>
+<ul>
+<li><a href="#ressource-seances">Ressource <code>Seances</code></a>
+<ul>
+<li><a href="#get-seances"><code>GET /seances</code></a></li>
+<li><a href="#post-seances"><code>POST /seances</code></a></li>
+</ul></li>
+<li><a href="#ressource-seancessearch">Ressource
+<code>SeancesSearch</code></a>
+<ul>
+<li><a
+href="#get-seancesintid"><code>GET /seances/&lt;int:id&gt;</code></a></li>
+</ul></li>
+<li><a href="#ressource-seancesbydate">Ressource
+<code>SeancesByDate</code></a>
+<ul>
+<li><a
+href="#get-seancesbydate"><code>GET /seancesbydate</code></a></li>
+</ul></li>
+<li><a href="#ressource-produit">Ressource <code>Produit</code></a>
+<ul>
+<li><a
+href="#get-produitintid"><code>GET /produit/&lt;int:id&gt;</code></a></li>
+<li><a
+href="#delete-produitintid"><code>DELETE /produit/&lt;int:id&gt;</code></a></li>
+<li><a
+href="#put-produitintid"><code>PUT /produit/&lt;int:id&gt;</code></a></li>
+</ul></li>
+<li><a href="#ressource-sousproduit">Ressource
+<code>SousProduit</code></a>
+<ul>
+<li><a
+href="#get-sousproduitintidparent"><code>GET /sousproduit/&lt;int:idParent&gt;</code></a></li>
+</ul></li>
+<li><a href="#ressource-racineproduits">Ressource
+<code>RacineProduits</code></a>
+<ul>
+<li><a
+href="#get-racineproduits"><code>GET /racineproduits</code></a></li>
+</ul></li>
+<li><a href="#ressource-produits">Ressource <code>Produits</code></a>
+<ul>
+<li><a href="#get-produits"><code>GET /produits</code></a></li>
+<li><a href="#post-produits"><code>POST /produits</code></a></li>
+</ul></li>
+</ul></li>
+<li><a href="#tickets">Tickets</a>
+<ul>
+<li><a href="#ressource-tickets">Ressource <code>Tickets</code></a>
+<ul>
+<li><a href="#get-tickets"><code>GET /tickets</code></a></li>
+<li><a href="#post-tickets"><code>POST /tickets</code></a></li>
+</ul></li>
+<li><a href="#ressource-ticket">Ressource <code>Ticket</code></a>
+<ul>
+<li><a
+href="#get-ticketsintid"><code>GET /tickets/&lt;int:id&gt;</code></a></li>
+<li><a
+href="#put-ticketsintid"><code>PUT /tickets/&lt;int:id&gt;</code></a></li>
+<li><a
+href="#delete-ticketsintid"><code>DELETE /tickets/&lt;int:id&gt;</code></a></li>
+</ul></li>
+</ul></li>
+<li><a href="#abonnements">Abonnements</a>
+<ul>
+<li><a href="#ressource-abonnements">Ressource
+<code>Abonnements</code></a>
+<ul>
+<li><a href="#get-abonnements"><code>GET /abonnements</code></a></li>
+<li><a href="#post-abonnements"><code>POST /abonnements</code></a></li>
+</ul></li>
+<li><a href="#ressource-abonnement">Ressource
+<code>Abonnement</code></a>
+<ul>
+<li><a
+href="#get-abonnementsintid"><code>GET /abonnements/&lt;int:id&gt;</code></a></li>
+<li><a
+href="#put-abonnementsintid"><code>PUT /abonnements/&lt;int:id&gt;</code></a></li>
+<li><a
+href="#delete-abonnementsintid"><code>DELETE /abonnements/&lt;int:id&gt;</code></a></li>
+</ul></li>
+</ul></li>
+<li><a href="#transactions">Transactions</a>
+<ul>
+<li><a href="#ressource-transactions">Ressource
+<code>Transactions</code></a>
+<ul>
+<li><a href="#get-transactions"><code>GET /transactions</code></a></li>
+<li><a
+href="#post-transactions"><code>POST /transactions</code></a></li>
+</ul></li>
+<li><a href="#ressource-transactionbydate">Ressource
+<code>TransactionByDate</code></a>
+<ul>
+<li><a
+href="#get-transactionsdatedate"><code>GET /transactions?date=&lt;date&gt;</code></a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+<h2 id="guide">Guide</h2>
+<p>Une ressource <code>indiquée de cette façon</code> en titre de niveau
+3 est une classe python située dans le dossier
+<code>backend/controllers</code>. Le titre de niveau 4 indique la
+méthode HTTP et le chemin d’accès de l’endpoint.</p>
+<h2 id="grimpeurs">Grimpeurs</h2>
+<h3 id="ressource-grimpeursliste">Ressource
+<code>GrimpeursListe</code></h3>
+<h4 id="get-grimpeurs"><code>GET /grimpeurs</code></h4>
+<ul>
+<li><strong>Description</strong> : Donne une liste de tous les
+grimpeurs.</li>
+<li><strong>Réponse</strong> : JSON de l’ensemble des objets
+grimpeur.</li>
+</ul>
+<h4 id="post-grimpeurs"><code>POST /grimpeurs</code></h4>
+<ul>
+<li><strong>Description</strong> : Crée un nouveau grimpeur.</li>
+<li><strong>Entrée</strong> : JSON correctement formaté représentant un
+grimpeur.</li>
+<li><strong>Réponse</strong> : Objet grimpeur créé avec son identifiant
+<code>HTTP 201 Created</code>.</li>
+</ul>
+<h3 id="ressource-grimpeur">Ressource <code>Grimpeur</code></h3>
+<h4
+id="get-grimpeursintid"><code>GET /grimpeurs/&lt;int:id&gt;</code></h4>
+<ul>
+<li><strong>Description</strong> : Récupère les informations détaillées
+d’un grimpeur spécifique par son identifiant.</li>
+<li><strong>Paramètres</strong> :
+<ul>
+<li><code>id</code> (<em>int</em>) : Identifiant unique du
+grimpeur.</li>
+</ul></li>
+<li><strong>Réponse</strong> : JSON du grimpeur et
+<code>HTTP 200 OK</code> si trouvé, <code>HTTP 404</code>{“message”:
+“Grimpeur not found”} si non trouvé.</li>
+</ul>
+<h4
+id="post-grimpeursintid"><code>POST /grimpeurs/&lt;int:id&gt;</code></h4>
+<ul>
+<li><strong>Description</strong> : Met à jour les informations d’un
+grimpeur spécifique.</li>
+<li><strong>Paramètres</strong> :
+<ul>
+<li><code>id</code> (<em>int</em>) : Identifiant unique du
+grimpeur.</li>
+</ul></li>
+<li><strong>Entrée</strong> : JSON correctement formaté représentant les
+nouvelles informations du grimpeur.</li>
+<li><strong>Réponse</strong> : Objet grimpeur mis à jour avec son
+identifiant <code>HTTP 200 OK</code> si trouvé,
+<code>HTTP 404</code>{“message”: “Grimpeur not found”} si non
+trouvé.</li>
+</ul>
+<h4
+id="delete-grimpeursintid"><code>DELETE /grimpeurs/&lt;int:id&gt;</code></h4>
+<ul>
+<li><strong>Description</strong> : Supprime un grimpeur spécifique via
+son identifiant.</li>
+<li><strong>Paramètres</strong> :
+<ul>
+<li><code>id</code> (<em>int</em>) : Identifiant unique du
+grimpeur.</li>
+</ul></li>
+<li><strong>Réponse</strong> : <code>HTTP 204 No Content</code> si la
+suppression est réussie, <code>HTTP 404</code>{“message”: Grimpeur not
+found} si le grimpeur n’existe pas.</li>
+</ul>
+<h3 id="ressource-grimpeurssearch">Ressource
+<code>GrimpeursSearch</code></h3>
+<h4 id="get-grimpeurssearch"><code>GET /grimpeurs/search</code></h4>
+<ul>
+<li><strong>Description</strong> : Recherche des grimpeurs par leur
+numéro, nom ou prénom.</li>
+<li><strong>Paramètres</strong> : <code>?query=info</code> info pouvant
+être un nom ou un numéro.</li>
+<li><strong>Réponse</strong> : Liste d’objets grimpeur correspondant aux
+critères de recherche <code>HTTP 200 OK</code>.</li>
+</ul>
+<h2 id="séances">Séances</h2>
+<h3 id="ressource-seances">Ressource <code>Seances</code></h3>
+<h4 id="get-seances"><code>GET /seances</code></h4>
+<ul>
+<li><strong>Description</strong> : Récupère la liste de toutes les
+séances.</li>
+<li><strong>Réponse</strong> : Liste d’objets séance.</li>
+</ul>
+<h4 id="post-seances"><code>POST /seances</code></h4>
+<ul>
+<li><strong>Description</strong> : Ajoute une nouvelle séance. Pour
+l’instant, il n’y a pas de vérification de la possibilité de création
+d’une séance.</li>
+<li><strong>Entrée</strong> : JSON correctement formaté représentant une
+séance.</li>
+<li><strong>Réponse</strong> : Objet séance créé avec son identifiant
+<code>HTTP 201 Created</code>.</li>
+</ul>
+<h3 id="ressource-seancessearch">Ressource
+<code>SeancesSearch</code></h3>
+<h4 id="get-seancesintid"><code>GET /seances/&lt;int:id&gt;</code></h4>
+<ul>
+<li><strong>Description</strong> : Indique si le grimpeur est déjà venu
+aujourd’hui.</li>
+<li><strong>Paramètres</strong> :
+<ul>
+<li><code>id</code> (<em>int</em>) : NumGrimpeur, identifiant unique du
+grimpeur.</li>
+</ul></li>
+<li><strong>Réponse</strong> : <code>HTTP 200 OK</code> {“est_la”:
+true/false} si le grimpeur est déjà venu aujourd’hui,
+<code>HTTP 404</code>{“message”: “Grimpeur not found”} si le grimpeur
+n’existe pas.</li>
+</ul>
+<h3 id="ressource-seancesbydate">Ressource
+<code>SeancesByDate</code></h3>
+<p>Ressource API pour filtrer les séances par date.</p>
+<h4 id="get-seancesbydate"><code>GET /seancesbydate</code></h4>
+<ul>
+<li><strong>Description</strong> : Récupère les séances filtrées par
+date selon les paramètres fournis dans la requête.
+<ul>
+<li>Si les paramètres <code>date_debut</code> et <code>date_fin</code>
+sont présents, retourne les séances dont la date est comprise entre ces
+deux dates (incluses).</li>
+<li>Si seul <code>date_debut</code> est fourni, retourne les séances
+correspondant exactement à cette date.</li>
+<li>Si aucun paramètre n’est fourni, aucune séance n’est retournée.</li>
+</ul></li>
+<li><strong>Paramètres de requête</strong> :
+<ul>
+<li><code>date_debut</code> (<em>str</em>, optionnel) : Date de début du
+filtre (format attendu : AAAA-MM-JJ).</li>
+<li><code>date_fin</code> (<em>str</em>, optionnel) : Date de fin du
+filtre (format attendu : AAAA-MM-JJ).</li>
+<li><strong>Exemple de requête</strong></li>
+</ul>
+<code>GET /seancesbydate?date_debut=2024-06-01&amp;date_fin=2024-06-30</code></li>
+<li><strong>Réponse</strong> :
+<ul>
+<li>Liste de séances filtrées, chaque séance étant sérialisée sous forme
+de dictionnaire.</li>
+<li>Code HTTP <code>200 OK</code> en cas de succès.</li>
+</ul></li>
+</ul>
+<h3 id="ressource-produit">Ressource <code>Produit</code></h3>
+<h4 id="get-produitintid"><code>GET /produit/&lt;int:id&gt;</code></h4>
+<ul>
+<li><strong>Description</strong> : Récupère un produit spécifique par
+son identifiant.</li>
+<li><strong>Paramètres</strong> :
+<ul>
+<li><code>id</code> (<em>int</em>) : Identifiant unique du produit.</li>
+</ul></li>
+<li><strong>Réponse</strong> : JSON du produit et
+<code>HTTP 200 OK</code> si trouvé, <code>HTTP 404</code>{“message”:
+“Produit not found”} si non trouvé.</li>
+</ul>
+<h4
+id="delete-produitintid"><code>DELETE /produit/&lt;int:id&gt;</code></h4>
+<ul>
+<li><strong>Description</strong> : Supprime un produit ainsi que tous
+ses descendants.</li>
+<li><strong>Paramètres</strong> :
+<ul>
+<li><code>id</code> (<em>int</em>) : Identifiant unique du produit.</li>
+</ul></li>
+<li><strong>Réponse</strong> : <code>HTTP 204 No Content</code> si la
+suppression est réussie, <code>HTTP 404</code>{“message”: Produit not
+found} si le produit n’existe pas.</li>
+</ul>
+<h4 id="put-produitintid"><code>PUT /produit/&lt;int:id&gt;</code></h4>
+<ul>
+<li><strong>Description</strong> : Met à jour un produit
+spécifique.</li>
+<li><strong>Paramètres</strong> :
+<ul>
+<li><code>id</code> (<em>int</em>) : Identifiant unique du produit.</li>
+<li><strong>Entrée</strong> : JSON correctement formaté représentant les
+nouvelles informations du produit.</li>
+</ul></li>
+<li><strong>Réponse</strong> : Objet produit mis à jour avec son
+identifiant <code>HTTP 200 OK</code> si trouvé,
+<code>HTTP 404</code>{“message”: “Produit not found”} si non
+trouvé.</li>
+</ul>
+<h3 id="ressource-sousproduit">Ressource <code>SousProduit</code></h3>
+<h4
+id="get-sousproduitintidparent"><code>GET /sousproduit/&lt;int:idParent&gt;</code></h4>
+<ul>
+<li><strong>Description</strong> : Récupère tous les sous-produits d’un
+produit parent spécifique.</li>
+<li><strong>Paramètres</strong> :
+<ul>
+<li><code>idParent</code> (<em>int</em>) : Identifiant unique du produit
+parent.</li>
+</ul></li>
+<li><strong>Réponse</strong> : Liste de sous-produits associés au
+produit parent <code>HTTP 200 OK</code>,
+<code>HTTP 404</code>{“message”: “Produit not found”} si le produit
+parent n’existe pas.</li>
+</ul>
+<h3 id="ressource-racineproduits">Ressource
+<code>RacineProduits</code></h3>
+<h4 id="get-racineproduits"><code>GET /racineproduits</code></h4>
+<ul>
+<li><strong>Description</strong> : Récupère tous les produits
+racines.</li>
+<li><strong>Réponse</strong> : Liste de produits racines
+<code>HTTP 200 OK</code>, <code>HTTP 404</code>{“message”: “No root
+products not found”} si def post(self): aucun produit racine
+n’existe.</li>
+</ul>
+<h3 id="ressource-produits">Ressource <code>Produits</code></h3>
+<h4 id="get-produits"><code>GET /produits</code></h4>
+<ul>
+<li><strong>Description</strong> : Récupère tous les produits.</li>
+<li><strong>Réponse</strong> : Liste de tous les produits
+<code>HTTP 200 OK</code>, <code>HTTP 404</code>{“message”: “No products
+found”} si aucun produit n’existe.</li>
+</ul>
+<h4 id="post-produits"><code>POST /produits</code></h4>
+<ul>
+<li><strong>Description</strong> : Crée un nouveau produit.</li>
+<li><strong>Entrée</strong> : JSON correctement formaté représentant un
+produit.</li>
+<li><strong>Réponse</strong> : Objet produit créé avec son identifiant
+<code>HTTP 201 Created</code>, <code>HTTP 400 Bad Request</code> si le
+format du JSON est incorrect.</li>
+</ul>
+<h2 id="tickets">Tickets</h2>
+<h3 id="ressource-tickets">Ressource <code>Tickets</code></h3>
+<h4 id="get-tickets"><code>GET /tickets</code></h4>
+<ul>
+<li><strong>Description</strong> : Récupère la liste de tous les
+tickets.</li>
+<li><strong>Réponse</strong> : Liste d’objets ticket
+<code>HTTP 200 OK</code>.</li>
+</ul>
+<h4 id="post-tickets"><code>POST /tickets</code></h4>
+<ul>
+<li><strong>Description</strong> : Crée un nouveau ticket.</li>
+<li><strong>Entrée</strong> : JSON correctement formaté représentant un
+ticket.</li>
+<li><strong>Réponse</strong> : Objet ticket créé avec son identifiant
+<code>HTTP 201 Created</code>, <code>HTTP 400 Bad Request</code> si
+aucune donnée JSON n’est fournie.</li>
+</ul>
+<h3 id="ressource-ticket">Ressource <code>Ticket</code></h3>
+<h4 id="get-ticketsintid"><code>GET /tickets/&lt;int:id&gt;</code></h4>
+<ul>
+<li><strong>Description</strong> : Récupère un ticket spécifique par son
+identifiant.</li>
+<li><strong>Paramètres</strong> :
+<ul>
+<li><code>id</code> (<em>int</em>) : Identifiant unique du ticket.</li>
+</ul></li>
+<li><strong>Réponse</strong> : JSON du ticket et
+<code>HTTP 200 OK</code> si trouvé, <code>HTTP 404</code>{“message”:
+“Ticket not found”} si non trouvé.</li>
+</ul>
+<h4 id="put-ticketsintid"><code>PUT /tickets/&lt;int:id&gt;</code></h4>
+<ul>
+<li><strong>Description</strong> : Met à jour un ticket spécifique.</li>
+<li><strong>Paramètres</strong> :
+<ul>
+<li><code>id</code> (<em>int</em>) : Identifiant unique du ticket.</li>
+</ul></li>
+<li><strong>Entrée</strong> : JSON correctement formaté représentant les
+nouvelles informations du ticket.</li>
+<li><strong>Réponse</strong> : Objet ticket mis à jour
+<code>HTTP 200 OK</code> si trouvé, <code>HTTP 404</code>{“message”:
+“Ticket not found”} si non trouvé, <code>HTTP 400 Bad Request</code> si
+aucune donnée n’est fournie.</li>
+</ul>
+<h4
+id="delete-ticketsintid"><code>DELETE /tickets/&lt;int:id&gt;</code></h4>
+<ul>
+<li><strong>Description</strong> : Supprime un ticket spécifique via son
+identifiant.</li>
+<li><strong>Paramètres</strong> :
+<ul>
+<li><code>id</code> (<em>int</em>) : Identifiant unique du ticket.</li>
+</ul></li>
+<li><strong>Réponse</strong> : <code>HTTP 200 OK</code>{“message”:
+“Ticket deleted”} si la suppression est réussie,
+<code>HTTP 404</code>{“message”: “Ticket not found”} si le ticket
+n’existe pas.</li>
+</ul>
+<h2 id="abonnements">Abonnements</h2>
+<h3 id="ressource-abonnements">Ressource <code>Abonnements</code></h3>
+<h4 id="get-abonnements"><code>GET /abonnements</code></h4>
+<ul>
+<li><strong>Description</strong> : Récupère la liste de tous les
+abonnements.</li>
+<li><strong>Réponse</strong> : Liste d’objets abonnement
+<code>HTTP 200 OK</code>.</li>
+</ul>
+<h4 id="post-abonnements"><code>POST /abonnements</code></h4>
+<ul>
+<li><strong>Description</strong> : Crée un nouvel abonnement.</li>
+<li><strong>Entrée</strong> : JSON correctement formaté représentant un
+abonnement.</li>
+<li><strong>Réponse</strong> : Objet abonnement créé avec son
+identifiant <code>HTTP 201 Created</code>,
+<code>HTTP 400 Bad Request</code> si aucune donnée JSON n’est
+fournie.</li>
+</ul>
+<h3 id="ressource-abonnement">Ressource <code>Abonnement</code></h3>
+<h4
+id="get-abonnementsintid"><code>GET /abonnements/&lt;int:id&gt;</code></h4>
+<ul>
+<li><strong>Description</strong> : Récupère un abonnement spécifique par
+son identifiant.</li>
+<li><strong>Paramètres</strong> :
+<ul>
+<li><code>id</code> (<em>int</em>) : Identifiant unique de
+l’abonnement.</li>
+</ul></li>
+<li><strong>Réponse</strong> : JSON de l’abonnement et
+<code>HTTP 200 OK</code> si trouvé, <code>HTTP 404</code>{“message”:
+“Abonnement not found”} si non trouvé.</li>
+</ul>
+<h4
+id="put-abonnementsintid"><code>PUT /abonnements/&lt;int:id&gt;</code></h4>
+<ul>
+<li><strong>Description</strong> : Met à jour un abonnement
+spécifique.</li>
+<li><strong>Paramètres</strong> :
+<ul>
+<li><code>id</code> (<em>int</em>) : Identifiant unique de
+l’abonnement.</li>
+</ul></li>
+<li><strong>Entrée</strong> : JSON correctement formaté représentant les
+nouvelles informations de l’abonnement.</li>
+<li><strong>Réponse</strong> : Objet abonnement mis à jour
+<code>HTTP 200 OK</code> si trouvé, <code>HTTP 404</code>{“message”:
+“Abonnement not found”} si non trouvé, <code>HTTP 400 Bad Request</code>
+si aucune donnée n’est fournie.</li>
+</ul>
+<h4
+id="delete-abonnementsintid"><code>DELETE /abonnements/&lt;int:id&gt;</code></h4>
+<ul>
+<li><strong>Description</strong> : Supprime un abonnement spécifique via
+son identifiant.</li>
+<li><strong>Paramètres</strong> :
+<ul>
+<li><code>id</code> (<em>int</em>) : Identifiant unique de
+l’abonnement.</li>
+</ul></li>
+<li><strong>Réponse</strong> : <code>HTTP 200 OK</code>{“message”:
+“Abonnement deleted”} si la suppression est réussie,
+<code>HTTP 404</code>{“message”: “Abonnement not found”} si l’abonnement
+n’existe pas.</li>
+</ul>
+<h2 id="transactions">Transactions</h2>
+<h3 id="ressource-transactions">Ressource <code>Transactions</code></h3>
+<h4 id="get-transactions"><code>GET /transactions</code></h4>
+<ul>
+<li><strong>Description</strong> : Récupère la liste de toutes les
+transactions.</li>
+<li><strong>Réponse</strong> : Liste d’objets transaction
+<code>HTTP 200 OK</code>.</li>
+</ul>
+<h4 id="post-transactions"><code>POST /transactions</code></h4>
+<ul>
+<li><strong>Description</strong> : Crée une nouvelle transaction.</li>
+<li><strong>Entrée</strong> : JSON correctement formaté représentant une
+transaction.</li>
+<li><strong>Réponse</strong> : Objet transaction créé avec son
+identifiant <code>HTTP 201 Created</code>,
+<code>HTTP 400 Bad Request</code> si aucune donnée JSON n’est
+fournie.</li>
+</ul>
+<h3 id="ressource-transactionbydate">Ressource
+<code>TransactionByDate</code></h3>
+<h4
+id="get-transactionsdatedate"><code>GET /transactions?date=&lt;date&gt;</code></h4>
+<ul>
+<li><strong>Description</strong> : Récupère une transaction spécifique
+par son identifiant.</li>
+<li><strong>Paramètres</strong> :
+<ul>
+<li><code>date</code> (<em>str</em>) : Date au format
+<code>YYYY-MM-DD</code>.</li>
+</ul></li>
+<li><strong>Réponse</strong> : JSON de la transaction et
+<code>HTTP 200 OK</code> si trouvée, <code>HTTP 404</code>{“message”:
+“Transaction not found”} si non trouvée.</li>
+</ul>
+</body>
+</html>

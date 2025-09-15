@@ -18,7 +18,8 @@
       - [`POST /seances`](#post-seances)
     - [Ressource `SeancesSearch`](#ressource-seancessearch)
       - [`GET /seances/<int:id>`](#get-seancesintid)
-  - [Produits](#produits)
+    - [Ressource `SeancesByDate`](#ressource-seancesbydate)
+      - [`GET /seancesbydate`](#get-seancesbydate)
     - [Ressource `Produit`](#ressource-produit)
       - [`GET /produit/<int:id>`](#get-produitintid)
       - [`DELETE /produit/<int:id>`](#delete-produitintid)
@@ -118,7 +119,23 @@ Le titre de niveau 4 indique la méthode HTTP et le chemin d'accès de l'endpoin
     - `id` (*int*) : NumGrimpeur, identifiant unique du grimpeur.
 - **Réponse** : `HTTP 200 OK` {"est_la": true/false} si le grimpeur est déjà venu aujourd'hui, `HTTP 404`{"message": "Grimpeur not found"} si le grimpeur n'existe pas.
 
-## Produits
+### Ressource `SeancesByDate`
+Ressource API pour filtrer les séances par date.
+
+#### `GET /seancesbydate`
+- **Description** : Récupère les séances filtrées par date selon les paramètres fournis dans la requête.
+  - Si les paramètres `date_debut` et `date_fin` sont présents, retourne les séances dont la date est comprise entre ces deux dates (incluses).
+  - Si seul `date_debut` est fourni, retourne les séances correspondant exactement à cette date.
+  - Si aucun paramètre n'est fourni, aucune séance n'est retournée.
+- **Paramètres de requête** :
+  - `date_debut` (*str*, optionnel) : Date de début du filtre (format attendu : AAAA-MM-JJ).
+  - `date_fin` (*str*, optionnel) : Date de fin du filtre (format attendu : AAAA-MM-JJ).
+  - **Exemple de requête**
+
+  `GET /seancesbydate?date_debut=2024-06-01&date_fin=2024-06-30`
+- **Réponse** :
+  - Liste de séances filtrées, chaque séance étant sérialisée sous forme de dictionnaire.
+  - Code HTTP `200 OK` en cas de succès.
 
 ### Ressource `Produit`
 
