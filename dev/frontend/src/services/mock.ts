@@ -1,5 +1,5 @@
 import { Client } from "../types&fields/types";
-import { getTodayPlusOneYear, haveCotisation, haveDateJSON } from "./api";
+import { getTodayPlusOneYear, isDateValid, haveDateJSON } from "./api";
 
 export const mockService = {
 
@@ -360,7 +360,7 @@ export const mockService = {
 
     updateCotisationClient: async (client: Client) =>{
         const newClient = client;
-        newClient.DateFinCoti = haveCotisation(newClient.DateFinCoti) ? null : getTodayPlusOneYear();
+        newClient.DateFinCoti = isDateValid(newClient.DateFinCoti) ? null : getTodayPlusOneYear();
         console.log(`Mock Update client cotisation ${client.NumGrimpeur}:`, JSON.stringify(newClient));
     },
 

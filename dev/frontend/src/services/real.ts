@@ -1,4 +1,4 @@
-import { getTodayPlusOneYear, haveDateJSON, haveCotisation } from "./api";
+import { getTodayPlusOneYear, haveDateJSON, isDateValid } from "./api";
 import { Client } from "../types&fields/types";
 const API_URL = "http://127.0.0.1:5000";
 
@@ -272,7 +272,7 @@ export const realService = {
     updateCotisationClient: async (client: Client) =>{
         try{
             const newClient = client;
-            if (haveCotisation(newClient.DateFinCoti) == true){
+            if (isDateValid(newClient.DateFinCoti)){
                 newClient.DateFinCoti = null;
             } else {
                 newClient.DateFinCoti = getTodayPlusOneYear();

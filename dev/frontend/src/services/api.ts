@@ -58,7 +58,7 @@ export function getTodayPlusOneYear(): string {
   return today.toISOString().split("T")[0]; // format YYYY-MM-DD
 }
 
-export function haveCotisation(dateFinCoti: string | undefined | null): boolean {
+export function isDateValid(dateFinCoti: string | undefined | null): boolean {
   if (!dateFinCoti) return false;
   const today = new Date();
   const cotiDate = new Date(dateFinCoti);

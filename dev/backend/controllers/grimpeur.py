@@ -48,6 +48,17 @@ class Grimpeur(Resource):
             else:
                 return {"message": "Grimpeur not found"}, 404
 
+    def put(self, id):
+        json = request.get_json()
+        with sesh() as session:
+            grimpeur = session.query(Clients.Grimpeur).filter_by(NumGrimpeur=id).first()
+            if not grimpeur:
+                return {"message": "Grimpeur not found"}, 404
+            for key, value in json.items():
+                setattr(grimpeur, key, value)
+            session.commit()
+            return grimpeur.to_dict(), 200
+
     def delete(self, id):
         with sesh() as session:
             grimpeur = session.query(Clients.Grimpeur).filter_by(NumGrimpeur=id).first()

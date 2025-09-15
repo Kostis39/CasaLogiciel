@@ -1,4 +1,4 @@
-import { updateCotisationClient } from "@/src/services/api";
+import { isDateValid, updateCotisationClient } from "@/src/services/api";
 import { clientFields } from "@/src/types&fields/fields";
 import { Client } from "@/src/types&fields/types";
 import Image from "next/image";
@@ -25,31 +25,24 @@ function isEntered(num: number){
   );
 }
 
-function haveCotisation(dateFinCoti: string | undefined | null): boolean {
-  if (!dateFinCoti) return false;
-  const today = new Date();
-  const cotiDate = new Date(dateFinCoti);
-  return cotiDate >= today;
-}
-
 function checkBoxCotisation(client: Client){
-  const [checked, setChecked] = useState<boolean>(haveCotisation(client.DateFinCoti));
+  const [checked, setChecked] = useState<boolean>(isDateValid(client.DateFinCoti));
 
   const handleCheckboxChange = () => {
     setChecked(!checked);
     updateCotisationClient(client);
-
   };
 
   return (
-    <label className="flex items-center gap-2 cursor-pointer">
+    <label className="flex flex-col items-center justify-center">
+      <p className={`${client.DateFinCoti ? "" : "text-red-300"} text-sm font-bold text-gray-700`}>Cotisation</p>
       <input
         type="checkbox"
         checked={checked}
         onChange={handleCheckboxChange}
         className="w-5 h-5 accent-blue-600"
       />
-      <span>{"label"}</span>
+      <p className={isDateValid(client.DateFinCoti) ? "" : "text-red-300"}>{client.DateFinCoti}</p>
     </label>
   );
 
@@ -100,7 +93,7 @@ export function ClientGrid( {clientInfo} : {clientInfo: Client | null} ) {
 
         {/* Suite des infos du grimpeur*/}
         <div className="grid grid-cols-3 grid-rows-2">
-          <div>
+          <div className="flex flex-col items-center justify-center">
             {checkBoxCotisation(clientInfo)}
           </div>
 
@@ -112,15 +105,15 @@ export function ClientGrid( {clientInfo} : {clientInfo: Client | null} ) {
             Autorisation Parentale
           </div>
 
-          <div>
-            Fin abo
+          <div className="flex flex-col items-center">
+            {abonnementInfo(clientInfo)}
           </div>
 
-          <div>
+          <div className="flex flex-col items-center">
             nb Entrée
           </div>
 
-          <div>
+          <div className="flex flex-col items-center">
             Accès
           </div>
         </div>
@@ -143,5 +136,24 @@ export function ClientGrid( {clientInfo} : {clientInfo: Client | null} ) {
       </div>
     </div>
   );
+}
+
+function abonnementInfo(client: Client){
+  if (isDateValid(client.DateFinAbo)){
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <span className="text-green-500 font-bold">Abonnement Actif</span>
+        <span>Fin le {client.DateFinAbo}</span>
+      </div>
+    );
+  }else{
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <span className="text-red-500 font-bold">Abonnement Expiré</span>
+        <span>Fin le {client.DateFinAbo}</span>
+      </div>
+    );
+  }
+
 }
 
