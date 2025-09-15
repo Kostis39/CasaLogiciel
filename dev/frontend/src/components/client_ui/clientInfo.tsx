@@ -1,9 +1,20 @@
+"use client";
 import { isDateValid, updateCotisationClient } from "@/src/services/api";
 import { clientFields } from "@/src/types&fields/fields";
 import { Client } from "@/src/types&fields/types";
 import Image from "next/image";
 import Link from "next/link";
 import { use, useState } from "react";
+import { Button } from "@/src/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/src/components/ui/dropdown-menu"
 
 
 function getAccesMurBg(accesMur: number | undefined) {
@@ -110,11 +121,11 @@ export function ClientGrid( {clientInfo} : {clientInfo: Client | null} ) {
           </div>
 
           <div className="flex flex-col items-center">
-            nb Entrée
+            {EntreeInfo(clientInfo)}
           </div>
 
           <div className="flex flex-col items-center">
-            Accès
+            {StyledDropdown()}
           </div>
         </div>
 
@@ -139,21 +150,80 @@ export function ClientGrid( {clientInfo} : {clientInfo: Client | null} ) {
 }
 
 function abonnementInfo(client: Client){
-  if (isDateValid(client.DateFinAbo)){
-    return (
-      <div className="flex flex-col items-center justify-center">
+  let content;
+  if (client.DateFinAbo === null || client.DateFinAbo === undefined) {
+    content = <span className="text-sm font-semibold text-gray-700">Pas d'abonnement</span>;
+  } else if (isDateValid(client.DateFinAbo)) {
+    content = (
+      <>
         <span className="text-green-500 font-bold">Abonnement Actif</span>
         <span>Fin le {client.DateFinAbo}</span>
-      </div>
+      </>
     );
-  }else{
-    return (
-      <div className="flex flex-col items-center justify-center">
+  } else {
+    content = (
+      <>
         <span className="text-red-500 font-bold">Abonnement Expiré</span>
         <span>Fin le {client.DateFinAbo}</span>
-      </div>
+      </>
     );
   }
 
+  return (
+    <div className="flex flex-col items-center justify-center">
+      {content}
+    </div>
+  );
 }
 
+function EntreeInfo(client: Client){
+  let content;
+  if (!client.NbSeanceRest || client.NbSeanceRest <= 0) {
+    content = <span className="text-sm font-semibold text-gray-700">Pas d'entrées</span>;
+  } else {
+    content = (
+      <>
+        <span className="text-green-500 font-bold">Nombre d'entrée restantes</span>
+        <span>{client.NbSeanceRest}</span>
+      </>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center">
+      {content}
+    </div>
+  );
+}
+
+
+
+function acceeSalleDropdown() {
+  const [position, setPosition] = useState("1");
+  
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline">{position}</Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56">
+        <DropdownMenuLabel>Accès Salle</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuRadioGroup value={position} onValueChange={setPosition}>
+          <DropdownMenuRadioItem value="1">Bloc</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="2">Voie</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="3">Tête</DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+function StyledDropdown() {
+  return (
+    <div className="flex flex-col items-center justify-center">
+      {acceeSalleDropdown()}
+    </div>
+  );
+}
