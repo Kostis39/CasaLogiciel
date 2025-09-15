@@ -1,11 +1,12 @@
-import { haveDateJSON } from "./api";
+import { Client } from "../types&fields/types";
+import { getTodayPlusOneYear, haveCotisation, haveDateJSON } from "./api";
 
 export const mockService = {
 
 //----------------------------------- Fetchers -----------------------------------
-    fetchGrimpeurById: async (id: number) => {
+    fetchClientById: async (id: number) : Promise<Client | null> => {
         await new Promise((resolve) => setTimeout(resolve, 100));
-        return {
+        const one = {
         "CodePostGrimpeur": 38000,
         "NumGrimpeur": 1,
         "NumLicenceGrimpeur": 12345678,
@@ -17,7 +18,6 @@ export const mockService = {
         "TypeTicket": null,
         "Solde": 50,
         "DateNaissGrimpeur": "1990-05-12",
-        "SignaReglement": "ADupont",
         "NbSeanceRest": 10,
         "AdresseGrimpeur": "12 Rue de la Montagne",
         "DateInscrGrimpeur": "2025-04-30",
@@ -25,11 +25,60 @@ export const mockService = {
         "DateFinAbo": "2025-10-30",
         "DateFinCoti": "2025-10-30",
         "TypeAbo": null,
-        "DateFincCotisation": "2026-04-30"
-        }
+        "AccesMur": 1,
+        } as Client;
+        const two = {
+            "CodePostGrimpeur": 75015,
+            "NumGrimpeur": 2,
+            "NumLicenceGrimpeur": 87654321,
+            "EmailGrimpeur": "benjamin.martin@example.com",
+            "PrenomGrimpeur": "Benjamin",
+            "TelGrimpeur": 698765432,
+            "AccordReglement": true,
+            "NomGrimpeur": "Martin",
+            "TypeTicket": null,
+            "Solde": 75,
+            "DateNaissGrimpeur": "1985-11-20",
+            "NbSeanceRest": 5,
+            "AdresseGrimpeur": "45 Avenue des Champs",
+            "DateInscrGrimpeur": "2025-05-05",
+            "VilleGrimpeur": "Paris",
+            "DateFinAbo": "2025-11-05",
+            "DateFinCoti": "2025-11-05",
+            "TypeAbo": null,
+            "AccesMur": 2,
+        } as Client;
+        const three = {
+            "CodePostGrimpeur": 69007,
+            "NumGrimpeur": 3,
+            "NumLicenceGrimpeur": 34567890,
+            "EmailGrimpeur": "charlotte.lefevre@example.com",
+            "PrenomGrimpeur": "Charlotte",
+            "TelGrimpeur": 677889900,
+            "AccordReglement": false,
+            "NomGrimpeur": "Lefevre",
+            "TypeTicket": "Entrée",
+            "Solde": 32,
+            "DateNaissGrimpeur": "1995-08-15",
+            "NbSeanceRest": 3,
+            "AdresseGrimpeur": "7 Rue des Fleurs",
+            "DateInscrGrimpeur": "2025-06-12",
+            "VilleGrimpeur": "Lyon",
+            "DateFinAbo": "2025-12-12",
+            "DateFinCoti": "2025-12-12",
+            "TypeAbo": "Mensuel",
+            "AccesMur": 3,
+        } as Client;
+        
+        switch(id) {
+            case 1: return one;
+            case 2: return two;
+            case 3: return three;
+            default: return one;
+        };
     },
 
-    fetchGrimpeurSearch: async (query: string) => {
+    fetchClientSearch: async (query: string) => {
         await new Promise((resolve) => setTimeout(resolve, 100));
         return [{
           CodePostGrimpeur: 38000,
@@ -74,7 +123,52 @@ export const mockService = {
           DateFinCoti: "2025-10-30",
           TypeAbo: null,
           DateFincCotisation: "2026-04-30"
-        }];
+        },
+        {
+          CodePostGrimpeur: 38000,
+          NumGrimpeur: 3,
+          NumLicenceGrimpeur: 12345678,
+          EmailGrimpeur: "alice.dupont@example.com",
+          PrenomGrimpeur: "Alice",
+          TelGrimpeur: 612345678,
+          AccordReglement: true,
+          NomGrimpeur: "Dupont",
+          TypeTicket: null,
+          Solde: 50,
+          DateNaissGrimpeur: "1990-05-12",
+          SignaReglement: "ADupont",
+          NbSeanceRest: 10,
+          AdresseGrimpeur: "12 Rue de la Montagne",
+          DateInscrGrimpeur: "2025-04-30",
+          VilleGrimpeur: "Grenoble",
+          DateFinAbo: "2025-10-30",
+          DateFinCoti: "2025-10-30",
+          TypeAbo: null,
+          DateFincCotisation: "2026-04-30"
+        },
+        {
+          CodePostGrimpeur: 38000,
+          NumGrimpeur: 4,
+          NumLicenceGrimpeur: 12345678,
+          EmailGrimpeur: "alice.dupont@example.com",
+          PrenomGrimpeur: "Alice",
+          TelGrimpeur: 612345678,
+          AccordReglement: true,
+          NomGrimpeur: "Dupont",
+          TypeTicket: null,
+          Solde: 50,
+          DateNaissGrimpeur: "1990-05-12",
+          SignaReglement: "ADupont",
+          NbSeanceRest: 10,
+          AdresseGrimpeur: "12 Rue de la Montagne",
+          DateInscrGrimpeur: "2025-04-30",
+          VilleGrimpeur: "Grenoble",
+          DateFinAbo: "2025-10-30",
+          DateFinCoti: "2025-10-30",
+          TypeAbo: null,
+          DateFincCotisation: "2026-04-30"
+        },
+    ];
     },
 
     fetchAbonnements: async () => {
@@ -262,6 +356,12 @@ export const mockService = {
         PrixProduit?: number;
     }) => {
         console.log(`Mock PUT Produit ${idProduit}:`, JSON.stringify(produitData));
+    },
+
+    updateCotisationClient: async (client: Client) =>{
+        const newClient = client;
+        newClient.DateFinCoti = haveCotisation(newClient.DateFinCoti) ? null : getTodayPlusOneYear();
+        console.log(`Mock Update client cotisation ${client.NumGrimpeur}:`, JSON.stringify(newClient));
     },
 
 //----------------------------------- Deleters -----------------------------------

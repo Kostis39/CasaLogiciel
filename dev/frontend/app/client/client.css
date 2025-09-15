@@ -1,6 +1,6 @@
 .mainClientContainer {
-  display: grid;
-  grid-template-rows: 1fr 9fr ;
-  grid-gap: .5rem;
+    display: grid;
+    grid-template-columns: 1fr 20fr;
+    width: 100vw; /* w-screen */
+    height: 100vh; /* h-screen */
 }
-

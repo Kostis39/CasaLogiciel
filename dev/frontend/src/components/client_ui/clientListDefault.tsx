@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { fetchGrimpeurSearch } from "@/src/services/api";
+import { fetchClientSearch } from "@/src/services/api";
 import { ClientCard } from "./clientCard";
 
 export const ClientListClientComponent = ({ query }: { query: string }) => {
@@ -19,7 +19,7 @@ export const ClientListClientComponent = ({ query }: { query: string }) => {
       setError(null);
       
       try {
-        const rep = await fetchGrimpeurSearch(query);
+        const rep = await fetchClientSearch(query);
         setGrimpeurs(rep || []);
       } catch (err) {
         console.error('Erreur lors de la recherche:', err);
