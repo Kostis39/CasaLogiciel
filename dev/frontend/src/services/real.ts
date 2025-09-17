@@ -1,26 +1,25 @@
-import { haveDateJSON } from "./api";
-
+import { getTodayPlusOneYear, haveDateJSON, isDateValid } from "./api";
+import { Client } from "../types&fields/types";
 const API_URL = "http://127.0.0.1:5000";
 
 export const realService = {
 
 //----------------------------------- Fetchers -----------------------------------
-    fetchGrimpeurById: async (id: number) => {
+    fetchClientById: async (id: number) : Promise<Client | null> => {
         try {
             const response = await fetch(`${API_URL}/grimpeurs/${id}`);
             if (!response.ok) {
-                console.log(`Erreur HTTP: ${response.status}`);
-                return {};
+            console.error(`Erreur HTTP: ${response.status}`);
+            return null;
             }
-            const grimpeur = await response.json();
-            return grimpeur;
+            return await response.json();
         } catch (error) {
-            console.error('Échec de la récupération du grimpeur:', error);
-            throw error;
+            console.error("Échec de la récupération du grimpeur:", error);
+            return null;
         }
     },
 
-    fetchGrimpeurSearch: async (query: string) => {
+    fetchClientSearch: async (query: string) => {
         try {
             const response = await fetch(`${API_URL}/grimpeurs/search?query=${query}`);
             if (!response.ok) {
@@ -266,6 +265,32 @@ export const realService = {
             return response;
         } catch (error) {
             console.error('Échec de la mise à jour du produit:', error);
+            throw error;
+        }
+    },
+
+    updateCotisationClient: async (client: Client) =>{
+        try{
+            const newClient = client;
+            if (isDateValid(newClient.DateFinCoti)){
+                newClient.DateFinCoti = null;
+            } else {
+                newClient.DateFinCoti = getTodayPlusOneYear();
+            }
+
+            const response = await fetch(`${API_URL}/grimpeurs/${client.NumGrimpeur}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newClient),
+            });
+            console.log("Response from updateCotisationClient:", response);
+            if (!response.ok) {
+                console.log(`Erreur HTTP: ${response.status}`);
+                return null;
+            }
+            return response;
+        }catch (error){
+            console.error('Échec de la mise à jour de l\'état de la cotisationn:', error);
             throw error;
         }
     },

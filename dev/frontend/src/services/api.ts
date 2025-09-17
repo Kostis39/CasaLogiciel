@@ -1,13 +1,13 @@
 import { realService } from "./real";
 import { mockService } from "./mock";
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 const api = USE_MOCK ? mockService : realService;
 
 export const {
 //------- Fetchers -------
-  fetchGrimpeurById,
-  fetchGrimpeurSearch,
+  fetchClientById,
+  fetchClientSearch,
   fetchAbonnements,
   fetchTickets,
   fetchProduits,
@@ -24,6 +24,7 @@ export const {
   updateAbonnement,
   updateTicket,
   updateProduit,
+  updateCotisationClient,
 
 //------- Deleters -------
   deleteAbonnement,
@@ -44,4 +45,22 @@ export function haveDateJSON() {
     date: fullDate,
     hour: time
   };
+}
+
+export function getToday(): string {
+  const today = new Date();
+  return today.toISOString().split("T")[0]; // format YYYY-MM-DD
+}
+
+export function getTodayPlusOneYear(): string {
+  const today = new Date();
+  today.setFullYear(today.getFullYear() + 1);
+  return today.toISOString().split("T")[0]; // format YYYY-MM-DD
+}
+
+export function isDateValid(dateFinCoti: string | undefined | null): boolean {
+  if (!dateFinCoti) return false;
+  const today = new Date();
+  const cotiDate = new Date(dateFinCoti);
+  return cotiDate >= today;
 }

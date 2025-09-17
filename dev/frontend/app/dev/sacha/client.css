@@ -1,0 +1,38 @@
+.mainClientContainer {
+  display: grid;
+  grid-template-columns: 0.1fr 2fr 1fr 1fr ; 
+  grid-template-rows: 1fr 15fr; 
+  gap: 4px;
+  width: 100vw; /* w-screen */
+  height: 100vh; /* h-screen */
+}
+
+.aside {
+  background-color: #f59e0b;
+  grid-row: span 2;
+}
+
+.topbar {
+  background-color: #3b82f6;
+  grid-column: span 3;
+}
+
+.market {
+  background-color: #dc2626;
+}
+
+.bank {
+  background-color: #065f46;
+}
+
+.climber {
+  background-color: #701a75;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  height: 100%;
+  gap: 4px;
+}
+.climber > div {
+  overflow: scroll;
+  max-height: 31vh;
+}

@@ -1,15 +1,229 @@
+"use client";
+import { isDateValid, updateCotisationClient } from "@/src/services/api";
+import { clientFields } from "@/src/types&fields/fields";
+import { Client } from "@/src/types&fields/types";
+import Image from "next/image";
+import Link from "next/link";
+import { use, useState } from "react";
+import { Button } from "@/src/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/src/components/ui/dropdown-menu"
 
-export function ClientGrid({ fieldInfoClient}: { fieldInfoClient: { label: string; value: string }[] }) {
+
+function getAccesMurBg(accesMur: number | undefined) {
+  switch (accesMur) {
+    case 1:
+      return "bg-green-100";
+    case 2:
+      return "bg-violet-100";
+    case 3:
+      return "bg-blue-100";
+    default:
+      return "bg-green-100";
+  }
+}
+
+function isEntered(num: number){
   return (
-    <>
-      {fieldInfoClient.map(({ label, value }) => (
-        <div key={label} className="border p-4 rounded bg-white shadow">
-          <strong className="block text-sm font-semibold text-gray-700">
-            {label}
-          </strong>
-          <span className="text-base">{value}</span>
+    <span className="mb-2 text-xs text-gray-500">Déjà rentrée (a faire)</span>
+  );
+}
+
+function checkBoxCotisation(client: Client){
+  const [checked, setChecked] = useState<boolean>(isDateValid(client.DateFinCoti));
+
+  const handleCheckboxChange = () => {
+    setChecked(!checked);
+    updateCotisationClient(client);
+  };
+
+  return (
+    <label className="flex flex-col items-center justify-center">
+      <p className={`${client.DateFinCoti ? "" : "text-red-300"} text-sm font-bold text-gray-700`}>Cotisation</p>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={handleCheckboxChange}
+        className="w-5 h-5 accent-blue-600"
+      />
+      <p className={isDateValid(client.DateFinCoti) ? "" : "text-red-300"}>{client.DateFinCoti}</p>
+    </label>
+  );
+
+}
+
+export function ClientGrid( {clientInfo} : {clientInfo: Client | null} ) {
+  if (!clientInfo) {
+    return <p>Aucun client sélectionné.</p>;
+  }
+
+  const fieldInfoClient = clientFields.map(f => ({
+    label: f.label,
+    value: f.format ? f.format(clientInfo[f.key]) : clientInfo[f.key] ?? "—",
+  }));
+
+  return (
+    <div className={`flex flex-col h-full ${getAccesMurBg(clientInfo.AccesMur)}`}>
+      <div className="overflow-auto [flex:1] flex items-center">
+
+        <div className="flex flex-col items-center gap-0.5 mr-4">
+          {isEntered(clientInfo.NumGrimpeur)}
+          <Image src="/avatar.png" alt="Avatar" width={200} height={200}/>
+          <span>{clientInfo.NumGrimpeur}</span>
         </div>
-      ))}
-    </>
+
+        <div className="flex-1 grid grid-cols-4 gap-2 h-full">
+          {fieldInfoClient.map(({ label, value }) => (
+          <div key={label} className="flex flex-col justify-center break-words overflow-auto">
+            <div className="break-words whitespace-pre-line w-full">
+              <p className="text-sm font-semibold text-gray-700">{label}</p>
+              <p>{value}</p>
+            </div>
+          </div>
+          ))}
+
+          <Link
+          href="/inscription"
+          className="flex items-center justify-center mr-3 border border-black rounded hover:bg-gray-100 transition"
+          >
+            <p className="text-sm font-semibold text-gray-700 ">
+              Modifier
+            </p>
+          </Link>
+        </div>
+      </div>
+
+      <div className="[flex:2] grid grid-rows-[3fr_1fr]">
+
+        {/* Suite des infos du grimpeur*/}
+        <div className="grid grid-cols-3 grid-rows-2">
+          <div className="flex flex-col items-center justify-center">
+            {checkBoxCotisation(clientInfo)}
+          </div>
+
+          <div>
+            Réglement
+          </div>
+
+          <div>
+            Autorisation Parentale
+          </div>
+
+          <div className="flex flex-col items-center">
+            {abonnementInfo(clientInfo)}
+          </div>
+
+          <div className="flex flex-col items-center">
+            {EntreeInfo(clientInfo)}
+          </div>
+
+          <div className="flex flex-col items-center">
+            {StyledDropdown()}
+          </div>
+        </div>
+
+        {/* Actions sur le profil du grimpeur */}
+        <div className="grid grid-cols-2">
+          <div>
+            Annuler Entree
+          </div>
+
+          <div>
+            Entree Unique
+          </div>
+        </div>
+
+
+
+
+
+      </div>
+    </div>
+  );
+}
+
+function abonnementInfo(client: Client){
+  let content;
+  if (client.DateFinAbo === null || client.DateFinAbo === undefined) {
+    content = <span className="text-sm font-semibold text-gray-700">Pas d'abonnement</span>;
+  } else if (isDateValid(client.DateFinAbo)) {
+    content = (
+      <>
+        <span className="text-green-500 font-bold">Abonnement Actif</span>
+        <span>Fin le {client.DateFinAbo}</span>
+      </>
+    );
+  } else {
+    content = (
+      <>
+        <span className="text-red-500 font-bold">Abonnement Expiré</span>
+        <span>Fin le {client.DateFinAbo}</span>
+      </>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center">
+      {content}
+    </div>
+  );
+}
+
+function EntreeInfo(client: Client){
+  let content;
+  if (!client.NbSeanceRest || client.NbSeanceRest <= 0) {
+    content = <span className="text-sm font-semibold text-gray-700">Pas d'entrées</span>;
+  } else {
+    content = (
+      <>
+        <span className="text-green-500 font-bold">Nombre d'entrée restantes</span>
+        <span>{client.NbSeanceRest}</span>
+      </>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center">
+      {content}
+    </div>
+  );
+}
+
+
+
+function acceeSalleDropdown() {
+  const [position, setPosition] = useState("1");
+  
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline">{position}</Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56">
+        <DropdownMenuLabel>Accès Salle</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuRadioGroup value={position} onValueChange={setPosition}>
+          <DropdownMenuRadioItem value="1">Bloc</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="2">Voie</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="3">Tête</DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+function StyledDropdown() {
+  return (
+    <div className="flex flex-col items-center justify-center">
+      {acceeSalleDropdown()}
+    </div>
   );
 }
