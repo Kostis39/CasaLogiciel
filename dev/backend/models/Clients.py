@@ -19,11 +19,14 @@ class Grimpeur(Casabase, SerializerMixin):
     VilleGrimpeur: Mapped[str] = mapped_column(String(50), nullable=True)
     CodePostGrimpeur: Mapped[int] = mapped_column(nullable=True)
     DateInscrGrimpeur: Mapped[date] = mapped_column(nullable=False)
-    AccordReglement: Mapped[bool] = mapped_column(nullable=True)
+    StatutVoie: Mapped[int] = mapped_column(nullable=True)
     DateFinCoti: Mapped[date] = mapped_column(nullable=True)
     NumLicenceGrimpeur: Mapped[int] = mapped_column(nullable=True)
     DateFinAbo: Mapped[date] = mapped_column(nullable=True)
     NbSeanceRest: Mapped[int] = mapped_column(default=0)
+    AccordReglement: Mapped[bool] = mapped_column(nullable=True)
+    AccordParental: Mapped[bool] = mapped_column(nullable=True)
+    CheminSignature: Mapped[str] = mapped_column(String(255), nullable=True)
 
 
 class Ticket(Casabase, SerializerMixin):
