@@ -92,6 +92,17 @@ Le titre de niveau 4 indique la méthode HTTP et le chemin d'accès de l'endpoin
     - `id` (*int*) : Identifiant unique du grimpeur.
 - **Réponse** : `HTTP 204 No Content` si la suppression est réussie, `HTTP 404`{"message": Grimpeur not found} si le grimpeur n'existe pas.
 
+#### `PUT /grimpeurs/<int:id>`
+- **Description** : Met à jour les accords et la signature d'un grimpeur spécifique identifié par son numéro.
+- **Paramètres** :
+    - `id` (*int*) : Identifiant unique du grimpeur.
+    - *query strings* : `AccordReglement` et `AccordParental` (valeurs possibles : `true` ou `false`).
+  - **Entrée** : JSON correctement formaté donnant l'image de la signature encodée en base64.
+  - **Réponse** : Objet grimpeur mis à jour avec son identifiant `HTTP 200 OK` si trouvé, `HTTP 404`{"message": "Grimpeur not found"} si non trouvé.
+
+  - **Effet de bord** : Décode l'image de la signature et la sauvegarde dans le système de fichiers.
+
+
 ### Ressource `GrimpeursSearch`
 
 #### `GET /grimpeurs/search`
