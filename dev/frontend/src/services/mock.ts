@@ -376,6 +376,11 @@ export const mockService = {
     deleteProduit: async (idProduit: number) => {
         console.log(`Mock DELETE Produit ${idProduit}`);
     },
+
+    deleteSeance: async (NumGrimpeur: number) => {
+        console.log(`Mock DELETE Seance for Client ${NumGrimpeur}`);
+    },
+
 //----------------------------------- Others -----------------------------------
     isAlreadyEntered: async (id: number) => {
         return true;

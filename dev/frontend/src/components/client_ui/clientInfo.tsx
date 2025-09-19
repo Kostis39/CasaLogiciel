@@ -1,10 +1,10 @@
 "use client";
-import { isDateValid, updateCotisationClient } from "@/src/services/api";
+import { deleteSeance, isAlreadyEntered, isDateValid, postSeanceClient, updateCotisationClient } from "@/src/services/api";
 import { clientFields } from "@/src/types&fields/fields";
 import { Client } from "@/src/types&fields/types";
 import Image from "next/image";
 import Link from "next/link";
-import { use, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Button } from "@/src/components/ui/button"
 import {
   DropdownMenu,
@@ -16,53 +16,44 @@ import {
   DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu"
 
-
-function getAccesMurBg(accesMur: number | undefined) {
-  switch (accesMur) {
-    case 1:
-      return "bg-green-100";
-    case 2:
-      return "bg-violet-100";
-    case 3:
-      return "bg-blue-100";
-    default:
-      return "bg-green-100";
-  }
+interface ClientGridProps {
+  clientInfo: Client;
 }
 
-function isEntered(num: number){
-  return (
-    <span className="mb-2 text-xs text-gray-500">Déjà rentrée (a faire)</span>
-  );
-}
+export function ClientGrid( {clientInfo} : ClientGridProps ) {
+  
+  const [inCasa, setInCasa] = useState<boolean>(false);
+  const [isLoading, setLoading] = useState<boolean>(true);
+	useEffect(() => {
+		const fetchEnteredStatus = async () => {
+      setLoading(true);
+		  if (clientInfo.NumGrimpeur === null) {
+			setInCasa(false);
+			return;
+		  }
+		  try {
+			const status = await isAlreadyEntered(clientInfo.NumGrimpeur);
+			setInCasa(status);
+		  } catch (error) {
+			console.error("Erreur lors de la vérification du statut d'entrée :", error);
+			setInCasa(false);
+		  }finally{
+        setLoading(false)
+      }
+		};
+		fetchEnteredStatus();
+	  }, [clientInfo]);
 
-function checkBoxCotisation(client: Client){
-  const [checked, setChecked] = useState<boolean>(isDateValid(client.DateFinCoti));
 
-  const handleCheckboxChange = () => {
-    setChecked(!checked);
-    updateCotisationClient(client);
+  const handleClick1 = () => {
+    setInCasa(!inCasa);
+    postSeanceClient(clientInfo.NumGrimpeur);
+  };
+  const handleClick2 = () => {
+    setInCasa(!inCasa);
+    deleteSeance(clientInfo.NumGrimpeur);
   };
 
-  return (
-    <label className="flex flex-col items-center justify-center">
-      <p className={`${client.DateFinCoti ? "" : "text-red-300"} text-sm font-bold text-gray-700`}>Cotisation</p>
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={handleCheckboxChange}
-        className="w-5 h-5 accent-blue-600"
-      />
-      <p className={isDateValid(client.DateFinCoti) ? "" : "text-red-300"}>{client.DateFinCoti}</p>
-    </label>
-  );
-
-}
-
-export function ClientGrid( {clientInfo} : {clientInfo: Client | null} ) {
-  if (!clientInfo) {
-    return <p>Aucun client sélectionné.</p>;
-  }
 
   const fieldInfoClient = clientFields.map(f => ({
     label: f.label,
@@ -74,7 +65,13 @@ export function ClientGrid( {clientInfo} : {clientInfo: Client | null} ) {
       <div className="overflow-auto [flex:1] flex items-center">
 
         <div className="flex flex-col items-center gap-0.5 mr-4">
-          {isEntered(clientInfo.NumGrimpeur)}
+          {isLoading ? (
+            <div>Chargement...</div>
+          ) : inCasa ? (
+            <div className="text-green-500 font-bold">En salle</div>
+          ) : (
+            <div className="text-red-500 font-bold">Hors salle</div>
+          )}
           <Image src="/avatar.png" alt="Avatar" width={200} height={200}/>
           <span>{clientInfo.NumGrimpeur}</span>
         </div>
@@ -131,21 +128,65 @@ export function ClientGrid( {clientInfo} : {clientInfo: Client | null} ) {
 
         {/* Actions sur le profil du grimpeur */}
         <div className="grid grid-cols-2">
-          <div>
-            Annuler Entree
-          </div>
+<div>
+  <Button
+    onClick={!inCasa ? handleClick1 : undefined}
+    disabled={inCasa || isLoading} // ✅ désactive si en cours de chargement
+    variant="outline"
+  >
+    Entrée
+  </Button>
+</div>
 
-          <div>
-            Entree Unique
-          </div>
+<div>
+  <Button
+    onClick={inCasa ? handleClick2 : undefined}
+    disabled={!inCasa || isLoading} // ✅ désactive si en cours de chargement
+    variant="outline"
+  >
+    Annuler Entrée
+  </Button>
+</div>
+
         </div>
-
-
-
-
 
       </div>
     </div>
+  );
+}
+
+function getAccesMurBg(accesMur: number | undefined) {
+  switch (accesMur) {
+    case 1:
+      return "bg-green-100";
+    case 2:
+      return "bg-violet-100";
+    case 3:
+      return "bg-blue-100";
+    default:
+      return "bg-green-100";
+  }
+}
+
+function checkBoxCotisation(client: Client){
+  const [checked, setChecked] = useState<boolean>(isDateValid(client.DateFinCoti));
+
+  const handleCheckboxChange = () => {
+    setChecked(!checked);
+    updateCotisationClient(client);
+  };
+
+  return (
+    <label className="flex flex-col items-center justify-center">
+      <p className={`${client.DateFinCoti ? "" : "text-red-300"} text-sm font-bold text-gray-700`}>Cotisation</p>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={handleCheckboxChange}
+        className="w-5 h-5 accent-blue-600"
+      />
+      <p className={isDateValid(client.DateFinCoti) ? "" : "text-red-300"}>{client.DateFinCoti}</p>
+    </label>
   );
 }
 
@@ -188,7 +229,6 @@ function EntreeInfo(client: Client){
       </>
     );
   }
-
   return (
     <div className="flex flex-col items-center justify-center">
       {content}
@@ -200,8 +240,6 @@ function EntreeInfo(client: Client){
 
 function acceeSalleDropdown() {
   const [position, setPosition] = useState("1");
-  
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

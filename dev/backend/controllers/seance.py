@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from flask import request
 from flask_restful import Resource
 from models import Clients
@@ -17,10 +17,14 @@ class Seances(Resource):
     def post(self):  # Penser à ajouter de la vérification de validité des données
         json = request.get_json()
         idgrimpeur = json.get("NumGrimpeur")
-        date = json.get("DateSeance")
-        heure = json.get("HeureSeance")
-        if not idgrimpeur or not date or not heure:
-            return {"message": "Missing field(s) in  JSON data"}, 400
+
+        if not idgrimpeur:
+            return {"message": "Missing NumGrimpeur in JSON data"}, 400
+
+        # On récupère la date et l'heure du serveur
+        now = datetime.now()
+        date_seance = now.date()
+        heure_seance = now.time()
 
         nouv_seance = Clients.Seance()
 
@@ -34,17 +38,15 @@ class Seances(Resource):
             if not grimpeur:
                 return {"message": "Grimpeur not found"}, 404
 
-        # Maintenant on vérifie que le grimpeur peut accéder à la salle
-        # C'est à dire qu'il a un abonnement valide ou des séances restantes
-
+        # Vérification du règlement
         if not grimpeur.AccordReglement:
             return {"message": "Le grimpeur doit signer le règlement"}, 403
-        
+
+        # Vérification cotisation
         if grimpeur.DateFinCoti is None or grimpeur.DateFinCoti < date.today():
             return {"message": "Le grimpeur n'est pas cotisant"}, 403
 
-
-        # Si l'abonnement est inexistant ou expiré, on vérifie les séances restantes
+        # Vérification abonnement ou tickets
         if grimpeur.DateFinAbo is None or grimpeur.DateFinAbo <= date.today():
             if grimpeur.NbSeanceRest <= 0:
                 return {"message": "Le grimpeur n'a pas d'entrée valide"}, 403
@@ -53,18 +55,46 @@ class Seances(Resource):
                 nouv_seance.TypeEntree = "Ticket"
 
         nouv_seance.NumGrimpeur = idgrimpeur
-        nouv_seance.DateSeance = date
-        nouv_seance.HeureSeance = heure
+        nouv_seance.DateSeance = date_seance
+        nouv_seance.HeureSeance = heure_seance
 
         with sesh() as session:
             session.add(nouv_seance)
             session.commit()
             session.refresh(nouv_seance)
             return nouv_seance.to_dict(), 201
+        
+    def delete(self, IdSeance):
+        with sesh() as session:
+            seance = session.query(Clients.Seance).filter_by(IdSeance=IdSeance).first()
 
+            if not seance:
+                return {"message": f"Aucune séance trouvée avec IdSeance {IdSeance}"}, 404
+
+            session.delete(seance)
+            session.commit()
+            return {"message": f"Séance {IdSeance} supprimée avec succès"}, 200
 
 class SeancesSearch(Resource):
     def get(self, idGrimpeur):
+        with sesh() as session:
+            grimpeur = (
+                session.query(Clients.Grimpeur)
+                .filter_by(NumGrimpeur=idGrimpeur)
+                .first()
+            )
+            if not grimpeur:
+                return {"message": "Seane of Grimpeur not found"}, 404
+
+            aujourd_hui = date.today()
+            seance_auj = (
+                session.query(Clients.Seance)
+                .filter_by(NumGrimpeur=idGrimpeur, DateSeance=aujourd_hui)
+                .one_or_none()
+            )
+            return {"est_la": seance_auj is not None}, 200
+
+    def delete(self, idGrimpeur):
         with sesh() as session:
             grimpeur = (
                 session.query(Clients.Grimpeur)
@@ -77,10 +107,17 @@ class SeancesSearch(Resource):
             aujourd_hui = date.today()
             seance_auj = (
                 session.query(Clients.Seance)
-                .filter_by(NumGrimpeur=id, DateSeance=aujourd_hui)
+                .filter_by(NumGrimpeur=idGrimpeur, DateSeance=aujourd_hui)
                 .one_or_none()
             )
-            return {"est_la": seance_auj is not None}, 200
+
+            if not seance_auj:
+                return {"message": "Aucune séance à supprimer"}, 404
+
+            # Suppression
+            session.delete(seance_auj)
+            session.commit()
+            return {"message": "Séance supprimée avec succès"}, 200
 
 class SeancesByDate(Resource): # Ressource pour filtrer les séances par date
     def get(self):

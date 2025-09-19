@@ -3,8 +3,10 @@
 import { ClientGrid } from "@/src/components/client_ui/clientInfo";
 import { ClientListClientComponent } from "@/src/components/client_ui/clientListDefault";
 import SearchClient from "@/src/components/client_ui/clientSearch";
-import { useClientInfo } from "@/src/hooks/client_hook";
+import { useClientInfo, useIsAlreadyEntered } from "@/src/hooks/client_hook";
+import { isAlreadyEntered } from "@/src/services/api";
 import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Saisies(){
 	const searchParams = useSearchParams();
@@ -13,6 +15,7 @@ export default function Saisies(){
 	const num = id ? Number(id) : null;
 
 	const clientInfo = useClientInfo(num);
+
 
 	return (
 		<div className="flex flex-col gap-1">
@@ -27,7 +30,11 @@ export default function Saisies(){
 				</div>
 
 				{/* Client Info */}
-					<ClientGrid clientInfo={clientInfo} />
+			{!clientInfo ? (
+				<p>Aucun client sélectionné.</p>
+			) : (
+				<ClientGrid clientInfo={clientInfo} />
+			)}
 			</div>
 			
 				

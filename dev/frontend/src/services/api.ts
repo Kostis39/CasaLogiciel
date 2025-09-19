@@ -30,6 +30,8 @@ export const {
   deleteAbonnement,
   deleteTicket,
   deleteProduit,
+  deleteSeance,
+
   
 //------- Others -------
   isAlreadyEntered,

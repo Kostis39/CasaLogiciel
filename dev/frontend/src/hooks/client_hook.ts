@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
 import { Client } from "../types&fields/types";
-import { fetchClientById } from "../services/api";
+import { fetchClientById, isAlreadyEntered } from "../services/api";
 
 
-function useClientInfo( num : number | null ) {
+export function useClientInfo( num : number | null ) {
     const [clientInfo, setClientInfo] = useState<Client | null>(null); 
     useEffect(() => { 
         if (num !== null) {
@@ -14,4 +16,17 @@ function useClientInfo( num : number | null ) {
     return clientInfo;
 }
 
-export { useClientInfo };
+
+export function useIsAlreadyEntered(numGrimpeur: number | null) {
+  const [inCasa, setInCasa] = useState(false);
+
+  useEffect(() => {
+    if (!numGrimpeur) return;
+    isAlreadyEntered(numGrimpeur)
+      .then(setInCasa)
+      .catch(() => setInCasa(false));
+  }, [numGrimpeur]);
+
+  return inCasa;
+}
+

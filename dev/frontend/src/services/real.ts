@@ -117,22 +117,20 @@ export const realService = {
 //----------------------------------- Posters -----------------------------------
     postSeanceClient: async (id: number) => {
         try {
-            const date = haveDateJSON();
-            const body = {
-                NumGrimpeur: id,
-                DateSeance: date.date,
-                HeureSeance: date.hour,
-            };
-            const res = await fetch(`${API_URL}/seances`, {
+            const body = { NumGrimpeur: id };
+            const response = await fetch(`${API_URL}/seances`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body),
             });
-            if (res.ok) {
-                return res;
+            if (!response.ok) {
+                console.log(`Erreur HTTP: ${response.status}`);
+                return null;
             }
+            return response;
         } catch (error) {
             console.error('Echec post seance d"un grimpeur', error);
+            throw error;
         }
     },
 
@@ -344,10 +342,26 @@ export const realService = {
         }
     },
 
+    deleteSeance: async (NumGrimpeur: number) => {
+        try {
+            const response = await fetch(`${API_URL}/seances/${NumGrimpeur}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                console.log(`Erreur HTTP: ${response.status}`);
+                return null;
+            }
+            return response;
+        } catch (error) {
+            console.error('Échec de la suppression de la séance:', error);
+            throw error;
+        }
+    },
+
 //----------------------------------- Others -----------------------------------
     isAlreadyEntered: async (id: number) => {
         try {
-            const response = await fetch(`${API_URL}/grimpeurs/seances/${id}`);
+            const response = await fetch(`${API_URL}/seances/${id}`);
             if (!response.ok) {
                 return false;
             }
