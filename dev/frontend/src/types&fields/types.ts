@@ -8,7 +8,8 @@ export interface Client {
   TelGrimpeur?: number;
   EmailGrimpeur?: string;
   Solde?: number;
-  AccesMur?: number;
+  StatutVoie?: number;
+  Note?: string | null;
 
   TypeAbo: string | null;
   TypeTicket: string | null;

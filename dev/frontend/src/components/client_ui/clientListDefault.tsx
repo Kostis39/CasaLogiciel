@@ -57,6 +57,7 @@ export const ClientListClientComponent = ({ query }: { query: string }) => {
             prenom={grimpeur.PrenomGrimpeur} 
             nom={grimpeur.NomGrimpeur} 
             num={grimpeur.NumGrimpeur}
+            statutVoie={grimpeur.StatutVoie}
           />
         </div>
       ))}

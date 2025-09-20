@@ -25,7 +25,7 @@ export const mockService = {
         "DateFinAbo": "2025-10-30",
         "DateFinCoti": "2025-10-30",
         "TypeAbo": null,
-        "AccesMur": 1,
+        "StatutVoie": 1,
         } as Client;
         const two = {
             "CodePostGrimpeur": 75015,
@@ -46,7 +46,7 @@ export const mockService = {
             "DateFinAbo": "2025-11-05",
             "DateFinCoti": "2025-11-05",
             "TypeAbo": null,
-            "AccesMur": 2,
+            "StatutVoie": 2,
         } as Client;
         const three = {
             "CodePostGrimpeur": 69007,
@@ -67,7 +67,7 @@ export const mockService = {
             "DateFinAbo": "2025-12-12",
             "DateFinCoti": "2025-12-12",
             "TypeAbo": "Mensuel",
-            "AccesMur": 3,
+            "StatutVoie": 3,
         } as Client;
         
         switch(id) {

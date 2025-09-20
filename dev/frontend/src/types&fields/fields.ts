@@ -12,4 +12,6 @@ export const clientFields: {
   { label: "Téléphone", key: "TelGrimpeur" },
   { label: "Email", key: "EmailGrimpeur" },
   { label: "Date d'inscription", key: "DateInscrGrimpeur" },
+  { label: "Solde", key: "Solde" },
+  { label: "Note", key: "Note" },
 ];

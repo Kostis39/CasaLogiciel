@@ -3,9 +3,10 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import clsx from "clsx";
+import { getStatutVoieBg } from "./clientInfo";
 
 export function ClientCard(
-  { prenom, nom, num }: { prenom: string , nom: string , num: number }
+  { prenom, nom, num, statutVoie }: { prenom: string , nom: string , num: number, statutVoie: number | undefined }
 ) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -23,6 +24,7 @@ export function ClientCard(
     <button
       className={clsx(
         "flex w-full items-center gap-3 rounded-xl border py-3 px-3 shadow-sm",
+        getStatutVoieBg(statutVoie),
         {
           "border-blue-600 border-2": isSelected,
           "hover:border-blue-300": !isSelected,

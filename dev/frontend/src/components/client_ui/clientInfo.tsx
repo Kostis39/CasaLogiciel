@@ -61,7 +61,7 @@ export function ClientGrid( {clientInfo} : ClientGridProps ) {
   }));
 
   return (
-    <div className={`flex flex-col h-full ${getAccesMurBg(clientInfo.AccesMur)}`}>
+    <div className={`flex flex-col h-full ${getStatutVoieBg(clientInfo.StatutVoie)}`}>
       <div className="overflow-auto [flex:1] flex items-center">
 
         <div className="flex flex-col items-center gap-0.5 mr-4">
@@ -155,19 +155,6 @@ export function ClientGrid( {clientInfo} : ClientGridProps ) {
   );
 }
 
-function getAccesMurBg(accesMur: number | undefined) {
-  switch (accesMur) {
-    case 1:
-      return "bg-green-100";
-    case 2:
-      return "bg-violet-100";
-    case 3:
-      return "bg-blue-100";
-    default:
-      return "bg-green-100";
-  }
-}
-
 function checkBoxCotisation(client: Client){
   const [checked, setChecked] = useState<boolean>(isDateValid(client.DateFinCoti));
 
@@ -250,7 +237,7 @@ function acceeSalleDropdown() {
         <DropdownMenuSeparator />
         <DropdownMenuRadioGroup value={position} onValueChange={setPosition}>
           <DropdownMenuRadioItem value="1">Bloc</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="2">Voie</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="2">Moulinette</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="3">Tête</DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
@@ -264,4 +251,17 @@ function StyledDropdown() {
       {acceeSalleDropdown()}
     </div>
   );
+}
+
+export function getStatutVoieBg(StatutVoie: number | undefined) {
+  switch (StatutVoie) {
+    case 1: // Bloc
+      return "bg-orange-300"; // orange a faire 
+    case 2: //Voie
+      return "bg-green-300";
+    case 3: // Tête
+      return "bg-blue-300";
+    default:
+      return "bg-orange-300";
+  }
 }
