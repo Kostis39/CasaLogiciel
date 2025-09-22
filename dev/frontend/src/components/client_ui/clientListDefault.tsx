@@ -38,6 +38,19 @@ export const ClientListClientComponent = ({ query }: { query: string }) => {
     searchGrimpeurs();
   }, [query]);
 
+  useEffect(() => {
+    if (grimpeurs.length === 1) {
+      const currentId = searchParams.get("id");
+      const newId = grimpeurs[0].NumGrimpeur.toString();
+
+      if (currentId !== newId) {
+        const params = new URLSearchParams(searchParams);
+        params.set("id", newId);
+        router.replace(`?${params.toString()}`);
+      }
+    }
+  }, [grimpeurs, searchParams, router]);
+
   if (!query) {
     return <div>Rentrez un champ</div>;
   }
@@ -52,13 +65,6 @@ export const ClientListClientComponent = ({ query }: { query: string }) => {
 
   if (grimpeurs.length === 0) {
     return <div>Pas de résultats</div>;
-  }
-
-  if (grimpeurs.length === 1 && searchParams.get("id") !== grimpeurs[0].NumGrimpeur.toString()) {
-    const params = new URLSearchParams(searchParams);
-    params.set("id", grimpeurs[0].NumGrimpeur.toString());
-    router.replace(`?${params.toString()}`);  // utilise push pour garder historique
-    postSeanceClient(grimpeurs[0].NumGrimpeur);
   }
 
   return (

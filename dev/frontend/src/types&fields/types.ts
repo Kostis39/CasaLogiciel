@@ -19,3 +19,8 @@ export interface Client {
   DateInscrGrimpeur?: string;
   AccordReglement?: boolean;
 }
+
+export interface MResponse {
+  success: boolean;
+  message: string;
+}

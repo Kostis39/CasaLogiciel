@@ -1,10 +1,10 @@
 "use client";
 import { deleteSeance, isAlreadyEntered, isDateValid, postSeanceClient, updateCotisationClient } from "@/src/services/api";
 import { clientFields } from "@/src/types&fields/fields";
-import { Client } from "@/src/types&fields/types";
+import { Client, MResponse } from "@/src/types&fields/types";
 import Image from "next/image";
 import Link from "next/link";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import {useEffect, useState } from "react";
 import { Button } from "@/src/components/ui/button"
 import {
   DropdownMenu,
@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu"
+import { toast } from "react-toastify";
 
 interface ClientGridProps {
   clientInfo: Client;
@@ -40,13 +41,14 @@ export function ClientGrid( {clientInfo} : ClientGridProps ) {
         setInCasa(status);
 
         if (!status) {
-          const result = await postSeanceClient(clientInfo.NumGrimpeur);
+          
+          const result : MResponse = await postSeanceClient(clientInfo.NumGrimpeur);
 
           if (!result.success) {
-            alert(`Erreur ${result.status} : ${result.message}`);
+            toast.warning(`${result.message}`);
             setInCasa(false);
           } else {
-            alert(`Vlaidé ${result.status} : ${result.message}`);
+            toast.success(`${result.message}`);
             setInCasa(true);
           }
         }
@@ -65,6 +67,7 @@ export function ClientGrid( {clientInfo} : ClientGridProps ) {
 
   const handleClick1 = () => {
     setInCasa(!inCasa);
+    alert("Fiare entrée unique");
     postSeanceClient(clientInfo.NumGrimpeur);
   };
   const handleClick2 = () => {
@@ -146,25 +149,25 @@ export function ClientGrid( {clientInfo} : ClientGridProps ) {
 
         {/* Actions sur le profil du grimpeur */}
         <div className="grid grid-cols-2">
-<div>
-  <Button
-    onClick={!inCasa ? handleClick1 : undefined}
-    disabled={inCasa || isLoading} // ✅ désactive si en cours de chargement
-    variant="outline"
-  >
-    Entrée
-  </Button>
-</div>
+          <div>
+            <Button
+              onClick={handleClick1}
+              disabled={isLoading} // ✅ désactive si en cours de chargement
+              variant="outline"
+            >
+              Entrée
+            </Button>
+          </div>
 
-<div>
-  <Button
-    onClick={inCasa ? handleClick2 : undefined}
-    disabled={!inCasa || isLoading} // ✅ désactive si en cours de chargement
-    variant="outline"
-  >
-    Annuler Entrée
-  </Button>
-</div>
+          <div>
+            <Button
+              onClick={inCasa ? handleClick2 : undefined}
+              disabled={!inCasa || isLoading} // ✅ désactive si en cours de chargement
+              variant="outline"
+            >
+              Annuler Entrée
+            </Button>
+          </div>
 
         </div>
 

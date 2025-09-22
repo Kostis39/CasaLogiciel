@@ -3,10 +3,8 @@
 import { ClientGrid } from "@/src/components/client_ui/clientInfo";
 import { ClientListClientComponent } from "@/src/components/client_ui/clientListDefault";
 import SearchClient from "@/src/components/client_ui/clientSearch";
-import { useClientInfo, useIsAlreadyEntered } from "@/src/hooks/client_hook";
-import { isAlreadyEntered } from "@/src/services/api";
+import { useClientInfo } from "@/src/hooks/client_hook";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
 
 export default function Saisies(){
 	const searchParams = useSearchParams();

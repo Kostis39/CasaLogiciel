@@ -97,23 +97,23 @@ class SeancesSearch(Resource):
                 return {"message": "Grimpeur not found"}, 404
 
             aujourd_hui = date.today()
-            seance_auj = (
+            seances_auj = (
                 session.query(Clients.Seance)
                 .filter_by(NumGrimpeur=idGrimpeur, DateSeance=aujourd_hui)
-                .one_or_none()
+                .all()
             )
 
-            if not seance_auj:
+            if not seances_auj:
                 return {"message": "Aucune séance à supprimer"}, 404
 
-            # Si la séance était payée avec un ticket, on remet 1 séance restante
-            if getattr(seance_auj, "TypeEntree", None) == "Ticket":
-                grimpeur.NbSeanceRest += 1
+            # Gestion des tickets et suppression
+            for seance in seances_auj:
+                if getattr(seance, "TypeEntree", None) == "Ticket":
+                    grimpeur.NbSeanceRest += 1
+                session.delete(seance)
 
-            # Suppression de la séance
-            session.delete(seance_auj)
             session.commit()
-            return {"message": "Séance supprimée avec succès"}, 200
+            return {"message": f"{len(seances_auj)} séance(s) supprimée(s) avec succès"}, 200
 
 class SeancesByDate(Resource): # Ressource pour filtrer les séances par date
     def get(self):

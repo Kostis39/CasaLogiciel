@@ -1,5 +1,5 @@
 import { getTodayPlusOneYear, haveDateJSON, isDateValid } from "./api";
-import { Client } from "../types&fields/types";
+import { Client, MResponse } from "../types&fields/types";
 const API_URL = "http://127.0.0.1:5000";
 
 export const realService = {
@@ -115,7 +115,7 @@ export const realService = {
     },
 
 //----------------------------------- Posters -----------------------------------
-    postSeanceClient: async (id: number) => {
+    postSeanceClient: async (id: number) : Promise<MResponse> => {
     try {
         const body = { NumGrimpeur: id };
         const response = await fetch(`${API_URL}/seances`, {
@@ -127,25 +127,13 @@ export const realService = {
         const data = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-        return {
-            success: false,
-            status: response.status,
-            message: data.message || "Erreur inconnue",
-        };
+            return {success: false, message: data.message || "Erreur inconnue",};
         }
 
-        return {
-            success: true,
-            status: response.status,
-            message: data.message || "Séance créée avec succès",
-        };
+        return {success: true, message: data.message || "Séance créée avec succès",};
     } catch (error) {
         console.error("Échec post séance d'un grimpeur", error);
-        return {
-            success: false,
-            status: 500,
-            message: "Impossible de contacter le serveur",
-        };
+        return {success: false, message: "Impossible de contacter le serveur",};
     }
     },
 
