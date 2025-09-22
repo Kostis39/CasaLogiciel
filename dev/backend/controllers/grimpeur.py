@@ -8,6 +8,7 @@ import os
 
 engine = create_engine()
 sesh = get_session(engine)
+signaturePath = "dev/resources"
 
 
 class GrimpeursListe(Resource):
@@ -72,7 +73,11 @@ class Grimpeur(Resource):
                 return {"message": "Grimpeur not found"}, 404
 
 
+<<<<<<< HEAD
 class GrimpeurSignature(Resource):
+=======
+class GrimpeurAccords(Resource):
+>>>>>>> da787a56be3e85e162219370d1b8d616c95d74b2
     def put(self, id):
         json = request.get_json()
         signature_b64 = json.get("signature")
@@ -84,11 +89,15 @@ class GrimpeurSignature(Resource):
         except Exception:
             return {"message": "Signature invalide"}, 400
 
+<<<<<<< HEAD
         # répertoire où sauvegarder la signature
         signature_dir = "/home/mavert/Documents/Projets/CasaCentral/dev/resources"
         os.makedirs(signature_dir, exist_ok=True)
+=======
+        os.makedirs(signaturePath, exist_ok=True)
+>>>>>>> da787a56be3e85e162219370d1b8d616c95d74b2
         filename = f"grimpeur_{id}_{date.today().isoformat()}.png"
-        filepath = os.path.join(signature_dir, filename)
+        filepath = os.path.join(signaturePath, filename)
 
         with open(filepath, "wb") as f:
             f.write(signature_bytes)

@@ -130,4 +130,3 @@ class SeancesByDate(Resource): # Ressource pour filtrer les séances par date
                 query = query.filter(Clients.Seance.DateSeance == date_debut)
             seances = query.all()
             return [seance.to_dict() for seance in seances], 200
-            

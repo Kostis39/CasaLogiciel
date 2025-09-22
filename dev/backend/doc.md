@@ -10,6 +10,8 @@
       - [`GET /grimpeurs/<int:id>`](#get-grimpeursintid)
       - [`POST /grimpeurs/<int:id>`](#post-grimpeursintid)
       - [`DELETE /grimpeurs/<int:id>`](#delete-grimpeursintid)
+    - [Ressource `GrimpeursAccord`](#ressource-grimpeursaccord)
+      - [`PUT /grimpeurs/accord/<int:id>`](#put-grimpeursaccordintid)
     - [Ressource `GrimpeursSearch`](#ressource-grimpeurssearch)
       - [`GET /grimpeurs/search`](#get-grimpeurssearch)
   - [Séances](#séances)
@@ -92,7 +94,11 @@ Le titre de niveau 4 indique la méthode HTTP et le chemin d'accès de l'endpoin
     - `id` (*int*) : Identifiant unique du grimpeur.
 - **Réponse** : `HTTP 204 No Content` si la suppression est réussie, `HTTP 404`{"message": Grimpeur not found} si le grimpeur n'existe pas.
 
-#### `PUT /grimpeurs/<int:id>`
+
+
+### Ressource `GrimpeursAccord`
+
+#### `PUT /grimpeurs/accord/<int:id>`
 - **Description** : Met à jour les accords et la signature d'un grimpeur spécifique identifié par son numéro.
 - **Paramètres** :
     - `id` (*int*) : Identifiant unique du grimpeur.
@@ -101,8 +107,6 @@ Le titre de niveau 4 indique la méthode HTTP et le chemin d'accès de l'endpoin
   - **Réponse** : Objet grimpeur mis à jour avec son identifiant `HTTP 200 OK` si trouvé, `HTTP 404`{"message": "Grimpeur not found"} si non trouvé.
 
   - **Effet de bord** : Décode l'image de la signature et la sauvegarde dans le système de fichiers.
-
-
 ### Ressource `GrimpeursSearch`
 
 #### `GET /grimpeurs/search`
