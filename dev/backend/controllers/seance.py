@@ -30,40 +30,32 @@ class Seances(Resource):
 
         # Vérification de l'existence du grimpeur
         with sesh() as session:
-            grimpeur = (
-                session.query(Clients.Grimpeur)
-                .filter_by(NumGrimpeur=idgrimpeur)
-                .first()
-            )
+            grimpeur = session.query(Clients.Grimpeur).filter_by(NumGrimpeur=idgrimpeur).first()
             if not grimpeur:
                 return {"message": "Grimpeur not found"}, 404
 
-        # Vérification du règlement
-        if not grimpeur.AccordReglement:
-            return {"message": "Le grimpeur doit signer le règlement"}, 403
-
-        # Vérification cotisation
-        if grimpeur.DateFinCoti is None or grimpeur.DateFinCoti < date.today():
-            return {"message": "Le grimpeur n'est pas cotisant"}, 403
-
-        # Vérification abonnement ou tickets
-        if grimpeur.DateFinAbo is None or grimpeur.DateFinAbo <= date.today():
-            if grimpeur.NbSeanceRest <= 0:
+            # Vérification abonnement ou tickets
+            if (grimpeur.DateFinAbo is None or grimpeur.DateFinAbo <= date.today()) and grimpeur.NbSeanceRest <= 0:
                 return {"message": "Le grimpeur n'a pas d'entrée valide"}, 403
             else:
-                grimpeur.NbSeanceRest -= 1
-                nouv_seance.TypeEntree = "Ticket"
+                if grimpeur.NbSeanceRest > 0:
+                    grimpeur.NbSeanceRest -= 1
+                    nouv_seance.TypeEntree = "Ticket"
+                elif grimpeur.DateFinAbo >= date.today():
+                    nouv_seance.TypeEntree = "Abonnement"
 
-        nouv_seance.NumGrimpeur = idgrimpeur
-        nouv_seance.DateSeance = date_seance
-        nouv_seance.HeureSeance = heure_seance
+            # Création de la séance
+            nouv_seance.NumGrimpeur = idgrimpeur
+            nouv_seance.DateSeance = date_seance
+            nouv_seance.HeureSeance = heure_seance
 
-        with sesh() as session:
             session.add(nouv_seance)
-            session.commit()
+            session.commit()  # ici le commit met à jour à la fois la séance et le NbSeanceRest
             session.refresh(nouv_seance)
-            return nouv_seance.to_dict(), 201
-        
+
+        return {"message": "Séance crée via " + nouv_seance.TypeEntree}, 201
+
+
     def delete(self, IdSeance):
         with sesh() as session:
             seance = session.query(Clients.Seance).filter_by(IdSeance=IdSeance).first()
@@ -114,7 +106,11 @@ class SeancesSearch(Resource):
             if not seance_auj:
                 return {"message": "Aucune séance à supprimer"}, 404
 
-            # Suppression
+            # Si la séance était payée avec un ticket, on remet 1 séance restante
+            if getattr(seance_auj, "TypeEntree", None) == "Ticket":
+                grimpeur.NbSeanceRest += 1
+
+            # Suppression de la séance
             session.delete(seance_auj)
             session.commit()
             return {"message": "Séance supprimée avec succès"}, 200

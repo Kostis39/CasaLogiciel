@@ -116,23 +116,39 @@ export const realService = {
 
 //----------------------------------- Posters -----------------------------------
     postSeanceClient: async (id: number) => {
-        try {
-            const body = { NumGrimpeur: id };
-            const response = await fetch(`${API_URL}/seances`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
-            });
-            if (!response.ok) {
-                console.log(`Erreur HTTP: ${response.status}`);
-                return null;
-            }
-            return response;
-        } catch (error) {
-            console.error('Echec post seance d"un grimpeur', error);
-            throw error;
+    try {
+        const body = { NumGrimpeur: id };
+        const response = await fetch(`${API_URL}/seances`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+        return {
+            success: false,
+            status: response.status,
+            message: data.message || "Erreur inconnue",
+        };
         }
+
+        return {
+            success: true,
+            status: response.status,
+            message: data.message || "Séance créée avec succès",
+        };
+    } catch (error) {
+        console.error("Échec post séance d'un grimpeur", error);
+        return {
+            success: false,
+            status: 500,
+            message: "Impossible de contacter le serveur",
+        };
+    }
     },
+
 
     postAbonnement: async (abonnementData: {
         TypeAbo: string;

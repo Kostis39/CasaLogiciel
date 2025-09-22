@@ -1,12 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
-import { fetchClientSearch } from "@/src/services/api";
+import { fetchClientSearch, postSeanceClient } from "@/src/services/api";
 import { ClientCard } from "./clientCard";
+import { useSearchParams, useRouter } from "next/navigation";
+
 
 export const ClientListClientComponent = ({ query }: { query: string }) => {
   const [grimpeurs, setGrimpeurs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     const searchGrimpeurs = async () => {
@@ -34,7 +39,7 @@ export const ClientListClientComponent = ({ query }: { query: string }) => {
   }, [query]);
 
   if (!query) {
-    return <div>Please provide an entry</div>;
+    return <div>Rentrez un champ</div>;
   }
 
   if (loading) {
@@ -47,6 +52,13 @@ export const ClientListClientComponent = ({ query }: { query: string }) => {
 
   if (grimpeurs.length === 0) {
     return <div>Pas de résultats</div>;
+  }
+
+  if (grimpeurs.length === 1 && searchParams.get("id") !== grimpeurs[0].NumGrimpeur.toString()) {
+    const params = new URLSearchParams(searchParams);
+    params.set("id", grimpeurs[0].NumGrimpeur.toString());
+    router.replace(`?${params.toString()}`);  // utilise push pour garder historique
+    postSeanceClient(grimpeurs[0].NumGrimpeur);
   }
 
   return (

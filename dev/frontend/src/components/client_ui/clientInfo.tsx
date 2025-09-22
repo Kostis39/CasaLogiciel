@@ -24,25 +24,43 @@ export function ClientGrid( {clientInfo} : ClientGridProps ) {
   
   const [inCasa, setInCasa] = useState<boolean>(false);
   const [isLoading, setLoading] = useState<boolean>(true);
-	useEffect(() => {
-		const fetchEnteredStatus = async () => {
+
+  useEffect(() => {
+    const fetchEnteredStatus = async () => {
       setLoading(true);
-		  if (clientInfo.NumGrimpeur === null) {
-			setInCasa(false);
-			return;
-		  }
-		  try {
-			const status = await isAlreadyEntered(clientInfo.NumGrimpeur);
-			setInCasa(status);
-		  } catch (error) {
-			console.error("Erreur lors de la vérification du statut d'entrée :", error);
-			setInCasa(false);
-		  }finally{
-        setLoading(false)
+
+      if (clientInfo.NumGrimpeur === null) {
+        setInCasa(false);
+        setLoading(false);
+        return;
       }
-		};
-		fetchEnteredStatus();
-	  }, [clientInfo]);
+
+      try {
+        const status = await isAlreadyEntered(clientInfo.NumGrimpeur);
+        setInCasa(status);
+
+        if (!status) {
+          const result = await postSeanceClient(clientInfo.NumGrimpeur);
+
+          if (!result.success) {
+            alert(`Erreur ${result.status} : ${result.message}`);
+            setInCasa(false);
+          } else {
+            alert(`Vlaidé ${result.status} : ${result.message}`);
+            setInCasa(true);
+          }
+        }
+      } catch (error) {
+        console.error("Erreur lors de la vérification du statut d'entrée :", error);
+        setInCasa(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEnteredStatus();
+  }, [clientInfo.NumGrimpeur]);
+
 
 
   const handleClick1 = () => {

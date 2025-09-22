@@ -67,10 +67,12 @@ class Grimpeur(Resource):
             if grimpeur:
                 session.delete(grimpeur)
                 session.commit()
-                return {"message": "Grimpeur deleted"}, 204
+                return {"message": "Grimpeur deleted"}, 200
             else:
                 return {"message": "Grimpeur not found"}, 404
 
+
+class GrimpeurSignature(Resource):
     def put(self, id):
         json = request.get_json()
         signature_b64 = json.get("signature")
@@ -82,6 +84,7 @@ class Grimpeur(Resource):
         except Exception:
             return {"message": "Signature invalide"}, 400
 
+        # répertoire où sauvegarder la signature
         signature_dir = "/home/mavert/Documents/Projets/CasaCentral/dev/resources"
         os.makedirs(signature_dir, exist_ok=True)
         filename = f"grimpeur_{id}_{date.today().isoformat()}.png"
@@ -90,21 +93,26 @@ class Grimpeur(Resource):
         with open(filepath, "wb") as f:
             f.write(signature_bytes)
 
-        # query strings pour AccordReglement et AccordParental
-        accord_reglement = request.args.get("AccordReglement", type=bool)
-        accord_parental = request.args.get("AccordParental", type=bool)
+        # query params pour AccordReglement et AccordParental
+        accord_reglement = request.args.get("AccordReglement")
+        accord_parental = request.args.get("AccordParental")
+
+        # conversion manuelle en bool
+        def str_to_bool(val):
+            return str(val).lower() in ["true", "1", "yes"]
 
         with sesh() as session:
             grimpeur = session.query(Clients.Grimpeur).filter_by(NumGrimpeur=id).first()
             if not grimpeur:
                 return {"message": "Grimpeur not found"}, 404
+
             grimpeur.CheminSignature = filepath
             grimpeur.has_signed = True
 
             if accord_reglement is not None:
-                grimpeur.AccordReglement = accord_reglement
+                grimpeur.AccordReglement = str_to_bool(accord_reglement)
             if accord_parental is not None:
-                grimpeur.AccordParental = accord_parental
+                grimpeur.AccordParental = str_to_bool(accord_parental)
 
             session.commit()
             return {
@@ -113,7 +121,6 @@ class Grimpeur(Resource):
                 "AccordReglement": grimpeur.AccordReglement,
                 "AccordParental": grimpeur.AccordParental,
             }, 200
-
 
 class GrimpeurSearch(Resource):
     def get(self):
