@@ -10,6 +10,7 @@ export interface Client {
   Solde?: number;
   StatutVoie?: number;
   Note?: string | null;
+  Club?: string | null;
 
   TypeAbo: string | null;
   TypeTicket: string | null;
@@ -18,6 +19,8 @@ export interface Client {
   NbSeanceRest?: number;
   DateInscrGrimpeur?: string;
   AccordReglement?: boolean;
+  AccordParental?: boolean;
+  CheminSignature?: string ;
 }
 
 export interface ApiResponse {

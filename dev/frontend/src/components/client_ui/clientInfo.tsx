@@ -6,15 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import {useEffect, useState } from "react";
 import { Button } from "@/src/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/src/components/ui/dropdown-menu"
 import { toast } from "react-toastify";
 
 interface ClientGridProps {
@@ -26,64 +17,62 @@ export function ClientGrid( {clientInfo} : ClientGridProps ) {
   const [inCasa, setInCasa] = useState<boolean>(false);
   const [isLoading, setLoading] = useState<boolean>(true);
 
-useEffect(() => {
-  let alreadyCalled = false;
+  useEffect(() => {
+    let alreadyCalled = false;
 
-  const fetchEnteredStatus = async () => {
-    if (alreadyCalled) return;
-    alreadyCalled = true;
+    const fetchEnteredStatus = async () => {
+      if (alreadyCalled) return;
+      alreadyCalled = true;
 
-    setLoading(true);
+      setLoading(true);
 
-    if (clientInfo.NumGrimpeur === null) {
-      setInCasa(false);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const status = await isAlreadyEntered(clientInfo.NumGrimpeur);
-      setInCasa(status);
-
-      if (!status) {
-        const result = await postSeanceClient(clientInfo.NumGrimpeur);
-
-        if (!result.success) {
-          toast.warning(result.message);
-          setInCasa(false);
-        } else {
-          toast.success(result.message);
-          setInCasa(true);
-        }
+      if (clientInfo.NumGrimpeur === null) {
+        setInCasa(false);
+        setLoading(false);
+        return;
       }
-    } catch (error) {
-      toast.warning("Erreur lors de la vérification du statut d'entrée");
-      setInCasa(false);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  fetchEnteredStatus();
-}, [clientInfo.NumGrimpeur]);
+      try {
+        const status = await isAlreadyEntered(clientInfo.NumGrimpeur);
+        setInCasa(status);
+
+        if (!status) {
+          const result = await postSeanceClient(clientInfo.NumGrimpeur);
+
+          if (!result.success) {
+            toast.warning(result.message);
+            setInCasa(false);
+          } else {
+            toast.success(result.message);
+            setInCasa(true);
+          }
+        }
+      } catch (error) {
+        toast.warning("Erreur lors de la vérification du statut d'entrée");
+        setInCasa(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEnteredStatus();
+  }, [clientInfo.NumGrimpeur]);
 
 
 
-  const handleClick1 = () => {
-    setInCasa(!inCasa);
-    alert("Fiare entrée unique");
-    postSeanceClient(clientInfo.NumGrimpeur);
-  };
-  const handleClick2 = async () => {
-    const response = await deleteSeance(clientInfo.NumGrimpeur);
-    response.success ? toast.success(response.message) : toast.error(response.message), setInCasa(false);
-  };
+    const handleClick1 = () => {
+      setInCasa(!inCasa);
+      alert("Fiare entrée unique");
+      postSeanceClient(clientInfo.NumGrimpeur);
+    };
+    const handleClick2 = async () => {
+      const response = await deleteSeance(clientInfo.NumGrimpeur);
+      response.success ? toast.success(response.message) : toast.error(response.message), setInCasa(false);
+    };
 
 
-  const fieldInfoClient = clientFields.map(f => ({
-    label: f.label,
-    value: f.format ? f.format(clientInfo[f.key]) : clientInfo[f.key] ?? "—",
-  }));
+    const fieldInfoClient = clientFields.map(f => ({ label: f.label, value: f.format ? f.format(clientInfo[f.key]) : clientInfo[f.key] ?? "—", }));
+
 
   return (
     <div className={`flex flex-col h-full ${getStatutVoieBg(clientInfo.StatutVoie)}`}>
@@ -98,7 +87,7 @@ useEffect(() => {
             <div className="text-red-500 font-bold">Hors salle</div>
           )}
           <Image src="/avatar.png" alt="Avatar" width={200} height={200}/>
-          <span>{clientInfo.NumGrimpeur}</span>
+          <p>{clientInfo.NumGrimpeur}</p>
         </div>
 
         <div className="flex-1 grid grid-cols-4 gap-2 h-full">
@@ -111,8 +100,17 @@ useEffect(() => {
           </div>
           ))}
 
+          <div className="flex flex-col justify-center break-words col-span-2">
+            <p className="text-sm font-semibold text-gray-700">Note</p>
+            <div className="border border-gray-700 rounded p-2 max-h-24 overflow-y-auto whitespace-pre-line">
+              {clientInfo.Note || "—"}
+            </div>
+          </div>
+
+
+
           <Link
-          href="/inscription"
+          href={`./grimpeurs/?id=${clientInfo.NumGrimpeur}`}
           className="flex items-center justify-center mr-3 border border-black rounded hover:bg-gray-100 transition"
           >
             <p className="text-sm font-semibold text-gray-700 ">
@@ -127,19 +125,19 @@ useEffect(() => {
         {/* Suite des infos du grimpeur*/}
         <div className="grid grid-cols-3 grid-rows-2">
           <div className="flex flex-col items-center justify-center">
-            {checkBoxCotisation(clientInfo)}
+            {CotisationInfo(clientInfo)}
           </div>
 
-          <div>
-            Réglement
+          <div className="flex flex-col items-center justify-center">
+            {signatureClient("Règlement Intérieur", clientInfo.AccordReglement, clientInfo.CheminSignature)}
           </div>
 
-          <div>
-            Autorisation Parentale
+          <div className="flex flex-col items-center justify-center">
+            {signatureClient("Autorisation Parentale", clientInfo.AccordParental, clientInfo.CheminSignature)}
           </div>
 
           <div className="flex flex-col items-center">
-            {abonnementInfo(clientInfo)}
+            {AbonnementInfo(clientInfo)}
           </div>
 
           <div className="flex flex-col items-center">
@@ -147,38 +145,82 @@ useEffect(() => {
           </div>
 
           <div className="flex flex-col items-center">
-            {StyledDropdown()}
+            {AccesSalleInfo(clientInfo)}
           </div>
         </div>
 
         {/* Actions sur le profil du grimpeur */}
         <div className="grid grid-cols-2">
-          <div>
+          <div className="flex justify-center">
             <Button
               onClick={handleClick1}
-              disabled={isLoading} // ✅ désactive si en cours de chargement
+              disabled={isLoading}
               variant="outline"
+              className="w-3/4 h-3/4 text-lg"
             >
               Entrée
             </Button>
           </div>
 
-          <div>
+          <div className="flex justify-center">
             <Button
               onClick={inCasa ? handleClick2 : undefined}
-              disabled={!inCasa || isLoading} // ✅ désactive si en cours de chargement
+              disabled={!inCasa || isLoading}
               variant="outline"
+              className="w-3/4 h-3/4 text-lg"
             >
               Annuler Entrée
             </Button>
           </div>
-
         </div>
+
 
       </div>
     </div>
   );
 }
+
+function signatureClient(typeSignature: string, accord: boolean | undefined, cheminSignature: string | undefined){
+  return (
+    <div className="flex flex-col items-center justify-center">
+      <p className="font-bold text-gray-700">{typeSignature}</p>
+      {accord ? (
+          <p className="text-green-500 font-bold">Signé</p>
+      ) : (
+        <p className="text-red-500 font-bold">Non Signé</p>
+      )}
+    </div>
+  );
+
+}
+
+function CotisationInfo(client: Client){
+  let content;
+  if (client.DateFinCoti !== null && client.DateFinCoti !== undefined) {
+    content = (
+      <>
+      {isDateValid(client.DateFinCoti) ? (
+        <>
+          <p className="text-green-500 font-bold">Cotisation Active</p>
+          <p>Fin le {client.DateFinCoti}</p>
+        </>
+      ) : (
+        <>
+          <p className="text-red-500 font-bold">Cotisation Expirée</p>
+          <p>Fin le {client.DateFinCoti}</p>
+        </>
+      )}
+      </>
+    );
+    } else {
+      content = <p className="text-red-500 font-bold">Pas de cotisation</p>;
+    }
+    return (
+      <div className="flex flex-col items-center justify-center">
+        {content}
+      </div>
+    );
+  }
 
 function checkBoxCotisation(client: Client){
   const [checked, setChecked] = useState<boolean>(isDateValid(client.DateFinCoti));
@@ -202,22 +244,22 @@ function checkBoxCotisation(client: Client){
   );
 }
 
-function abonnementInfo(client: Client){
+function AbonnementInfo(client: Client){
   let content;
   if (client.DateFinAbo === null || client.DateFinAbo === undefined) {
-    content = <span className="text-sm font-semibold text-gray-700">Pas d'abonnement</span>;
+    content = <p className="font-bold text-gray-700">Pas d'abonnement</p>;
   } else if (isDateValid(client.DateFinAbo)) {
     content = (
       <>
-        <span className="text-green-500 font-bold">Abonnement Actif</span>
-        <span>Fin le {client.DateFinAbo}</span>
+        <p className="text-green-500 font-bold">Abonnement Actif</p>
+        <p>Fin le {client.DateFinAbo}</p>
       </>
     );
   } else {
     content = (
       <>
-        <span className="text-red-500 font-bold">Abonnement Expiré</span>
-        <span>Fin le {client.DateFinAbo}</span>
+        <p className="text-red-500 font-bold">Abonnement Expiré</p>
+        <p>Fin le {client.DateFinAbo}</p>
       </>
     );
   }
@@ -232,12 +274,12 @@ function abonnementInfo(client: Client){
 function EntreeInfo(client: Client){
   let content;
   if (!client.NbSeanceRest || client.NbSeanceRest <= 0) {
-    content = <span className="text-sm font-semibold text-gray-700">Pas d'entrées</span>;
+    content = <p className="font-bold text-gray-700">Pas d'entrées</p>;
   } else {
     content = (
       <>
-        <span className="text-green-500 font-bold">Nombre d'entrée restantes</span>
-        <span>{client.NbSeanceRest}</span>
+        <p className="text-green-500 font-bold">Nombre d'entrée restantes</p>
+        <p>{client.NbSeanceRest}</p>
       </>
     );
   }
@@ -250,30 +292,20 @@ function EntreeInfo(client: Client){
 
 
 
-function acceeSalleDropdown() {
-  const [position, setPosition] = useState("1");
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline">{position}</Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
-        <DropdownMenuLabel>Accès Salle</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup value={position} onValueChange={setPosition}>
-          <DropdownMenuRadioItem value="1">Bloc</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="2">Moulinette</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="3">Tête</DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-}
+function AccesSalleInfo(client: Client){
+  let content;
+  if (client.StatutVoie === 3) {
+    content = <p className="font-bold">Tête</p>;
+  }else if (client.StatutVoie === 2) {
+    content = <p className="font-bold">Moulinette</p>;
+  }else{
+    content = <p className="font-bold">Bloc</p>;
+  }
 
-function StyledDropdown() {
   return (
     <div className="flex flex-col items-center justify-center">
-      {acceeSalleDropdown()}
+      <p className="font-bold text-gray-700">Accées Salle</p>
+      {content}
     </div>
   );
 }

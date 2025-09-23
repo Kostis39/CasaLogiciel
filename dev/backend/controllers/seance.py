@@ -38,11 +38,17 @@ class Seances(Resource):
             if (grimpeur.DateFinAbo is None or grimpeur.DateFinAbo <= date.today()) and grimpeur.NbSeanceRest <= 0:
                 return {"message": "Le grimpeur n'a pas d'entrée valide"}, 403
             else:
-                if grimpeur.NbSeanceRest > 0:
+                if grimpeur.DateFinAbo is not None and grimpeur.DateFinAbo >= date.today():
+                    # Vérifie s'il existe déjà une séance aujourd'hui
+                    seance_exist = session.query(Clients.Seance).filter_by(
+                        NumGrimpeur=idgrimpeur, DateSeance=date_seance
+                    ).first()
+                    if seance_exist:
+                        return {"message": "Une séance d'abonnement existe déjà aujourd'hui"}, 403
+                    nouv_seance.TypeEntree = "Abonnement"
+                elif grimpeur.NbSeanceRest > 0:
                     grimpeur.NbSeanceRest -= 1
                     nouv_seance.TypeEntree = "Ticket"
-                elif grimpeur.DateFinAbo >= date.today():
-                    nouv_seance.TypeEntree = "Abonnement"
 
             # Création de la séance
             nouv_seance.NumGrimpeur = idgrimpeur
@@ -82,9 +88,9 @@ class SeancesSearch(Resource):
             seance_auj = (
                 session.query(Clients.Seance)
                 .filter_by(NumGrimpeur=idGrimpeur, DateSeance=aujourd_hui)
-                .one_or_none()
+                .first()
             )
-            return {"est_la": seance_auj is not None}, 200
+            return {"est_la": seance_auj != None}, 200
 
     def delete(self, idGrimpeur):
         with sesh() as session:

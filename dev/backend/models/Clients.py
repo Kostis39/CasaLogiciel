@@ -26,6 +26,7 @@ class Grimpeur(Casabase, SerializerMixin):
     AccordReglement: Mapped[bool] = mapped_column(nullable=True)
     AccordParental: Mapped[bool] = mapped_column(nullable=True)
     CheminSignature: Mapped[str] = mapped_column(String(255), nullable=True)
+    Club: Mapped[str] = mapped_column(String(255), nullable=True)
 
 
 class Ticket(Casabase, SerializerMixin):
