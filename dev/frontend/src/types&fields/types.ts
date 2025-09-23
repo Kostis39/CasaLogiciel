@@ -20,7 +20,7 @@ export interface Client {
   AccordReglement?: boolean;
 }
 
-export interface MResponse {
+export interface ApiResponse {
   success: boolean;
   message: string;
 }

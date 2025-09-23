@@ -306,7 +306,7 @@ export const mockService = {
             DateSeance: date.date,
             HeureSeance: date.hour,
         };
-        console.log("Mock POST Seance Client:", body);
+        return {success: true, message: `Mock: ${JSON.stringify(body)}`};
     },
 
     postAbonnement: async (abonnementData: {
@@ -378,7 +378,7 @@ export const mockService = {
     },
 
     deleteSeance: async (NumGrimpeur: number) => {
-        console.log(`Mock DELETE Seance for Client ${NumGrimpeur}`);
+        return { success: true, message: `Mock: Seance supprimée pour le client ${NumGrimpeur}` };
     },
 
 //----------------------------------- Others -----------------------------------

@@ -1,7 +1,7 @@
 "use client";
 import { deleteSeance, isAlreadyEntered, isDateValid, postSeanceClient, updateCotisationClient } from "@/src/services/api";
 import { clientFields } from "@/src/types&fields/fields";
-import { Client, MResponse } from "@/src/types&fields/types";
+import { Client, ApiResponse } from "@/src/types&fields/types";
 import Image from "next/image";
 import Link from "next/link";
 import {useEffect, useState } from "react";
@@ -26,42 +26,46 @@ export function ClientGrid( {clientInfo} : ClientGridProps ) {
   const [inCasa, setInCasa] = useState<boolean>(false);
   const [isLoading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    const fetchEnteredStatus = async () => {
-      setLoading(true);
+useEffect(() => {
+  let alreadyCalled = false;
 
-      if (clientInfo.NumGrimpeur === null) {
-        setInCasa(false);
-        setLoading(false);
-        return;
-      }
+  const fetchEnteredStatus = async () => {
+    if (alreadyCalled) return;
+    alreadyCalled = true;
 
-      try {
-        const status = await isAlreadyEntered(clientInfo.NumGrimpeur);
-        setInCasa(status);
+    setLoading(true);
 
-        if (!status) {
-          
-          const result : MResponse = await postSeanceClient(clientInfo.NumGrimpeur);
+    if (clientInfo.NumGrimpeur === null) {
+      setInCasa(false);
+      setLoading(false);
+      return;
+    }
 
-          if (!result.success) {
-            toast.warning(`${result.message}`);
-            setInCasa(false);
-          } else {
-            toast.success(`${result.message}`);
-            setInCasa(true);
-          }
+    try {
+      const status = await isAlreadyEntered(clientInfo.NumGrimpeur);
+      setInCasa(status);
+
+      if (!status) {
+        const result = await postSeanceClient(clientInfo.NumGrimpeur);
+
+        if (!result.success) {
+          toast.warning(result.message);
+          setInCasa(false);
+        } else {
+          toast.success(result.message);
+          setInCasa(true);
         }
-      } catch (error) {
-        console.error("Erreur lors de la vérification du statut d'entrée :", error);
-        setInCasa(false);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      toast.warning("Erreur lors de la vérification du statut d'entrée");
+      setInCasa(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchEnteredStatus();
-  }, [clientInfo.NumGrimpeur]);
+  fetchEnteredStatus();
+}, [clientInfo.NumGrimpeur]);
 
 
 
@@ -70,9 +74,9 @@ export function ClientGrid( {clientInfo} : ClientGridProps ) {
     alert("Fiare entrée unique");
     postSeanceClient(clientInfo.NumGrimpeur);
   };
-  const handleClick2 = () => {
-    setInCasa(!inCasa);
-    deleteSeance(clientInfo.NumGrimpeur);
+  const handleClick2 = async () => {
+    const response = await deleteSeance(clientInfo.NumGrimpeur);
+    response.success ? toast.success(response.message) : toast.error(response.message), setInCasa(false);
   };
 
 
