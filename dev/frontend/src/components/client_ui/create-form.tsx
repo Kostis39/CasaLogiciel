@@ -1,259 +1,432 @@
-'use client';
-
-import Link from 'next/link';
+"use client";
+import { useForm } from "react-hook-form";
+import { motion } from "motion/react";
+import { useState } from "react";
+import { Check } from "lucide-react";
 import {
-  UserCircleIcon,
-  EnvelopeIcon,
-  PhoneIcon,
-  HomeIcon,
-  CakeIcon,
-  MapPinIcon,
-} from '@heroicons/react/24/outline';
-import { Button } from '@/src/components/ui/button';
-import { createGrimpeur, State } from '@/src/lib/actions';
-import { useActionState } from 'react';
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/src/components/ui/form";
+import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
+import { ToggleGroup, ToggleGroupItem } from "@/src/components/ui/toggle-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/src/components/ui/select";
+import { Checkbox } from "@/src/components/ui/checkbox";
+import { Switch } from "@/src/components/ui/switch";
+import { Textarea } from "@/src/components/ui/textarea";
+import { serverAction } from "@/src/services/t";
 
-export default function Form() {
-  const initialState: State = { message: null, errors: {}, values: {} };
-  const [state, formAction] = useActionState(createGrimpeur, initialState);
+type Schema = {
+  NomGrimpeur: string;
+  PrenomGrimpeur: string;
+  DateNaissGrimpeur?: string;
+  TelGrimpeur?: string;
+  EmailGrimpeur?: string;
+  NumLicenceGrimpeur?: number;
+  Club?: string;
+  StatutVoie?: string;
+  TypeAbo?: string;
+  DateFinAbo?: string;
+  TypeTicket?: string;
+  NbSeanceRest?: number;
+  DateFinCoti?: boolean;
+  AccordReglement: boolean;
+  AccordParental?: boolean;
+  Note?: string;
+};
+
+export function DraftForm() {
+  const form = useForm<Schema>({
+    defaultValues: {
+      NomGrimpeur: "",
+      PrenomGrimpeur: "",
+      AccordReglement: false,
+    },
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasSucceeded, setHasSucceeded] = useState(false);
+
+  const handleSubmit = form.handleSubmit(async (data: Schema) => {
+    setIsSubmitting(true);
+    try {
+      const result = await serverAction(data);
+      if (result.success) {
+        setHasSucceeded(true);
+        form.reset();
+      } else {
+        console.error("❌ Erreur serveur:", result);
+      }
+    } catch (err) {
+      console.error("❌ Erreur inattendue:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  });
+
+  if (hasSucceeded) {
+    return (
+      <div className="p-2 sm:p-5 md:p-8 w-full rounded-md gap-2 border">
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, stiffness: 300, damping: 25 }}
+          className="h-full py-6 px-3"
+        >
+          <motion.div
+            initial={{ scale: 0.5 }}
+            animate={{ scale: 1 }}
+            transition={{
+              delay: 0.3,
+              type: "spring",
+              stiffness: 500,
+              damping: 15,
+            }}
+            className="mb-4 flex justify-center border rounded-full w-fit mx-auto p-2"
+          >
+            <Check className="size-8" />
+          </motion.div>
+          <h2 className="text-center text-2xl text-pretty font-bold mb-2">
+            Thank you
+          </h2>
+          <p className="text-center text-lg text-pretty text-muted-foreground">
+            Form submitted successfully, we will get back to you soon
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
-    <form action={formAction}>
-      <div className="rounded-md bg-gray-50 p-4 md:p-6">
-        {/* Nom du grimpeur */}
-        <div className="mb-4">
-          <label htmlFor="nomGrimpeur" className="mb-2 block text-sm font-medium">
-            Nom du grimpeur
-          </label>
-          <div className="relative">
-            <input
-              id="nomGrimpeur"
-              name="nomGrimpeur"
-              type="text"
-              placeholder="Entrez le nom"
-              defaultValue={state.values?.nomGrimpeur ?? ''}
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              aria-describedby="nomGrimpeur-error"
-            />
-            <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
-          </div>
-          <div id="nomGrimpeur-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.nomGrimpeur?.map((error: string) => (
-              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
-            ))}
-          </div>
-        </div>
+    <Form {...form}>
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col p-2 sm:p-5 md:p-8 w-full rounded-md gap-2 border"
+      >
+        {/* Nom */}
+        <FormField
+          control={form.control}
+          name="NomGrimpeur"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel>Nom *</FormLabel>
+              <FormControl>
+                <Input {...field} required placeholder="Entrer votre nom" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        {/* Prénom du grimpeur */}
-        <div className="mb-4">
-          <label htmlFor="prenomGrimpeur" className="mb-2 block text-sm font-medium">
-            Prénom du grimpeur
-          </label>
-          <div className="relative">
-            <input
-              id="prenomGrimpeur"
-              name="prenomGrimpeur"
-              type="text"
-              placeholder="Entrez le prénom"
-              defaultValue={state.values?.prenomGrimpeur ?? ''}
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              aria-describedby="prenomGrimpeur-error"
-            />
-            <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
-          </div>
-          <div id="prenomGrimpeur-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.prenomGrimpeur?.map((error: string) => (
-              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
-            ))}
-          </div>
-        </div>
+        {/* Prénom */}
+        <FormField
+          control={form.control}
+          name="PrenomGrimpeur"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel>Prénom *</FormLabel>
+              <FormControl>
+                <Input {...field} required placeholder="Entrer votre prénom" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         {/* Date de naissance */}
-        <div className="mb-4">
-          <label htmlFor="dateNaissGrimpeur" className="mb-2 block text-sm font-medium">
-            Date de naissance
-          </label>
-          <div className="relative">
-            <input
-              id="dateNaissGrimpeur"
-              name="dateNaissGrimpeur"
-              type="date"
-              defaultValue={state.values?.dateNaissGrimpeur ?? ''}
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              aria-describedby="dateNaissGrimpeur-error"
-            />
-            <CakeIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
-          </div>
-          <div id="dateNaissGrimpeur-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.dateNaissGrimpeur?.map((error: string) => (
-              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
-            ))}
-          </div>
-        </div>
-
-        {/* Email */}
-        <div className="mb-4">
-          <label htmlFor="emailGrimpeur" className="mb-2 block text-sm font-medium">
-            Adresse email
-          </label>
-          <div className="relative">
-            <input
-              id="emailGrimpeur"
-              name="emailGrimpeur"
-              type="email"
-              placeholder="Entrez l'email"
-              defaultValue={state.values?.emailGrimpeur ?? ''}
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              aria-describedby="emailGrimpeur-error"
-            />
-            <EnvelopeIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
-          </div>
-          <div id="emailGrimpeur-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.emailGrimpeur?.map((error: string) => (
-              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
-            ))}
-          </div>
-        </div>
+        <FormField
+          control={form.control}
+          name="DateNaissGrimpeur"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel>Date de Naissance</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Entrer votre date de naissance" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         {/* Téléphone */}
-        <div className="mb-4">
-          <label htmlFor="telGrimpeur" className="mb-2 block text-sm font-medium">
-            Numéro de téléphone
-          </label>
-          <div className="relative">
-            <input
-              id="telGrimpeur"
-              name="telGrimpeur"
-              type="tel"
-              placeholder="Entrez le numéro de téléphone"
-              defaultValue={state.values?.telGrimpeur ?? ''}
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              aria-describedby="telGrimpeur-error"
-            />
-            <PhoneIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
-          </div>
-          <div id="telGrimpeur-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.telGrimpeur?.map((error: string) => (
-              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
-            ))}
-          </div>
-        </div>
-
-        {/* Adresse */}
-        <div className="mb-4">
-          <label htmlFor="adresseGrimpeur" className="mb-2 block text-sm font-medium">
-            Adresse
-          </label>
-          <div className="relative">
-            <input
-              id="adresseGrimpeur"
-              name="adresseGrimpeur"
-              type="text"
-              placeholder="Entrez l'adresse"
-              defaultValue={state.values?.adresseGrimpeur ?? ''}
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              aria-describedby="adresseGrimpeur-error"
-            />
-            <HomeIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
-          </div>
-          <div id="adresseGrimpeur-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.adresseGrimpeur?.map((error: string) => (
-              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
-            ))}
-          </div>
-        </div>
-
-        {/* Ville */}
-        <div className="mb-4">
-          <label htmlFor="villeGrimpeur" className="mb-2 block text-sm font-medium">
-            Ville
-          </label>
-          <div className="relative">
-            <input
-              id="villeGrimpeur"
-              name="villeGrimpeur"
-              type="text"
-              placeholder="Entrez la ville"
-              defaultValue={state.values?.villeGrimpeur ?? ''}
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              aria-describedby="villeGrimpeur-error"
-            />
-            <MapPinIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
-          </div>
-          <div id="villeGrimpeur-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.villeGrimpeur?.map((error: string) => (
-              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
-            ))}
-          </div>
-        </div>
-
-        {/* Code postal */}
-        <div className="mb-4">
-          <label htmlFor="codePostGrimpeur" className="mb-2 block text-sm font-medium">
-            Code postal
-          </label>
-          <div className="relative">
-            <input
-              id="codePostGrimpeur"
-              name="codePostGrimpeur"
-              type="text"
-              placeholder="Entrez le code postal"
-              defaultValue={state.values?.codePostGrimpeur ?? ''}
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              aria-describedby="codePostGrimpeur-error"
-            />
-            <MapPinIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
-          </div>
-          <div id="codePostGrimpeur-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.codePostGrimpeur?.map((error: string) => (
-              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
-            ))}
-          </div>
-        </div>
-
-        {/* Accord au règlement intérieur */}
-        <div className="mb-4">
-          <div className="flex items-center space-x-2">
-            <input
-              id="accordReglement"
-              name="accordReglement"
-              type="checkbox"
-              defaultChecked={state.values?.accordReglement ?? false}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              aria-describedby="accordReglement-error"
-            />
-            <label htmlFor="accordReglement" className="text-sm text-gray-700">
-              J'accepte le{' '}
-              <Link href="../reglement" className="text-blue-600 underline hover:text-blue-800">
-                règlement intérieur
-              </Link>
-            </label>
-          </div>
-          <div id="accordReglement-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.accordReglement?.map((error: string) => (
-              <p className="mt-2 text-sm text-red-500" key={error}>{error}</p>
-            ))}
-          </div>
-        </div>
-      </div>
-
-        {/* Message général */}
-        <div aria-live="polite" aria-atomic="true">
-          {state.message && (
-            <p className="mt-2 text-sm text-red-500">{state.message}</p>
+        <FormField
+          control={form.control}
+          name="TelGrimpeur"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel>Téléphone</FormLabel>
+              <FormControl>
+                <Input {...field} type="tel" placeholder="Entrer un numéro" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
+        />
+
+        {/* Email */}
+        <FormField
+          control={form.control}
+          name="EmailGrimpeur"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input {...field} type="email" placeholder="Entrer un email" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Numéro de licence */}
+        <FormField
+          control={form.control}
+          name="NumLicenceGrimpeur"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel>Numéro de Licence</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  value={field.value ?? ""}
+                  onChange={(e) => field.onChange(+e.target.value)}
+                  placeholder="Numéro de licence"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Club */}
+        <FormField
+          control={form.control}
+          name="Club"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel>Club</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Entrer un club" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Statut voie */}
+        <FormField
+          control={form.control}
+          name="StatutVoie"
+          render={({ field }) => {
+            const options = [
+              { value: "1", label: "Bloc" },
+              { value: "2", label: "Moulinette" },
+              { value: "3", label: "Tête" },
+            ];
+            return (
+              <FormItem className="flex flex-col gap-2 w-full py-1">
+                <FormLabel>Accès au mur</FormLabel>
+                <FormControl>
+                  <ToggleGroup
+                    variant="outline"
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    type="single"
+                    className="flex flex-wrap gap-2"
+                  >
+                    {options.map(({ label, value }) => (
+                      <ToggleGroupItem key={value} value={value}>
+                        {label}
+                      </ToggleGroupItem>
+                    ))}
+                  </ToggleGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+
+        {/* Abonnement */}
+        <div className="flex flex-wrap sm:flex-nowrap gap-2 w-full">
+          <FormField
+            control={form.control}
+            name="TypeAbo"
+            render={({ field }) => {
+              const options = [
+                { label: "Mensuel", value: "mensuel" },
+                { label: "Annuel", value: "annuel" },
+                { label: "Occasionnel", value: "occasionnel" },
+              ];
+              return (
+                <FormItem className="w-full">
+                  <FormLabel>Type d'Abonnement</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choisir un type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {options.map(({ label, value }) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+          <FormField
+            control={form.control}
+            name="DateFinAbo"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Date de fin</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Date de fin d'abonnement" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
+        {/* Ticket */}
+        <div className="flex flex-wrap sm:flex-nowrap gap-2 w-full">
+          <FormField
+            control={form.control}
+            name="TypeTicket"
+            render={({ field }) => {
+              const options = [
+                { label: "Normal", value: "normal" },
+                { label: "Réduit", value: "reduit" },
+                { label: "Gratuit", value: "gratuit" },
+              ];
+              return (
+                <FormItem className="w-full">
+                  <FormLabel>Type de Ticket</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choisir un type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {options.map(({ label, value }) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+          <FormField
+            control={form.control}
+            name="NbSeanceRest"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Nombre de Séances</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(+e.target.value)}
+                    placeholder="Nombre de séances"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-      <div className="mt-6 flex justify-end gap-4">
-        <Link
-          href="/client" // {`/client?query=${num}&id=${num}`}
-          className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
-        >
-          Annuler
-        </Link>
-        <Button type="submit">Créer Grimpeur</Button>
-      </div>
-    </form>
+        {/* Cotisation */}
+        <FormField
+          control={form.control}
+          name="DateFinCoti"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start gap-2">
+              <FormControl>
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+              </FormControl>
+              <FormLabel>Cotisation</FormLabel>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Accord règlement */}
+        <FormField
+          control={form.control}
+          name="AccordReglement"
+          render={({ field }) => (
+            <FormItem className="flex flex-col p-3 border rounded">
+              <div className="flex items-center justify-between">
+                <FormLabel>Accord de Règlement *</FormLabel>
+                <FormControl>
+                  <Switch checked={field.value} onCheckedChange={field.onChange} required />
+                </FormControl>
+              </div>
+            </FormItem>
+          )}
+        />
+
+        {/* Accord parental */}
+        <FormField
+          control={form.control}
+          name="AccordParental"
+          render={({ field }) => (
+            <FormItem className="flex flex-col p-3 border rounded">
+              <div className="flex items-center justify-between">
+                <FormLabel>Accord Parental</FormLabel>
+                <FormControl>
+                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+              </div>
+            </FormItem>
+          )}
+        />
+
+        {/* Note */}
+        <FormField
+          control={form.control}
+          name="Note"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Note</FormLabel>
+              <FormControl>
+                <Textarea {...field} placeholder="Entrer une note" className="resize-none" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Submit */}
+        <div className="flex justify-end pt-3">
+          <Button className="rounded-lg" size="sm" disabled={isSubmitting}>
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }

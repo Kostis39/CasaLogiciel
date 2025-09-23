@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import Form from '@/src/components/client_ui/create-form';
+import {DraftForm} from '@/src/components/client_ui/create-form';
 
 export const metadata: Metadata = {
   title: 'Créer un Grimpeur',
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default async function Page() {
   return (
     <main>
-      <Form />
+      <DraftForm />
     </main>
   );
 }
