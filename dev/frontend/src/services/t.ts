@@ -1,30 +1,61 @@
-"use server";
+// src/services/api/postClientData.ts
+import { ClientForm } from "@/src/types&fields/types";
 
-import { formSchema } from "./test";
+const API_URL = "http://127.0.0.1:5000";
 
+export async function postClientData(data: ClientForm): Promise<{ success: boolean; grimpeur?: any; message: string }>{
+try {
+      console.log("POST vers API:", `${API_URL}/grimpeurs`, data); // debug
 
-export async function serverAction(formData: unknown) {
-  // Validate the input with Zod
-  const parsed = formSchema.safeParse(formData);
+      const response = await fetch(`${API_URL}/grimpeurs`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
-  if (!parsed.success) {
-    console.error("❌ Validation failed:", parsed.error.format());
-    return {
-      success: false,
-      message: "Invalid form data",
-      errors: parsed.error.flatten(),
-    };
-  }
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error(`Erreur HTTP: ${response.status}`, errText);
+        return { success: false, message: errText || `Erreur HTTP ${response.status}` };
+      }
 
-  // Mock processing (e.g. DB insert, API call)
-  console.log("📩 Received form data:", parsed.data);
+      const json = await response.json();
+      return { success: true, grimpeur: json.grimpeur, message: json.message || "Client ajouté avec succès" };
+    } catch (error: any) {
+      console.error("Échec de la création du client:", error);
+      return { success: false, message: error.message || "Erreur réseau inconnue" };
+    }
+}
 
-  // Simulate async work
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+export async function putGrimpeurSignature(
+    id: number,
+    signatureBase64: string,
+    accordReglement?: boolean,
+    accordParental?: boolean
+  ){
+    try {
+      const params = new URLSearchParams();
+      if (accordReglement !== undefined) params.append("AccordReglement", String(accordReglement));
+      if (accordParental !== undefined) params.append("AccordParental", String(accordParental));
 
-  return {
-    success: true,
-    message: "Form submitted successfully (mock server response)",
-    data: parsed.data, // echo back the validated data
-  };
+      const response = await fetch(`${API_URL}/grimpeurs/accord/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ CheminSignature: signatureBase64 }),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error(`Erreur HTTP: ${response.status}`, errText);
+        return { success: false, message: errText || `Erreur HTTP ${response.status}` };
+      }
+
+      const json = await response.json();
+      return { success: true, data: json, message: json.message || "Signature enregistrée" };
+    } catch (error: any) {
+      console.error("Échec de l'envoi de la signature:", error);
+      return { success: false, message: error.message || "Erreur réseau inconnue" };
+    }
 }

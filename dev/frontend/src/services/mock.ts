@@ -1,3 +1,4 @@
+import { success } from "zod";
 import { Client } from "../types&fields/types";
 import { getTodayPlusOneYear, isDateValid, haveDateJSON } from "./api";
 
@@ -172,30 +173,18 @@ export const mockService = {
     },
 
     fetchAbonnements: async () => {
-        return [
+        return { success: true, message: "MockAbo", data:[
             {
                 "DureeAbo": 30,
                 "TypeAbo": "Mensuel",
                 "IdAbo": 1,
                 "PrixAbo": 45.5
-            },
-            {
-                "DureeAbo": 90,
-                "TypeAbo": "Trimestriel",
-                "IdAbo": 2,
-                "PrixAbo": 130.0
-            },
-            {
-                "DureeAbo": 365,
-                "TypeAbo": "Annuel",
-                "IdAbo": 3,
-                "PrixAbo": 390.0
             }
-        ];
+        ]}
     },
 
     fetchTickets: async () => {
-        return [
+        return  { success: true, message: "MockTicket", data:[
             {
                 "PrixTicket": 11.0,
                 "IdTicket": 1,
@@ -208,7 +197,7 @@ export const mockService = {
                 "NbSeanceTicket": 10,
                 "TypeTicket": "Carte de 10"
             }
-        ];
+        ]}
     },
 
     fetchProduits: async () => {
@@ -314,7 +303,7 @@ export const mockService = {
         DureeAbo: number;
         PrixAbo: number;
     }) => {
-        console.log("Mock POST Abonnement:", JSON.stringify(abonnementData));
+        return {success: true, message: `Mock: ${JSON.stringify(abonnementData)}`};
     },
 
     postTicket: async (ticketData: {
@@ -322,7 +311,7 @@ export const mockService = {
         NbSeanceTicket: number;
         PrixTicket: number;
     }) => {
-        console.log("Mock POST Ticket:", JSON.stringify(ticketData));
+        return {success: true, message: `Mock: ${JSON.stringify(ticketData)}`};
     },
 
     postProduit: async (produitData: {
@@ -331,7 +320,7 @@ export const mockService = {
         IdReduc: number | null;
         PrixProduit: number | null;
     }) => {
-        console.log("Mock POST Produit:", JSON.stringify(produitData));
+        return {success: true, message: `Mock: ${JSON.stringify(produitData)}`};
     },
 
 //----------------------------------- Putters -----------------------------------
@@ -340,7 +329,7 @@ export const mockService = {
         DureeAbo: number;
         PrixAbo: number;
     }) => {
-        console.log(`Mock PUT Abonnement ${idAbonnement}:`, JSON.stringify(abonnementData));
+        return {success: true, message: `Mock: ${JSON.stringify(abonnementData)}`};
     },
 
     updateTicket: async (idTicket: number, ticketData: {
@@ -348,33 +337,33 @@ export const mockService = {
         NbSeanceTicket: number;
         PrixTicket: number;
     }) => {
-        console.log(`Mock PUT Ticket ${idTicket}:`, JSON.stringify(ticketData));
+        return {success: true, message: `Mock: ${JSON.stringify(ticketData)}`};
     },
 
     updateProduit: async (idProduit: number, produitData: {
         NomProduit: string;
         PrixProduit?: number;
     }) => {
-        console.log(`Mock PUT Produit ${idProduit}:`, JSON.stringify(produitData));
+        return {success: true, message: `Mock: ${JSON.stringify(produitData)}`};
     },
 
     updateCotisationClient: async (client: Client) =>{
         const newClient = client;
         newClient.DateFinCoti = isDateValid(newClient.DateFinCoti) ? null : getTodayPlusOneYear();
-        console.log(`Mock Update client cotisation ${client.NumGrimpeur}:`, JSON.stringify(newClient));
+        return {success: true, message: `Mock: ${JSON.stringify(newClient.DateFinCoti)}`};
     },
 
 //----------------------------------- Deleters -----------------------------------
     deleteAbonnement: async (idAbonnement: number) => {
-        console.log(`Mock DELETE Abonnement ${idAbonnement}`);
+        return {success: true, message: `Mock: ${JSON.stringify(idAbonnement)}`};
     },
 
     deleteTicket: async (idTicket: number) => {
-        console.log(`Mock DELETE Ticket ${idTicket}`);
+        return {success: true, message: `Mock: ${JSON.stringify(idTicket)}`};
     },
 
     deleteProduit: async (idProduit: number) => {
-        console.log(`Mock DELETE Produit ${idProduit}`);
+        return {success: true, message: `Mock: ${JSON.stringify(idProduit)}`};
     },
 
     deleteSeance: async (NumGrimpeur: number) => {

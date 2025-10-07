@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default async function Page() {
   return (
-    <main>
+    <main className="overflow-auto pt-1">
       <DraftForm />
     </main>
   );

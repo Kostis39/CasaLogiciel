@@ -129,11 +129,19 @@ export function ClientGrid( {clientInfo} : ClientGridProps ) {
           </div>
 
           <div className="flex flex-col items-center justify-center">
-            {signatureClient("Règlement Intérieur", clientInfo.AccordReglement, clientInfo.CheminSignature)}
+            <SignatureClient
+              typeSignature="Règlement Intérieur"
+              accord={clientInfo.AccordReglement}
+              cheminSignature={clientInfo.CheminSignature}
+            />
           </div>
 
           <div className="flex flex-col items-center justify-center">
-            {signatureClient("Autorisation Parentale", clientInfo.AccordParental, clientInfo.CheminSignature)}
+            <SignatureClient
+              typeSignature="Autorisation Parentale"
+              accord={clientInfo.AccordParental}
+              cheminSignature={clientInfo.CheminSignature}
+            />
           </div>
 
           <div className="flex flex-col items-center">
@@ -180,19 +188,34 @@ export function ClientGrid( {clientInfo} : ClientGridProps ) {
   );
 }
 
-function signatureClient(typeSignature: string, accord: boolean | undefined, cheminSignature: string | undefined){
+function SignatureClient({
+  typeSignature,
+  accord,
+  cheminSignature,
+}: {
+  typeSignature: string;
+  accord: boolean | undefined;
+  cheminSignature: string | undefined;
+}) {
   return (
     <div className="flex flex-col items-center justify-center">
       <p className="font-bold text-gray-700">{typeSignature}</p>
+      {cheminSignature && accord && (
+        <img
+          src={`http://localhost:5000/${cheminSignature}`} // ou ton endpoint pour servir les images
+          alt="Signature"
+          className="mt-2 w-40 h-auto border"
+        />
+      )}
       {accord ? (
-          <p className="text-green-500 font-bold">Signé</p>
+        <p></p>
       ) : (
         <p className="text-red-500 font-bold">Non Signé</p>
       )}
     </div>
   );
-
 }
+
 
 function CotisationInfo(client: Client){
   let content;
@@ -221,28 +244,6 @@ function CotisationInfo(client: Client){
       </div>
     );
   }
-
-function checkBoxCotisation(client: Client){
-  const [checked, setChecked] = useState<boolean>(isDateValid(client.DateFinCoti));
-
-  const handleCheckboxChange = () => {
-    setChecked(!checked);
-    updateCotisationClient(client);
-  };
-
-  return (
-    <label className="flex flex-col items-center justify-center">
-      <p className={`${client.DateFinCoti ? "" : "text-red-300"} text-sm font-bold text-gray-700`}>Cotisation</p>
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={handleCheckboxChange}
-        className="w-5 h-5 accent-blue-600"
-      />
-      <p className={isDateValid(client.DateFinCoti) ? "" : "text-red-300"}>{client.DateFinCoti}</p>
-    </label>
-  );
-}
 
 function AbonnementInfo(client: Client){
   let content;

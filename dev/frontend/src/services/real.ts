@@ -39,33 +39,33 @@ export const realService = {
         }
     },
 
-    fetchAbonnements: async () => {
+    fetchAbonnements: async (): Promise<ApiResponse<any[]>> => {
         try {
             const response = await fetch(`${API_URL}/abonnements`);
+            const data = await response.json().catch(() => ([]));
+
             if (!response.ok) {
-                console.log(`Erreur HTTP: ${response.status}`);
-                return [];
+                return { success: false, message: `Erreur HTTP: ${response.status}` };
             }
-            const abonnements = await response.json();
-            return abonnements;
-        } catch (error) {
-            console.error('Échec de la récupération des abonnements:', error);
-            throw error;
+
+            return { success: true, message: "Abonnements récupérés", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
         }
     },
 
-    fetchTickets: async () => {
+    fetchTickets: async (): Promise<ApiResponse> => {
         try {
             const response = await fetch(`${API_URL}/tickets`);
+            const data = await response.json().catch(() => ([]));
+
             if (!response.ok) {
-                console.log(`Erreur HTTP: ${response.status}`);
-                return [];
+                return { success: false, message: `Erreur HTTP: ${response.status}` };
             }
-            const tickets = await response.json();
-            return tickets;
-        }catch (error) {
-            console.error('Échec de la récupération des tickets:', error);
-            throw error;
+
+            return { success: true, message: "Tickets récupérés", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
         }
     },
     
@@ -115,13 +115,13 @@ export const realService = {
     },
 
 //----------------------------------- Posters -----------------------------------
-    postSeanceClient: async (id: number) : Promise<ApiResponse> => {
+    postSeanceClient: async (id: number): Promise<ApiResponse> => {
         try {
             const body = { NumGrimpeur: id };
             const response = await fetch(`${API_URL}/seances`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
             });
 
             const data = await response.json().catch(() => ({}));
@@ -129,33 +129,33 @@ export const realService = {
             if (!response.ok) {
                 return {success: false, message: data.message || "Erreur inconnue"};
             }
-            return {success: true, message: data.message};
-
-        } catch (error) {
+            return {success: true, message: data.message || "Séance créée"};
+        } catch {
             return {success: false, message: "Impossible de contacter le serveur"};
         }
     },
-
 
     postAbonnement: async (abonnementData: {
         TypeAbo: string;
         DureeAbo: number;
         PrixAbo: number;
-    }) => {
+    }): Promise<ApiResponse> => {
         try {
             const response = await fetch(`${API_URL}/abonnements`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(abonnementData),
             });
+
+            const data = await response.json().catch(() => ({}));
+
             if (!response.ok) {
-                console.log(`Erreur HTTP: ${response.status}`);
-                return null;
+                return { success: false, message: data.message || `Erreur HTTP: ${response.status}` };
             }
-            return response;
-        } catch (error) {
-            console.error('Échec de la création de l\'abonnement:', error);
-            throw error;
+
+            return { success: true, message: "Abonnement créé", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
         }
     },
 
@@ -163,21 +163,23 @@ export const realService = {
         TypeTicket: string;
         NbSeanceTicket: number;
         PrixTicket: number;
-    }) => {
+    }): Promise<ApiResponse> => {
         try {
             const response = await fetch(`${API_URL}/tickets`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(ticketData),
             });
+
+            const data = await response.json().catch(() => ({}));
+
             if (!response.ok) {
-                console.log(`Erreur HTTP: ${response.status}`);
-                return null;
+                return { success: false, message: data.message || `Erreur HTTP: ${response.status}` };
             }
-            return response;
-        } catch (error) {
-            console.error('Échec de la création du ticket:', error);
-            throw error;
+
+            return { success: true, message: "Ticket créé", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
         }
     },
 
@@ -186,21 +188,23 @@ export const realService = {
         NomProduit: string;
         IdReduc: number | null;
         PrixProduit: number | null;
-    }) => {
+    }): Promise<ApiResponse> => {
         try {
             const response = await fetch(`${API_URL}/produits`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(produitData),
             });
+
+            const data = await response.json().catch(() => ({}));
+
             if (!response.ok) {
-                console.log(`Erreur HTTP: ${response.status}`);
-                return null;
+                return { success: false, message: data.message || `Erreur HTTP: ${response.status}` };
             }
-            return response;
-        } catch (error) {
-            console.error('Échec de la création du produit:', error);
-            throw error;
+
+            return { success: true, message: "Produit créé", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
         }
     },
 
@@ -209,21 +213,23 @@ export const realService = {
         TypeAbo: string;
         DureeAbo: number;
         PrixAbo: number;
-    }) => {
+    }): Promise<ApiResponse> => {
         try {
             const response = await fetch(`${API_URL}/abonnement/${idAbonnement}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(abonnementData),
             });
+
+            const data = await response.json().catch(() => ({}));
+
             if (!response.ok) {
-                console.log(`Erreur HTTP: ${response.status}`);
-                return null;
+                return { success: false, message: data.message || `Erreur HTTP: ${response.status}` };
             }
-            return response;
-        } catch (error) {
-            console.error('Échec de la mise à jour de l\'abonnement:', error);
-            throw error;
+
+            return { success: true, message: "Abonnement mis à jour", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
         }
     },
 
@@ -231,49 +237,53 @@ export const realService = {
         TypeTicket: string;
         NbSeanceTicket: number;
         PrixTicket: number;
-    }) => {
+    }): Promise<ApiResponse> => {
         try {
             const response = await fetch(`${API_URL}/ticket/${idTicket}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(ticketData),
             });
+
+            const data = await response.json().catch(() => ({}));
+
             if (!response.ok) {
-                console.log(`Erreur HTTP: ${response.status}`);
-                return null;
+                return { success: false, message: data.message || `Erreur HTTP: ${response.status}` };
             }
-            return response;
-        } catch (error) {
-            console.error('Échec de la mise à jour du ticket:', error);
-            throw error;
+
+            return { success: true, message: "Ticket mis à jour", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
         }
     },
 
     updateProduit: async (idProduit: number, produitData: {
         NomProduit: string;
         PrixProduit?: number;
-    }) => {
+    }): Promise<ApiResponse> => {
         try {
             const response = await fetch(`${API_URL}/produit/${idProduit}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(produitData),
             });
+
+            const data = await response.json().catch(() => ({}));
+
             if (!response.ok) {
-                console.log(`Erreur HTTP: ${response.status}`);
-                return null;
+                return { success: false, message: data.message || `Erreur HTTP: ${response.status}` };
             }
-            return response;
-        } catch (error) {
-            console.error('Échec de la mise à jour du produit:', error);
-            throw error;
+
+            return { success: true, message: "Produit mis à jour", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
         }
     },
 
-    updateCotisationClient: async (client: Client) =>{
-        try{
-            const newClient = client;
-            if (isDateValid(newClient.DateFinCoti)){
+    updateCotisationClient: async (client: Client): Promise<ApiResponse> => {
+        try {
+            const newClient = { ...client };
+            if (isDateValid(newClient.DateFinCoti)) {
                 newClient.DateFinCoti = null;
             } else {
                 newClient.DateFinCoti = getTodayPlusOneYear();
@@ -284,71 +294,78 @@ export const realService = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newClient),
             });
-            console.log("Response from updateCotisationClient:", response);
+
+            const data = await response.json().catch(() => ({}));
+
             if (!response.ok) {
-                console.log(`Erreur HTTP: ${response.status}`);
-                return null;
+                return { success: false, message: data.message || `Erreur HTTP: ${response.status}` };
             }
-            return response;
-        }catch (error){
-            console.error('Échec de la mise à jour de l\'état de la cotisationn:', error);
-            throw error;
+
+            return { success: true, message: "Cotisation mise à jour", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
         }
     },
 
 //----------------------------------- Deleters -----------------------------------
-    deleteAbonnement: async (idAbonnement: number) => {
+    deleteAbonnement: async (idAbonnement: number): Promise<ApiResponse> => {
         try {
             const response = await fetch(`${API_URL}/abonnement/${idAbonnement}`, {
                 method: 'DELETE',
             });
+
+            const data = await response.json().catch(() => ({}));
+
             if (!response.ok) {
-                console.log(`Erreur HTTP: ${response.status}`);
-                return null;
+                return { success: false, message: data.message || `Erreur HTTP: ${response.status}` };
             }
-            return response;
-        } catch (error) {
-            console.error('Échec de la suppression de l\'abonnement:', error);
-            throw error;
+
+            return { success: true, message: "Abonnement supprimé", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
         }
     },
 
-    deleteTicket: async (idTicket: number) => {
+    deleteTicket: async (idTicket: number): Promise<ApiResponse> => {
         try {
             const response = await fetch(`${API_URL}/ticket/${idTicket}`, {
                 method: 'DELETE',
             });
+
+            const data = await response.json().catch(() => ({}));
+
             if (!response.ok) {
-                console.log(`Erreur HTTP: ${response.status}`);
-                return null;
+                return { success: false, message: data.message || `Erreur HTTP: ${response.status}` };
             }
-            return response;
-        } catch (error) {
-            console.error('Échec de la suppression du ticket:', error);
-            throw error;
+
+            return { success: true, message: "Ticket supprimé", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
         }
     },
 
-    deleteProduit: async (idProduit: number) => {
+    deleteProduit: async (idProduit: number): Promise<ApiResponse> => {
         try {
             const response = await fetch(`${API_URL}/produit/${idProduit}`, {
                 method: 'DELETE',
             });
+
+            const data = await response.json().catch(() => ({}));
+
             if (!response.ok) {
-                console.log(`Erreur HTTP: ${response.status}`);
-                return null;
+                return { success: false, message: data.message || `Erreur HTTP: ${response.status}` };
             }
-            return response;
-        } catch (error) {
-            console.error('Échec de la suppression du produit:', error);
-            throw error;
+
+            return { success: true, message: "Produit supprimé", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
         }
     },
 
     deleteSeance: async (NumGrimpeur: number): Promise<ApiResponse> => {
         try {
             const response = await fetch(`${API_URL}/seances/${NumGrimpeur}`, {
-            method: 'DELETE',
+                method: 'DELETE',
             });
 
             const data = await response.json().catch(() => ({}));
@@ -358,11 +375,10 @@ export const realService = {
             }
 
             return { success: true, message: data.message || "Séance supprimée avec succès" };
-        } catch (error) {
+        } catch {
             return { success: false, message: "Impossible de contacter le serveur" };
         }
     },
-
 
 //----------------------------------- Others -----------------------------------
     isAlreadyEntered: async (id: number) => {

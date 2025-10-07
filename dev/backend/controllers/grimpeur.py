@@ -8,97 +8,88 @@ import os
 
 engine = create_engine()
 sesh = get_session(engine)
-signaturePath = "dev/resources"
+signaturePath = "static/uploads/signatures"
 
+
+ALLOWED_FIELDS = [
+    "NomGrimpeur", "PrenomGrimpeur", "DateNaissGrimpeur", "TelGrimpeur",
+    "EmailGrimpeur", "NumLicenceGrimpeur", "Club", "StatutVoie",
+    "TypeAbo", "DateFinAbo", "TypeTicket", "NbSeanceRest",
+    "DateFinCoti", "AccordReglement", "AccordParental", "CheminSignature", "Note"
+]
 
 class GrimpeursListe(Resource):
     def get(self):
         with sesh() as session:
             grimpeurs = session.query(Clients.Grimpeur).all()
-            return [grimpeur.to_dict() for grimpeur in grimpeurs]
+            return [g.to_dict() for g in grimpeurs], 200
 
     def post(self):
-        json = request.get_json()
+        json_data = request.get_json()
         nouv_grimp = Clients.Grimpeur()
-        for key, value in json.items():
-            setattr(nouv_grimp, key, value)
+
+        for key, value in json_data.items():
+            if key in ALLOWED_FIELDS:
+                setattr(nouv_grimp, key, value)
 
         with sesh() as session:
             session.add(nouv_grimp)
             session.commit()
             session.refresh(nouv_grimp)
-            return nouv_grimp.to_dict(), 201
-
+            return {
+                "message": "Grimpeur créé avec succès",
+                "grimpeur": nouv_grimp.to_dict()
+            }, 201
 
 class Grimpeur(Resource):
     def get(self, id):
         with sesh() as session:
             grimpeur = session.query(Clients.Grimpeur).filter_by(NumGrimpeur=id).first()
-            if grimpeur:
-                return grimpeur.to_dict(), 200
-            else:
+            if not grimpeur:
                 return {"message": "Grimpeur not found"}, 404
-
-    def post(self, id):
-        json = request.get_json()
-        with sesh() as session:
-            grimpeur = session.query(Clients.Grimpeur).filter_by(NumGrimpeur=id).first()
-            if grimpeur:
-                for key, value in json.items():
-                    setattr(grimpeur, key, value)
-                session.commit()
-                return grimpeur.to_dict(), 200
-            else:
-                return {"message": "Grimpeur not found"}, 404
+            return grimpeur.to_dict(), 200
 
     def put(self, id):
-        json = request.get_json()
+        json_data = request.get_json()
         with sesh() as session:
             grimpeur = session.query(Clients.Grimpeur).filter_by(NumGrimpeur=id).first()
             if not grimpeur:
                 return {"message": "Grimpeur not found"}, 404
-            for key, value in json.items():
-                setattr(grimpeur, key, value)
+
+            for key, value in json_data.items():
+                if key in ALLOWED_FIELDS:
+                    setattr(grimpeur, key, value)
+
             session.commit()
             return grimpeur.to_dict(), 200
 
     def delete(self, id):
         with sesh() as session:
             grimpeur = session.query(Clients.Grimpeur).filter_by(NumGrimpeur=id).first()
-            if grimpeur:
-                session.delete(grimpeur)
-                session.commit()
-                return {"message": "Grimpeur deleted"}, 200
-            else:
+            if not grimpeur:
                 return {"message": "Grimpeur not found"}, 404
-
+            session.delete(grimpeur)
+            session.commit()
+            return {"message": "Grimpeur deleted"}, 200
 
 class GrimpeurAccords(Resource):
     def put(self, id):
-        json = request.get_json()
-        signature_b64 = json.get("signature")
+        json_data = request.get_json()
+        signature_b64 = json_data.get("CheminSignature")
         if not signature_b64:
             return {"message": "Signature manquante"}, 400
 
         try:
-            signature_bytes = base64.b64decode(signature_b64)
+            signature_bytes = base64.b64decode(signature_b64.split(",")[-1])
         except Exception:
             return {"message": "Signature invalide"}, 400
 
         os.makedirs(signaturePath, exist_ok=True)
-        filename = f"grimpeur_{id}_{date.today().isoformat()}.png"
+        filename = f"grimpeur_{id}_{date.today().isoformat()}.png".replace(" ", "_")
         filepath = os.path.join(signaturePath, filename)
 
         with open(filepath, "wb") as f:
             f.write(signature_bytes)
-
-        # query params pour AccordReglement et AccordParental
-        accord_reglement = request.args.get("AccordReglement")
-        accord_parental = request.args.get("AccordParental")
-
-        # conversion manuelle en bool
-        def str_to_bool(val):
-            return str(val).lower() in ["true", "1", "yes"]
 
         with sesh() as session:
             grimpeur = session.query(Clients.Grimpeur).filter_by(NumGrimpeur=id).first()
@@ -108,6 +99,11 @@ class GrimpeurAccords(Resource):
             grimpeur.CheminSignature = filepath
             grimpeur.has_signed = True
 
+            # Mise à jour des accords optionnels
+            def str_to_bool(val): return str(val).lower() in ["true", "1", "yes"]
+            accord_reglement = request.args.get("AccordReglement")
+            accord_parental = request.args.get("AccordParental")
+
             if accord_reglement is not None:
                 grimpeur.AccordReglement = str_to_bool(accord_reglement)
             if accord_parental is not None:
@@ -116,7 +112,7 @@ class GrimpeurAccords(Resource):
             session.commit()
             return {
                 "message": "Signature enregistrée",
-                "path": filepath,
+                "CheminSignature": filepath,
                 "AccordReglement": grimpeur.AccordReglement,
                 "AccordParental": grimpeur.AccordParental,
             }, 200
