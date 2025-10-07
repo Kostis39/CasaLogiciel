@@ -1,6 +1,0 @@
-.mainClientContainer {
-    display: grid;
-    grid-template-columns: 1fr 20fr;
-    width: 100vw; /* w-screen */
-    height: 100vh; /* h-screen */
-}

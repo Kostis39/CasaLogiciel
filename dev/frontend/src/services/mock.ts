@@ -1,5 +1,5 @@
 import { success } from "zod";
-import { Client } from "../types&fields/types";
+import { ApiResponse, Client, ClientForm, Transaction } from "../types&fields/types";
 import { getTodayPlusOneYear, isDateValid, haveDateJSON } from "./api";
 
 export const mockService = {
@@ -323,6 +323,28 @@ export const mockService = {
         return {success: true, message: `Mock: ${JSON.stringify(produitData)}`};
     },
 
+    postClientData: async (data: ClientForm): Promise<ApiResponse> => {
+        console.log("MOCK postClientData:", data);
+        return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+            success: true,
+            message: "Client ajouté avec succès (mock)",
+            data: { ...data, NumGrimpeur: Math.floor(Math.random() * 1000) + 1 },
+            });
+        }, 200);
+        });
+    },
+
+    postTransaction: async (data: Transaction) => {
+        return {
+            success: true,
+            message: `Mock: Transaction créée avec les données ${JSON.stringify(data)}`,
+            data: { ...data, IdTransaction: 12345, DateTransac: new Date().toISOString().split("T")[0] }
+        };
+    },
+
+
 //----------------------------------- Putters -----------------------------------
     updateAbonnement: async (idAbonnement: number, abonnementData: {
         TypeAbo: string;
@@ -351,6 +373,19 @@ export const mockService = {
         const newClient = client;
         newClient.DateFinCoti = isDateValid(newClient.DateFinCoti) ? null : getTodayPlusOneYear();
         return {success: true, message: `Mock: ${JSON.stringify(newClient.DateFinCoti)}`};
+    },
+
+    updateGrimpeurSignature: async (
+        id: number,
+        signatureBase64: string,
+        accordReglement?: boolean,
+        accordParental?: boolean
+    ) => {
+        return {
+            success: true,
+            message: `Mock: Signature enregistrée pour le grimpeur ${id}`,
+            data: { CheminSignature: signatureBase64, AccordReglement: accordReglement, AccordParental: accordParental }
+        };
     },
 
 //----------------------------------- Deleters -----------------------------------

@@ -7,6 +7,7 @@ import Link from "next/link";
 import {useEffect, useState } from "react";
 import { Button } from "@/src/components/ui/button"
 import { toast } from "react-toastify";
+import { API_URL } from "@/src/services/real";
 
 interface ClientGridProps {
   clientInfo: Client;
@@ -202,8 +203,8 @@ function SignatureClient({
       <p className="font-bold text-gray-700">{typeSignature}</p>
       {cheminSignature && accord && (
         <img
-          src={`http://localhost:5000/${cheminSignature}`} // ou ton endpoint pour servir les images
-          alt="Signature"
+          src={`${API_URL}/${cheminSignature}`} // ou ton endpoint pour servir les images
+          alt="Si signature non visible verifier l'accord"
           className="mt-2 w-40 h-auto border"
         />
       )}

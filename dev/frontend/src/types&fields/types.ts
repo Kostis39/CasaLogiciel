@@ -4,8 +4,8 @@ export type Client = {
   PrenomGrimpeur: string;
   DateNaissGrimpeur: string;
   NumGrimpeur: number;
-  NumLicenceGrimpeur?: number;
-  TelGrimpeur?: number;
+  NumLicenceGrimpeur?: string;
+  TelGrimpeur?: string;
   EmailGrimpeur?: string;
   Solde?: number;
   StatutVoie?: number;
@@ -27,9 +27,9 @@ export type ClientForm = {
   NomGrimpeur: string;
   PrenomGrimpeur: string;
   DateNaissGrimpeur: string;
-  TelGrimpeur?: number;
+  TelGrimpeur?: string;
   EmailGrimpeur?: string;
-  NumLicenceGrimpeur?: number;
+  NumLicenceGrimpeur?: string;
   Club?: string;
   StatutVoie?: number;
   TypeAbo?: string;
@@ -62,3 +62,16 @@ export type ApiResponse<T = any> = {
   message: string;
   data?: T;
 };
+
+export interface Transaction {
+  TypeObjet: string;
+  IdObjet: number;
+  NumGrimpeur: number;
+  Note?: string;
+  TypeAbo?: string;
+  DureeAbo?: number;
+  DateFinAbo?: string;
+  TypeTicket?: string;
+  NbSeanceTicket?: number;
+  NbSeanceRest?: number;
+}

@@ -16,7 +16,7 @@ export default function Saisies(){
 
 
 	return (
-		<div className="flex flex-col gap-1">
+		<div className="flex flex-col gap-1 ">
 			<div>
 				<SearchClient />
 			</div>

@@ -1,6 +1,6 @@
 import { getTodayPlusOneYear, haveDateJSON, isDateValid } from "./api";
-import { Client, ApiResponse } from "../types&fields/types";
-const API_URL = "http://127.0.0.1:5000";
+import { Client, ApiResponse, Transaction, ClientForm } from "../types&fields/types";
+export const API_URL = "http://127.0.0.1:5000";
 
 export const realService = {
 
@@ -208,6 +208,88 @@ export const realService = {
         }
     },
 
+    postClientData: async (data: ClientForm): Promise<ApiResponse> => {
+        try {
+        const response = await fetch(`${API_URL}/grimpeurs`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+        });
+
+        const json = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return { success: false, message: json.message || `Erreur HTTP: ${response.status}` };
+        }
+
+        return { success: true, message: json.message || "Client ajouté avec succès", data: json.grimpeur };
+        } catch (error: any) {
+        return { success: false, message: error.message || "Erreur réseau inconnue" };
+        }
+    },
+
+  postTransaction: async (data: Transaction): Promise<ApiResponse> => {
+    try {
+      const now = new Date();
+      const date = now.toISOString().split("T")[0];
+      const heure = now.toTimeString().split(" ")[0];
+
+      let note = data.Note;
+
+      if (!note && data.TypeObjet === "abonnement" && data.DureeAbo) {
+        const today = new Date();
+        const baseFin = new Date(today);
+        baseFin.setDate(today.getDate() + data.DureeAbo);
+
+        const userDateFin = data.DateFinAbo ? new Date(data.DateFinAbo) : baseFin;
+        const diffDays = Math.ceil(
+          (userDateFin.getTime() - baseFin.getTime()) / (1000 * 60 * 60 * 24)
+        );
+
+        if (diffDays > 0) {
+          note = `Abonnement : ${data.TypeAbo} — +${diffDays} jours ajoutés (${data.DureeAbo + diffDays}j au lieu de ${data.DureeAbo}j)`;
+        } else if (diffDays < 0) {
+          note = `Abonnement : ${data.TypeAbo} — ${diffDays} jours retirés (${data.DureeAbo + diffDays}j au lieu de ${data.DureeAbo}j)`;
+        }
+      }
+
+      if (!note && data.TypeObjet === "ticket" && data.NbSeanceTicket) {
+        const diff = (data.NbSeanceRest ?? data.NbSeanceTicket) - data.NbSeanceTicket;
+
+        if (diff > 0) {
+          note = `Ticket : ${data.TypeTicket} — +${diff} séances ajoutées (${data.NbSeanceTicket + diff} au lieu de ${data.NbSeanceTicket})`;
+        } else if (diff < 0) {
+          note = `Ticket : ${data.TypeTicket} — ${diff} séances retirées (${data.NbSeanceTicket + diff} au lieu de ${data.NbSeanceTicket})`;
+        }
+      }
+
+      const payload = {
+        TypeObjet: data.TypeObjet,
+        IdObjet: data.IdObjet,
+        NumGrimpeur: data.NumGrimpeur,
+        DateTransac: date,
+        HeureTransac: heure,
+        Note: note,
+      };
+
+      const response = await fetch(`${API_URL}/transactions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const json = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        return { success: false, message: json.message || `Erreur HTTP: ${response.status}` };
+      }
+
+      return { success: true, message: "Transaction enregistrée", data: json };
+    } catch (error: any) {
+      return { success: false, message: error.message || "Erreur réseau inconnue" };
+    }
+  },
+
 //----------------------------------- Putters -----------------------------------
     updateAbonnement: async (idAbonnement: number, abonnementData: {
         TypeAbo: string;
@@ -304,6 +386,35 @@ export const realService = {
             return { success: true, message: "Cotisation mise à jour", data };
         } catch {
             return { success: false, message: "Impossible de contacter le serveur" };
+        }
+    },
+
+    updateGrimpeurSignature: async (
+        id: number,
+        signatureBase64: string,
+        accordReglement?: boolean,
+        accordParental?: boolean
+    ): Promise<ApiResponse> => {
+        try {
+        const params: Record<string, string> = {};
+        if (accordReglement !== undefined) params["AccordReglement"] = String(accordReglement);
+        if (accordParental !== undefined) params["AccordParental"] = String(accordParental);
+
+        const response = await fetch(`${API_URL}/grimpeurs/accord/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ CheminSignature: signatureBase64, ...params }),
+        });
+
+        const json = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return { success: false, message: json.message || `Erreur HTTP: ${response.status}` };
+        }
+
+        return { success: true, message: json.message || "Signature enregistrée", data: json };
+        } catch (error: any) {
+            return { success: false, message: error.message || "Erreur réseau inconnue" };
         }
     },
 

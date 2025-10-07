@@ -29,8 +29,12 @@ class GrimpeursListe(Resource):
         nouv_grimp = Clients.Grimpeur()
 
         for key, value in json_data.items():
-            if key in ALLOWED_FIELDS:
+            if key in ALLOWED_FIELDS and value is not None:
+                max_len = getattr(Clients.Grimpeur, key).type.length
+                if isinstance(value, str) and len(value) > max_len:
+                    return {"message": f"{key} trop long (max {max_len})"}, 400
                 setattr(nouv_grimp, key, value)
+
 
         with sesh() as session:
             session.add(nouv_grimp)

@@ -19,12 +19,15 @@ export const {
   postAbonnement,
   postTicket,
   postProduit,
+  postClientData,
+  postTransaction,
 
 //------- Putters -------
   updateAbonnement,
   updateTicket,
   updateProduit,
   updateCotisationClient,
+  updateGrimpeurSignature,
 
 //------- Deleters -------
   deleteAbonnement,

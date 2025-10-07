@@ -21,13 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/src/components/ui/select";
-import { Checkbox } from "@/src/components/ui/checkbox";
 import { Switch } from "@/src/components/ui/switch";
 import { Textarea } from "@/src/components/ui/textarea";
-import { postClientData, putGrimpeurSignature } from "@/src/services/t";
 import { ClientForm } from "@/src/types&fields/types";
-import { fetchAbonnements, fetchTickets } from "@/src/services/api";
+import { fetchAbonnements, fetchTickets, postClientData, postTransaction, updateGrimpeurSignature } from "@/src/services/api";
 import SignatureCanvas from "react-signature-canvas";
+import { toast } from "react-toastify";
 
 
 
@@ -63,29 +62,82 @@ export function DraftForm() {
   }, []);
 
 
-const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
-  setIsSubmitting(true);
-  try {
-    // 1️⃣ Création du grimpeur sans signature
-    const result = await postClientData(data);
-    if (!result.success || !result.grimpeur) throw new Error(result.message);
+  const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
+    setIsSubmitting(true);
+    try {
+      // 1️⃣ Création du grimpeur
+      const result = await postClientData(data);
+      if (!result.success || !result.data) {
+        toast.error(result.message);
+        return;
+      };
 
-    // 2️⃣ Envoi de la signature
+      const grimpeur = result.data;
+
     const signatureBase64 = sigCanvas.current?.getTrimmedCanvas().toDataURL("image/png");
     if (signatureBase64) {
-      await putGrimpeurSignature(result.grimpeur.NumGrimpeur, signatureBase64, data.AccordReglement, data.AccordParental);
+      const sigResult = await updateGrimpeurSignature(
+        grimpeur.NumGrimpeur,
+        signatureBase64,
+        data.AccordReglement,
+        data.AccordParental
+      );
+
+      if (!sigResult.success) {
+        toast.error(sigResult.message);
+        return; // stop ici
+      }
     }
 
+    // 3️⃣ Création transaction si abonnement ou ticket choisi
+    if (data.TypeAbo) {
+      const abo = abonnements.find((a) => a.TypeAbo === data.TypeAbo);
+      if (abo) {
+        const transRes = await postTransaction({
+          TypeObjet: "abonnement",
+          IdObjet: abo.IdAbo,
+          NumGrimpeur: grimpeur.NumGrimpeur,
+          TypeAbo: abo.TypeAbo,
+          DureeAbo: abo.DureeAbo,
+          DateFinAbo: data.DateFinAbo,
+        });
+        if (!transRes.success) {
+          toast.error(transRes.message);
+          return;
+        }
+      }
+    }
+
+    if (data.TypeTicket) {
+      const ticket = tickets.find((t) => t.TypeTicket === data.TypeTicket);
+      if (ticket) {
+        const transRes = await postTransaction({
+          TypeObjet: "ticket",
+          IdObjet: ticket.IdTicket,
+          NumGrimpeur: grimpeur.NumGrimpeur,
+          TypeTicket: ticket.TypeTicket,
+          NbSeanceTicket: ticket.NbSeanceTicket,
+          NbSeanceRest: data.NbSeanceRest,
+        });
+        if (!transRes.success) {
+          toast.error(transRes.message);
+          return;
+        }
+      }
+    }
+
+    // ✅ Succès
     setHasSucceeded(true);
     form.reset();
     sigCanvas.current?.clear();
-  } catch (err) {
+
+  } catch (err: any) {
+    toast.error(err.message || "Erreur lors de la création du client");
     console.error("❌ Erreur:", err);
   } finally {
     setIsSubmitting(false);
   }
 });
-
 
   if (hasSucceeded) {
     return (
@@ -107,34 +159,51 @@ const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
             }}
             className="mb-4 flex justify-center border rounded-full w-fit mx-auto p-2"
           >
-            <Check className="size-8" />
+            <Check className="size-8 text-green-600" />
           </motion.div>
-          <h2 className="text-center text-2xl text-pretty font-bold mb-2">
-            Thank you
+
+          <h2 className="text-center text-2xl font-bold mb-2">
+            Client enregistré ✅
           </h2>
-          <p className="text-center text-lg text-pretty text-muted-foreground">
-            Form submitted successfully, we will get back to you soon
+          <p className="text-center text-lg text-muted-foreground mb-6">
+            Le formulaire a bien été soumis.
           </p>
+
+          <div className="flex justify-center">
+            <Button
+              variant="default"
+              onClick={() => {
+                form.reset();
+                sigCanvas.current?.clear();
+                setHasSucceeded(false);
+              }}
+            >
+              Ajouter un autre client
+            </Button>
+          </div>
         </motion.div>
       </div>
     );
   }
 
+
   return (
+    <div>
     <Form {...form}>
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col p-2 sm:p-5 md:p-8 w-full rounded-md gap-2 border"
+        className="flex flex-col gap-2 "
       >
         {/* Nom */}
         <FormField
           control={form.control}
           name="NomGrimpeur"
+          rules={{ required: "Le nom du grimpeur est obligatoire" }}
           render={({ field }) => (
-            <FormItem className="w-full">
+            <FormItem>
               <FormLabel>Nom *</FormLabel>
               <FormControl>
-                <Input {...field} required placeholder="Entrer votre nom" />
+                <Input {...field} placeholder="Entrer votre nom" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -145,11 +214,12 @@ const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
         <FormField
           control={form.control}
           name="PrenomGrimpeur"
+          rules={{ required: "Le prénom du grimpeur est obligatoire" }}
           render={({ field }) => (
-            <FormItem className="w-full">
+            <FormItem>
               <FormLabel>Prénom *</FormLabel>
               <FormControl>
-                <Input {...field} required placeholder="Entrer votre prénom" />
+                <Input {...field} placeholder="Entrer votre prénom" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -161,7 +231,7 @@ const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
           control={form.control}
           name="DateNaissGrimpeur"
           render={({ field }) => (
-            <FormItem className="w-full">
+            <FormItem>
               <FormLabel>Date de Naissance</FormLabel>
               <FormControl>
                 <Input
@@ -183,7 +253,7 @@ const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
           control={form.control}
           name="TelGrimpeur"
           render={({ field }) => (
-            <FormItem className="w-full">
+            <FormItem>
               <FormLabel>Téléphone</FormLabel>
               <FormControl>
                 <Input {...field} type="tel" placeholder="Entrer un numéro" />
@@ -198,7 +268,7 @@ const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
           control={form.control}
           name="EmailGrimpeur"
           render={({ field }) => (
-            <FormItem className="w-full">
+            <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input {...field} type="email" placeholder="Entrer un email" />
@@ -213,25 +283,14 @@ const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
           control={form.control}
           name="NumLicenceGrimpeur"
           render={({ field }) => (
-            <FormItem className="w-full">
+            <FormItem>
               <FormLabel>Numéro de Licence</FormLabel>
-                <FormControl>
+              <FormControl>
                 <Input
-                  type="number"
-                  min={0}
-                  max={2147483647} // max pour un INT standard
-                  value={field.value ?? ""}
-                  onChange={(e) => {
-                    const val = Number(e.target.value);
-                    if (!isNaN(val) && val <= 2147483647) {
-                      field.onChange(val);
-                    } else {
-                      field.onChange(undefined); // ou une valeur par défaut
-                    }
-                  }}
+                  {...field}
+                  type="text"
                   placeholder="Numéro de licence"
                 />
-
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -243,7 +302,7 @@ const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
           control={form.control}
           name="Club"
           render={({ field }) => (
-            <FormItem className="w-full">
+            <FormItem>
               <FormLabel>Club</FormLabel>
               <FormControl>
               <Input
@@ -271,26 +330,32 @@ const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
             ];
 
             return (
-              <FormItem className="flex flex-col gap-2 w-full py-1">
-                <FormLabel>Accès au mur</FormLabel>
-                <FormControl>
-                  <ToggleGroup
-                    variant="outline"
-                    // Comme ToggleGroup attend une string, on convertit le nombre en string
-                    value={field.value?.toString()}
-                    // On reconvertit en nombre dans React Hook Form
-                    onValueChange={(val) => field.onChange(val ? Number(val) : null)}
-                    type="single"
-                    className="flex flex-wrap gap-2"
-                  >
-                    {options.map(({ label, value }) => (
-                      <ToggleGroupItem key={value} value={value.toString()}>
-                        {label}
-                      </ToggleGroupItem>
-                    ))}
-                  </ToggleGroup>
-                </FormControl>
-                <FormMessage />
+              <FormItem className="flex flex-col gap-1 w-full py-2">
+                <FormLabel className="text-sm font-medium">Accès au mur</FormLabel>
+              <FormControl>
+                <ToggleGroup
+                  type="single"
+                  value={field.value?.toString()}
+                  onValueChange={(val) => field.onChange(val ? Number(val) : null)}
+                  className="inline-flex "
+                  variant="outline"
+                >
+                  {options.map(({ label, value }) => (
+                    <ToggleGroupItem
+                      key={value}
+                      value={value.toString()}
+                      className="min-w-[5rem]
+                        data-[state=on]:border-blue-500
+                        hover:bg-gray-100 transition-colors
+                      "
+                    >
+                      {label}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              </FormControl>
+
+                <FormMessage/>
               </FormItem>
             );
           }}
@@ -437,10 +502,12 @@ const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
         <FormField
           control={form.control}
           name="DateFinCoti"
+          rules={{ required: "La cotisation est obligatoire" }}
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start gap-2">
+            <FormItem>
+              <FormLabel>Cotisation *</FormLabel>
               <FormControl>
-                <Checkbox
+                <Switch
                   checked={!!field.value}
                   onCheckedChange={(checked) => {
                     if (checked) {
@@ -456,7 +523,6 @@ const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
                   }}
                 />
               </FormControl>
-              <FormLabel>Cotisation</FormLabel>
               <FormMessage />
             </FormItem>
           )}
@@ -464,51 +530,51 @@ const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
 
 
       {/* Accord règlement + Signature */}
-<FormItem className="flex flex-col gap-3 p-3 border rounded">
-  {/* Accord Règlement */}
-  <FormLabel>Accord de Règlement *</FormLabel>
-  <div className="flex flex-col items-center gap-3 mt-2">
-    <SignatureCanvas
-      ref={sigCanvas}
-      penColor="black"
-      backgroundColor="white"
-      canvasProps={{
-        className: "border w-full sm:w-80 h-40 bg-white rounded shadow-sm",
-      }}
-      onEnd={() => form.setValue("AccordReglement", true)} // Accord Règlement vrai dès qu'il y a une signature
-    />
-    <div className="flex gap-2">
-      <Button
-        type="button"
-        variant="secondary"
-        size="sm"
-        onClick={() => {
-          sigCanvas.current?.clear();
-          form.setValue("AccordReglement", false); // Réinitialise Accord Règlement si signature effacée
-        }}
-      >
-        Effacer
-      </Button>
-    </div>
-  </div>
+      <FormItem className="flex flex-col gap-3 p-3 border rounded">
+        {/* Accord Règlement */}
+        <FormLabel>Accord de Règlement *</FormLabel>
+        <div className="flex flex-col items-center gap-3 mt-2">
+          <SignatureCanvas
+            ref={sigCanvas}
+            penColor="black"
+            backgroundColor="white"
+            canvasProps={{
+              className: "border w-full sm:w-80 h-40 bg-white rounded shadow-sm",
+            }}
+            onEnd={() => form.setValue("AccordReglement", true)} // Accord Règlement vrai dès qu'il y a une signature
+          />
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                sigCanvas.current?.clear();
+                form.setValue("AccordReglement", false); // Réinitialise Accord Règlement si signature effacée
+              }}
+            >
+              Effacer
+            </Button>
+          </div>
+        </div>
 
-  {/* Accord Parental */}
-  <FormField
-    control={form.control}
-    name="AccordParental"
-    render={({ field }) => (
-      <div className="flex items-center justify-between mt-4">
-        <FormLabel>Accord Parental</FormLabel>
-        <FormControl>
-          <Switch checked={field.value} onCheckedChange={field.onChange} />
-        </FormControl>
-      </div>
-    )}
-  />
-</FormItem>
-
-
-
+        {/* Accord Parental */}
+        <FormField
+          control={form.control}
+          name="AccordParental"
+          render={({ field }) => (
+            <div className="flex items-center justify-between mt-4">
+              <FormLabel>Accord Parental</FormLabel>
+                <p className="text-sm text-gray-600">
+                  Votre signature ci-dessus vaut aussi pour l'autorisation parentale si elle est cochée.
+                </p>
+              <FormControl>
+                <Switch checked={field.value} onCheckedChange={field.onChange} />
+              </FormControl>
+            </div>
+          )}
+        />
+      </FormItem>
 
         {/* Note */}
         <FormField
@@ -524,7 +590,6 @@ const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
                     field.onChange(e.target.value === "" ? null : e.target.value)
                   }
                   placeholder="Entrer une note"
-                  className="resize-none"
                 />
               </FormControl>
               <FormMessage />
@@ -534,11 +599,12 @@ const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
 
         {/* Submit */}
         <div className="flex justify-end pt-3">
-          <Button className="rounded-lg" size="sm" disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Submit"}
+          <Button className="rounded-lg min-w-[7rem]" size="sm" disabled={isSubmitting}>
+            {isSubmitting ? "Création..." : "Créer"}
           </Button>
         </div>
       </form>
     </Form>
+    </div>
   );
 }
