@@ -5,6 +5,7 @@ from db import create_engine, get_session
 from datetime import date
 import base64
 import os
+from sqlalchemy import cast, String
 
 engine = create_engine()
 sesh = get_session(engine)
@@ -18,23 +19,67 @@ ALLOWED_FIELDS = [
     "DateFinCoti", "AccordReglement", "AccordParental", "CheminSignature", "Note"
 ]
 
+def validate_grimpeur_data(data):
+    errors = []
+    required = ["NomGrimpeur", "PrenomGrimpeur"]
+
+    # Champs obligatoires
+    for field in required:
+        if field not in data or not str(data[field]).strip():
+            errors.append(f"{field} est obligatoire")
+
+    # Téléphone
+    if "TelGrimpeur" in data and data["TelGrimpeur"]:
+        tel = str(data["TelGrimpeur"]).replace(" ", "")
+        if not tel.isdigit() or len(tel) < 8:
+            errors.append("Numéro de téléphone invalide")
+
+    # Date de naissance
+    if "DateNaissGrimpeur" in data and data["DateNaissGrimpeur"]:
+        try:
+            d = date.fromisoformat(data["DateNaissGrimpeur"])
+            if d > date.today():
+                errors.append("La date de naissance ne peut pas être dans le futur")
+        except Exception:
+            errors.append("Date de naissance invalide")
+
+    # Vérifie la longueur max SQL pour les colonnes de type String
+    for key, value in data.items():
+        if key in ALLOWED_FIELDS and isinstance(value, str):
+            col = getattr(Clients.Grimpeur, key)
+            if hasattr(col.type, "length") and col.type.length:
+                max_len = col.type.length
+                if len(value) > max_len:
+                    errors.append(f"{key} trop long (max {max_len})")
+    return errors
+
 class GrimpeursListe(Resource):
     def get(self):
+        limit = request.args.get("limit", 20, type=int)
+        offset = request.args.get("offset", 0, type=int)
         with sesh() as session:
-            grimpeurs = session.query(Clients.Grimpeur).all()
-            return [g.to_dict() for g in grimpeurs], 200
+            query = session.query(Clients.Grimpeur)
+            total = query.count()
+            grimpeurs = query.offset(offset).limit(limit).all()
+            return {"data": [g.to_dict() for g in grimpeurs], "total": total}, 200
+
+
 
     def post(self):
         json_data = request.get_json()
+        if not json_data:
+            return {"message": "Aucune donnée fournie"}, 400
+
+        # Validation avancée
+        errors = validate_grimpeur_data(json_data)
+        if errors:
+            return {"message": errors, "errors": errors}, 400
+
         nouv_grimp = Clients.Grimpeur()
 
         for key, value in json_data.items():
             if key in ALLOWED_FIELDS and value is not None:
-                max_len = getattr(Clients.Grimpeur, key).type.length
-                if isinstance(value, str) and len(value) > max_len:
-                    return {"message": f"{key} trop long (max {max_len})"}, 400
                 setattr(nouv_grimp, key, value)
-
 
         with sesh() as session:
             session.add(nouv_grimp)
@@ -121,6 +166,7 @@ class GrimpeurAccords(Resource):
                 "AccordParental": grimpeur.AccordParental,
             }, 200
 
+
 class GrimpeurSearch(Resource):
     def get(self):
         query_string = request.args.get("query", type=str)
@@ -129,16 +175,25 @@ class GrimpeurSearch(Resource):
 
         with sesh() as session:
             if query_string.isdigit():
+                # Recherche partielle sur le début du NumGrimpeur
                 grimpeurs = (
-                    session.query(Clients.Grimpeur).filter_by(
-                        NumGrimpeur=int(query_string)
-                    )
-                ).all()
+                    session.query(Clients.Grimpeur)
+                    .filter(cast(Clients.Grimpeur.NumGrimpeur, String).startswith(query_string))
+                    .all()
+                )
             else:
+                # Recherche partielle sur nom ou prénom
                 grimpeurs = (
-                    session.query(Clients.Grimpeur).filter(
-                        Clients.Grimpeur.NomGrimpeur.ilike(f"%{query_string}%")
-                        | Clients.Grimpeur.PrenomGrimpeur.ilike(f"%{query_string}%")
+                    session.query(Clients.Grimpeur)
+                    .filter(
+                        Clients.Grimpeur.NomGrimpeur.ilike(f"%{query_string}%") |
+                        Clients.Grimpeur.PrenomGrimpeur.ilike(f"%{query_string}%")
                     )
-                ).limit(80)
+                    .limit(80)
+                    .all()
+                )
+
         return [grimpeur.to_dict() for grimpeur in grimpeurs], 200
+
+
+

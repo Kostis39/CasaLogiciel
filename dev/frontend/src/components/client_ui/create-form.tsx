@@ -11,7 +11,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/src/components/ui/form";
-import { Button } from "@/src/components/ui/button";
+import { Button, buttonVariants } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/src/components/ui/toggle-group";
 import {
@@ -27,6 +27,7 @@ import { ClientForm } from "@/src/types&fields/types";
 import { fetchAbonnements, fetchTickets, postClientData, postTransaction, updateGrimpeurSignature } from "@/src/services/api";
 import SignatureCanvas from "react-signature-canvas";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 
 
@@ -44,6 +45,8 @@ export function DraftForm() {
 
   const [abonnements, setAbonnements] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
+
+  const [createdGrimpeurId, setCreatedGrimpeurId] = useState<number | null>(null);
 
   const sigCanvas = useRef<SignatureCanvas>(null);
 
@@ -68,10 +71,11 @@ export function DraftForm() {
       // 1️⃣ Création du grimpeur
       const result = await postClientData(data);
       if (!result.success || !result.data) {
-        toast.error(result.message);
+        toast.error(result.message+"");
         return;
       };
 
+      setCreatedGrimpeurId(result.data.NumGrimpeur);
       const grimpeur = result.data;
 
     const signatureBase64 = sigCanvas.current?.getTrimmedCanvas().toDataURL("image/png");
@@ -169,18 +173,26 @@ export function DraftForm() {
             Le formulaire a bien été soumis.
           </p>
 
-          <div className="flex justify-center">
-            <Button
-              variant="default"
-              onClick={() => {
-                form.reset();
-                sigCanvas.current?.clear();
-                setHasSucceeded(false);
-              }}
-            >
-              Ajouter un autre client
-            </Button>
-          </div>
+      <div className="flex justify-center gap-4">
+          <Link
+            href={`/client/saisies?query=${createdGrimpeurId}&id=${createdGrimpeurId}`}
+            className={`${buttonVariants({variant: "default" })}`}
+          >
+            Voir le profil du grimpeur
+          </Link>
+
+          <Button
+            variant="default"
+            onClick={() => {
+              form.reset();
+              sigCanvas.current?.clear();
+              setHasSucceeded(false);
+              setCreatedGrimpeurId(null);
+            }}
+          >
+            Ajouter un autre client
+          </Button>
+      </div>
         </motion.div>
       </div>
     );
@@ -529,52 +541,72 @@ export function DraftForm() {
         />
 
 
-      {/* Accord règlement + Signature */}
-      <FormItem className="flex flex-col gap-3 p-3 border rounded">
-        {/* Accord Règlement */}
-        <FormLabel>Accord de Règlement *</FormLabel>
-        <div className="flex flex-col items-center gap-3 mt-2">
-          <SignatureCanvas
-            ref={sigCanvas}
-            penColor="black"
-            backgroundColor="white"
-            canvasProps={{
-              className: "border w-full sm:w-80 h-40 bg-white rounded shadow-sm",
-            }}
-            onEnd={() => form.setValue("AccordReglement", true)} // Accord Règlement vrai dès qu'il y a une signature
-          />
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                sigCanvas.current?.clear();
-                form.setValue("AccordReglement", false); // Réinitialise Accord Règlement si signature effacée
-              }}
-            >
-              Effacer
-            </Button>
-          </div>
-        </div>
+      {/* Accord Règlement + accord parental*/}
+      <div className="flex flex-col gap-3 p-3 border rounded">
+        <FormField
+          control={form.control}
+          name="AccordReglement"
+          rules={{ required: "La signature est obligatoire" }}
+          render={({ field }) => (
+            <FormItem className="">
+              <FormLabel>Accord de Règlement *</FormLabel>
 
-        {/* Accord Parental */}
+              <div className="flex flex-col items-center gap-3 mt-2">
+                <SignatureCanvas
+                  ref={sigCanvas}
+                  penColor="black"
+                  backgroundColor="white"
+                  canvasProps={{
+                    className: "border w-full sm:w-80 h-40 bg-white rounded shadow-sm",
+                  }}
+                  onEnd={() => {
+                    // !! pour forcer boolean (évite erreur TS 'boolean | null')
+                    const hasDrawing = !!(sigCanvas.current && !sigCanvas.current.isEmpty());
+                    // on notifie react-hook-form via field.onChange
+                    field.onChange(hasDrawing);
+                  }}
+                />
+
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      sigCanvas.current?.clear();
+                      // on met à false le champ dans le form
+                      field.onChange(false);
+                    }}
+                  >
+                    Effacer
+                  </Button>
+                </div>
+
+                {/* Affichage du message d'erreur lié au champ AccordReglement */}
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
+
+
+      {/* Accord Parental */}
         <FormField
           control={form.control}
           name="AccordParental"
           render={({ field }) => (
             <div className="flex items-center justify-between mt-4">
               <FormLabel>Accord Parental</FormLabel>
-                <p className="text-sm text-gray-600">
-                  Votre signature ci-dessus vaut aussi pour l'autorisation parentale si elle est cochée.
-                </p>
+              <p className="text-sm text-gray-600">
+                Votre signature ci-dessus vaut aussi pour l'autorisation parentale si elle est cochée.
+              </p>
               <FormControl>
                 <Switch checked={field.value} onCheckedChange={field.onChange} />
               </FormControl>
             </div>
           )}
         />
-      </FormItem>
+        </div>
 
         {/* Note */}
         <FormField

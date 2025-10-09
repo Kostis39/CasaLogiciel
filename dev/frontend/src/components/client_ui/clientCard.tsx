@@ -4,6 +4,9 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import clsx from "clsx";
 import { getStatutVoieBg } from "./clientInfo";
+import { Client } from "@/src/types&fields/types";
+import { toast } from "react-toastify";
+import { isDateValid } from "@/src/services/api";
 
 export function ClientCard(
   { prenom, nom, num, statutVoie }: { prenom: string , nom: string , num: number, statutVoie: number | undefined }
@@ -43,3 +46,30 @@ export function ClientCard(
     </button>
   );
 }
+
+
+export function ClientCardForList({ client }: { client: Client }) {
+  return (
+    <div
+      className={clsx(
+        "flex items-center gap-3 rounded-xl border py-3 px-3",
+        getStatutVoieBg(client.StatutVoie)
+      )}
+    >
+      <div>
+        <Image src="/avatar.png" alt="Avatar" width={40} height={40} />
+      </div>
+      <p>{client.NumGrimpeur}</p>
+      <p>{client.NomGrimpeur}</p>
+      <p>{client.PrenomGrimpeur}</p>
+      <p>{client.AccordReglement ? "✅" : "❌"}</p>
+      <p>{isDateValid(client.DateFinCoti) ? "✅" : "❌"}</p>
+      <p>{client.Club ? client.Club : "_"}</p>
+      <p>{client.NumLicenceGrimpeur ? client.NumLicenceGrimpeur : "_"}</p>
+      <p>{isDateValid(client.DateFinAbo) ? "✅" : "❌"}</p>
+      <p>{client.NbSeanceRest ? "✅" : "❌"}</p>
+
+    </div>
+  );
+}
+

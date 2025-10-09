@@ -210,23 +210,37 @@ export const realService = {
 
     postClientData: async (data: ClientForm): Promise<ApiResponse> => {
         try {
-        const response = await fetch(`${API_URL}/grimpeurs`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        });
+            // Copie des données sans TypeAbo ni TypeTicket
+            const { TypeAbo, TypeTicket, ...filteredData } = data;
 
-        const json = await response.json().catch(() => ({}));
+            const response = await fetch(`${API_URL}/grimpeurs`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(filteredData),
+            });
 
-        if (!response.ok) {
-            return { success: false, message: json.message || `Erreur HTTP: ${response.status}` };
-        }
+            const json = await response.json().catch(() => ({}));
 
-        return { success: true, message: json.message || "Client ajouté avec succès", data: json.grimpeur };
+            if (!response.ok) {
+                return {
+                    success: false,
+                    message: json.message || `Erreur HTTP: ${response.status}`,
+                };
+            }
+
+            return {
+                success: true,
+                message: json.message || "Client ajouté avec succès",
+                data: json.grimpeur,
+            };
         } catch (error: any) {
-        return { success: false, message: error.message || "Erreur réseau inconnue" };
+            return {
+                success: false,
+                message: error.message || "Erreur réseau inconnue",
+            };
         }
     },
+
 
   postTransaction: async (data: Transaction): Promise<ApiResponse> => {
     try {
