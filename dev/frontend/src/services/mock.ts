@@ -1,4 +1,3 @@
-import { success } from "zod";
 import { ApiResponse, Client, ClientForm, Transaction } from "../types&fields/types";
 import { getTodayPlusOneYear, isDateValid, haveDateJSON } from "./api";
 
@@ -79,97 +78,77 @@ export const mockService = {
         };
     },
 
-    fetchClientSearch: async (query: string) => {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        return [{
-          CodePostGrimpeur: 38000,
-          NumGrimpeur: 1,
-          NumLicenceGrimpeur: 12345678,
-          EmailGrimpeur: "alice.dupont@example.com",
-          PrenomGrimpeur: "Alice",
-          TelGrimpeur: 612345678,
-          AccordReglement: true,
-          NomGrimpeur: "Dupont",
-          TypeTicket: null,
-          Solde: 50,
-          DateNaissGrimpeur: "1990-05-12",
-          SignaReglement: "ADupont",
-          NbSeanceRest: 10,
-          AdresseGrimpeur: "12 Rue de la Montagne",
-          DateInscrGrimpeur: "2025-04-30",
-          VilleGrimpeur: "Grenoble",
-          DateFinAbo: "2025-10-30",
-          DateFinCoti: "2025-10-30",
-          TypeAbo: null,
-          DateFincCotisation: "2026-04-30"
-        },
-      {
-          CodePostGrimpeur: 38000,
-          NumGrimpeur: 2,
-          NumLicenceGrimpeur: 12345678,
-          EmailGrimpeur: "alice.dupont@example.com",
-          PrenomGrimpeur: "Alice",
-          TelGrimpeur: 612345678,
-          AccordReglement: true,
-          NomGrimpeur: "Dupont",
-          TypeTicket: null,
-          Solde: 50,
-          DateNaissGrimpeur: "1990-05-12",
-          SignaReglement: "ADupont",
-          NbSeanceRest: 10,
-          AdresseGrimpeur: "12 Rue de la Montagne",
-          DateInscrGrimpeur: "2025-04-30",
-          VilleGrimpeur: "Grenoble",
-          DateFinAbo: "2025-10-30",
-          DateFinCoti: "2025-10-30",
-          TypeAbo: null,
-          DateFincCotisation: "2026-04-30"
-        },
-        {
-          CodePostGrimpeur: 38000,
-          NumGrimpeur: 3,
-          NumLicenceGrimpeur: 12345678,
-          EmailGrimpeur: "alice.dupont@example.com",
-          PrenomGrimpeur: "Alice",
-          TelGrimpeur: 612345678,
-          AccordReglement: true,
-          NomGrimpeur: "Dupont",
-          TypeTicket: null,
-          Solde: 50,
-          DateNaissGrimpeur: "1990-05-12",
-          SignaReglement: "ADupont",
-          NbSeanceRest: 10,
-          AdresseGrimpeur: "12 Rue de la Montagne",
-          DateInscrGrimpeur: "2025-04-30",
-          VilleGrimpeur: "Grenoble",
-          DateFinAbo: "2025-10-30",
-          DateFinCoti: "2025-10-30",
-          TypeAbo: null,
-          DateFincCotisation: "2026-04-30"
-        },
-        {
-          CodePostGrimpeur: 38000,
-          NumGrimpeur: 4,
-          NumLicenceGrimpeur: 12345678,
-          EmailGrimpeur: "alice.dupont@example.com",
-          PrenomGrimpeur: "Alice",
-          TelGrimpeur: 612345678,
-          AccordReglement: true,
-          NomGrimpeur: "Dupont",
-          TypeTicket: null,
-          Solde: 50,
-          DateNaissGrimpeur: "1990-05-12",
-          SignaReglement: "ADupont",
-          NbSeanceRest: 10,
-          AdresseGrimpeur: "12 Rue de la Montagne",
-          DateInscrGrimpeur: "2025-04-30",
-          VilleGrimpeur: "Grenoble",
-          DateFinAbo: "2025-10-30",
-          DateFinCoti: "2025-10-30",
-          TypeAbo: null,
-          DateFincCotisation: "2026-04-30"
-        },
-    ];
+    fetchClientSearch: async (query: string, limit = 20, offset = 0) => {
+    // Simule un délai réseau
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // Création d'une "base de données" fictive
+    const allClients = Array.from({ length: 50 }, (_, i) => ({
+        NumGrimpeur: i + 1,
+        NumLicenceGrimpeur: 12345678 + i,
+        EmailGrimpeur: `client${i + 1}@example.com`,
+        PrenomGrimpeur: `Prénom${i + 1}`,
+        TelGrimpeur: 600000000 + i,
+        AccordReglement: true,
+        NomGrimpeur: `Nom${i + 1}`,
+        TypeTicket: null,
+        Solde: 50 + i,
+        DateNaissGrimpeur: "1990-01-01",
+        SignaReglement: `S${i + 1}`,
+        NbSeanceRest: 10,
+        DateInscrGrimpeur: "2025-01-01",
+        DateFinAbo: "2025-12-31",
+        DateFinCoti: "2025-12-31",
+        TypeAbo: null,
+        DateFincCotisation: "2026-12-31",
+    }));
+
+    // Filtrage par query sur le prénom ou le nom
+    const filtered = allClients.filter(
+        (c) =>
+        c.PrenomGrimpeur.toLowerCase().includes(query.toLowerCase()) ||
+        c.NomGrimpeur.toLowerCase().includes(query.toLowerCase())
+    );
+
+    // Pagination
+    const paginated = filtered.slice(offset, offset + limit);
+
+    return {
+        data: paginated,
+        total: filtered.length,
+    };
+    },
+
+
+    fetchClients: async (limit: number, offset: number) => {
+        await new Promise((resolve) => setTimeout(resolve, 150)); // simule délai
+        const TOTAL = 100; // total fictif
+        const generated: Client[] = [];
+
+        for (let i = 1; i <= TOTAL; i++) {
+        generated.push({
+            NumGrimpeur: i,
+            NumLicenceGrimpeur: `LIC${1000 + i}`,
+            EmailGrimpeur: `user${i}@example.com`,
+            PrenomGrimpeur: `Prenom${i}`,
+            NomGrimpeur: `Nom${i}`,
+            TelGrimpeur: `6000000${i}`,
+            AccordReglement: true,
+            TypeTicket: null,
+            Solde: 50 + i,
+            DateNaissGrimpeur: "1990-01-01",
+            NbSeanceRest: i % 10,
+            DateInscrGrimpeur: "2025-01-01",
+            DateFinAbo: "2025-12-31",
+            DateFinCoti: "2025-12-31",
+            TypeAbo: null,
+            StatutVoie: i % 5,
+        });
+        }
+
+        const data = generated.slice(offset, offset + limit);
+
+        return { data, total: TOTAL };
     },
 
     fetchAbonnements: async () => {

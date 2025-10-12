@@ -315,7 +315,7 @@ function AccesSalleInfo(client: Client){
 export function getStatutVoieBg(StatutVoie: number | undefined) {
   switch (StatutVoie) {
     case 1: // Bloc
-      return "bg-orange-300"; // orange a faire 
+      return "bg-orange-300";
     case 2: //Voie
       return "bg-green-300";
     case 3: // Tête
@@ -324,3 +324,4 @@ export function getStatutVoieBg(StatutVoie: number | undefined) {
       return "bg-orange-300";
   }
 }
+

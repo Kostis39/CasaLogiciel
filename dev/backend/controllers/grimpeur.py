@@ -63,8 +63,6 @@ class GrimpeursListe(Resource):
             grimpeurs = query.offset(offset).limit(limit).all()
             return {"data": [g.to_dict() for g in grimpeurs], "total": total}, 200
 
-
-
     def post(self):
         json_data = request.get_json()
         if not json_data:
@@ -170,6 +168,8 @@ class GrimpeurAccords(Resource):
 class GrimpeurSearch(Resource):
     def get(self):
         query_string = request.args.get("query", type=str)
+        limit = request.args.get("limit", 20, type=int)
+        offset = request.args.get("offset", 0, type=int)
         if not query_string:
             return {"message": "Requête de recherche vide"}, 400
 
@@ -179,7 +179,6 @@ class GrimpeurSearch(Resource):
                 grimpeurs = (
                     session.query(Clients.Grimpeur)
                     .filter(cast(Clients.Grimpeur.NumGrimpeur, String).startswith(query_string))
-                    .all()
                 )
             else:
                 # Recherche partielle sur nom ou prénom
@@ -189,11 +188,11 @@ class GrimpeurSearch(Resource):
                         Clients.Grimpeur.NomGrimpeur.ilike(f"%{query_string}%") |
                         Clients.Grimpeur.PrenomGrimpeur.ilike(f"%{query_string}%")
                     )
-                    .limit(80)
-                    .all()
                 )
+            total = grimpeurs.count()
+            grimpeurs = grimpeurs.offset(offset).limit(limit).all()
 
-        return [grimpeur.to_dict() for grimpeur in grimpeurs], 200
+        return {"data": [g.to_dict() for g in grimpeurs], "total": total}, 200
 
 
 

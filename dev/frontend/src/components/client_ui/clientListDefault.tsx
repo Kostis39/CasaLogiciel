@@ -25,7 +25,7 @@ export const ClientListClientComponent = ({ query }: { query: string }) => {
       
       try {
         const rep = await fetchClientSearch(query);
-        setGrimpeurs(rep || []);
+        setGrimpeurs(rep.data || []);
       } catch (err) {
         console.error('Erreur lors de la recherche:', err);
         setError('Erreur lors de la recherche');

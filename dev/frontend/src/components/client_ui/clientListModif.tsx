@@ -1,74 +1,68 @@
 "use client";
+import { fetchClients } from "@/src/services/api";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ClientCard, ClientCardForList } from "@/src/components/client_ui/clientCard";
-import { API_URL } from "@/src/services/real";
-import { Client } from "@/src/types&fields/types";
-
+import { ClientCardForList } from "./clientCard";
 export function GrimpeurInfiniteList() {
-  const [grimpeurs, setGrimpeurs] = useState<Client[]>([]);
+  const [grimpeurs, setGrimpeurs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasNext, setHasNext] = useState(true);
   const [hasPrev, setHasPrev] = useState(false);
 
   const limit = 20;
   const [offset, setOffset] = useState(0);
+  const BUFFER_SIZE = 60;
 
   const topSentinelRef = useRef<HTMLDivElement | null>(null);
   const bottomSentinelRef = useRef<HTMLDivElement | null>(null);
-  const BUFFER_SIZE = 60;
 
-const fetchGrimpeurs = useCallback(
-  async (direction: "next" | "prev") => {
-    if (loading) return;
-    setLoading(true);
+  const fetchGrimpeurs = useCallback(
+    async (direction: "next" | "prev") => {
+      if (loading) return;
+      setLoading(true);
 
-    try {
-      const newOffset =
-        direction === "next" ? offset + limit : Math.max(offset - limit, 0);
+      try {
+        const newOffset =
+          direction === "next" ? offset + limit : Math.max(offset - limit, 0);
 
-      const res = await fetch(`${API_URL}/grimpeurs?limit=${limit}&offset=${newOffset}`);
-      const json = await res.json();
-      const data: any[] = json.data || [];
-      const total: number = json.total || 0;
+        // ✅ Appel à la Server Action
+        const { data, total } = await fetchClients(limit, newOffset);
 
-      setGrimpeurs((prev) => {
-        let combined = direction === "next" ? [...prev, ...data] : [...data, ...prev];
+        setGrimpeurs((prev) => {
+          let combined =
+            direction === "next" ? [...prev, ...data] : [...data, ...prev];
 
-        // Supprimer doublons
-        const unique = combined.filter(
-          (g, index, self) =>
-            index === self.findIndex((x) => x.NumGrimpeur === g.NumGrimpeur)
-        );
+          // Supprime les doublons
+          const unique = combined.filter(
+            (g, index, self) =>
+              index === self.findIndex((x) => x.NumGrimpeur === g.NumGrimpeur)
+          );
 
-        // Limiter la mémoire
-        if (unique.length > BUFFER_SIZE) {
-          if (direction === "next") return unique.slice(unique.length - BUFFER_SIZE);
-          else return unique.slice(0, BUFFER_SIZE);
-        }
+          // Limite la taille du buffer
+          if (unique.length > BUFFER_SIZE) {
+            return direction === "next"
+              ? unique.slice(unique.length - BUFFER_SIZE)
+              : unique.slice(0, BUFFER_SIZE);
+          }
 
-        return unique;
-      });
+          return unique;
+        });
 
-      setOffset(newOffset);
-
-      // ✅ Calcul correct de hasNext et hasPrev
-      setHasPrev(newOffset > 0);
-      setHasNext(newOffset + limit < total);
-    } catch (err) {
-      console.error("Erreur lors du fetch:", err);
-    } finally {
-      setLoading(false);
-    }
-  },
-  [offset, loading]
-);
-
+        setOffset(newOffset);
+        setHasPrev(newOffset > 0);
+        setHasNext(newOffset + limit < total);
+      } catch (err) {
+        console.error("Erreur fetchGrimpeurs:", err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [offset, loading]
+  );
 
   useEffect(() => {
-    fetchGrimpeurs("next"); // initial
+    fetchGrimpeurs("next");
   }, []);
 
-  // Détection bas de page → charger la suite
   useEffect(() => {
     const bottom = bottomSentinelRef.current;
     if (!bottom) return;
@@ -86,7 +80,6 @@ const fetchGrimpeurs = useCallback(
     return () => observer.disconnect();
   }, [fetchGrimpeurs, hasNext]);
 
-  // Détection haut de page → recharger anciens grimpeurs
   useEffect(() => {
     const top = topSentinelRef.current;
     if (!top) return;
@@ -105,22 +98,61 @@ const fetchGrimpeurs = useCallback(
   }, [fetchGrimpeurs, hasPrev]);
 
   return (
-    <div className="overflow-auto flex flex-col gap-1">
-      <div ref={topSentinelRef}/>
+<table className="min-w-full border-separate border-spacing-y-1">
+  <thead className="sticky top-0 bg-white text-gray-700">
+    <tr>
+      <th className="p-2">Photo</th>
+      <th className="text-left pr-2">Nom</th>
+      <th className="text-left pr-2">Prénom</th>
+      <th className="text-left">Règlement</th>
+      <th className="text-left">Cotisation</th>
+      <th className="text-left pr-2">Club</th>
+      <th className="text-left pr-2">Licence</th>
+      <th className="text-left">Abonnement</th>
+      <th className="text-left">Séances</th>
+    </tr>
+  </thead>
 
-      {grimpeurs.map((g) => (
-        <ClientCardForList key={g.NumGrimpeur} client={g} />
-      ))}
+  <tbody>
+    {/* Sentinelle haute */}
+    <tr>
+      <td colSpan={9}>
+        <div ref={topSentinelRef} className="h-1" />
+      </td>
+    </tr>
 
-      <div ref={bottomSentinelRef} className="h-1" />
+    {/* Lignes de grimpeurs */}
+    {grimpeurs.map((g) => (
+      <ClientCardForList key={g.NumGrimpeur} client={g} />
+    ))}
 
-      {loading && <p className="col-span-full text-center">Chargement...</p>}
+    {/* Sentinelle basse */}
+    <tr>
+      <td colSpan={9}>
+        <div ref={bottomSentinelRef} className="h-1" />
+      </td>
+    </tr>
 
-      {!hasNext && !loading && (
-        <p className="text-center text-gray-500">
+    {/* Indicateur de chargement */}
+    {loading && (
+      <tr>
+        <td colSpan={9} className="text-center py-2">
+          Chargement...
+        </td>
+      </tr>
+    )}
+
+    {/* Fin de la liste */}
+    {!hasNext && !loading && (
+      <tr>
+        <td colSpan={9} className="text-center text-gray-500 py-2">
           Vous avez atteint la fin de la liste.
-        </p>
-      )}
-    </div>
+        </td>
+      </tr>
+    )}
+  </tbody>
+
+</table>
+
   );
 }

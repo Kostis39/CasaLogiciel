@@ -5,7 +5,6 @@ import Image from "next/image";
 import clsx from "clsx";
 import { getStatutVoieBg } from "./clientInfo";
 import { Client } from "@/src/types&fields/types";
-import { toast } from "react-toastify";
 import { isDateValid } from "@/src/services/api";
 
 export function ClientCard(
@@ -49,27 +48,52 @@ export function ClientCard(
 
 
 export function ClientCardForList({ client }: { client: Client }) {
-  return (
-    <div
-      className={clsx(
-        "flex items-center gap-3 rounded-xl border py-3 px-3",
-        getStatutVoieBg(client.StatutVoie)
-      )}
-    >
-      <div>
-        <Image src="/avatar.png" alt="Avatar" width={40} height={40} />
-      </div>
-      <p>{client.NumGrimpeur}</p>
-      <p>{client.NomGrimpeur}</p>
-      <p>{client.PrenomGrimpeur}</p>
-      <p>{client.AccordReglement ? "✅" : "❌"}</p>
-      <p>{isDateValid(client.DateFinCoti) ? "✅" : "❌"}</p>
-      <p>{client.Club ? client.Club : "_"}</p>
-      <p>{client.NumLicenceGrimpeur ? client.NumLicenceGrimpeur : "_"}</p>
-      <p>{isDateValid(client.DateFinAbo) ? "✅" : "❌"}</p>
-      <p>{client.NbSeanceRest ? "✅" : "❌"}</p>
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-    </div>
+  const selectedId = searchParams.get("id");
+  const isSelected = selectedId === client.NumGrimpeur.toString();
+
+  const handleClick = () => {
+    const params = new URLSearchParams(searchParams);
+    params.set("id", client.NumGrimpeur.toString());
+    router.replace(`?${params.toString()}`);  // utilise push pour garder historique
+  };
+return (
+<tr
+  onClick={handleClick}
+  className={clsx(
+    getStatutVoieBg(client.StatutVoie),
+    "hover:scale-[1.01] hover:ring-1 hover:ring-blue-300 hover:ring-inset transition-all",
+    { "ring-2 ring-blue-600 ring-inset" : isSelected }
+    )}
+>
+  <td className=" text-center">
+    <Image
+      src="/avatar.png"
+      alt="Avatar"
+      width={40}
+      height={40}
+      className="rounded-full inline-block"
+    />
+  </td>
+  <td>
+    {client.NomGrimpeur}
+  </td>
+  <td >
+    {client.PrenomGrimpeur}
+  </td>
+  <td className="text-center">{client.AccordReglement ? "✅" : "❌"}</td>
+  <td className="text-center">{isDateValid(client.DateFinCoti) ? "✅" : "❌"}</td>
+  <td>
+    {client.Club || "_"}
+  </td>
+  <td >
+    {client.NumLicenceGrimpeur || "_"}
+  </td>
+  <td className="text-center">{isDateValid(client.DateFinAbo) ? "✅" : "❌"}</td>
+  <td className="text-center">{client.NbSeanceRest ? "✅" : "❌"}</td>
+</tr>
+
   );
 }
-

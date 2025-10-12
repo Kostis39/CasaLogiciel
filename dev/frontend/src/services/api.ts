@@ -8,6 +8,7 @@ export const {
 //------- Fetchers -------
   fetchClientById,
   fetchClientSearch,
+  fetchClients,
   fetchAbonnements,
   fetchTickets,
   fetchProduits,

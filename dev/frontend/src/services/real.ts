@@ -1,4 +1,4 @@
-import { getTodayPlusOneYear, haveDateJSON, isDateValid } from "./api";
+import { fetchClients, getTodayPlusOneYear, haveDateJSON, isDateValid } from "./api";
 import { Client, ApiResponse, Transaction, ClientForm } from "../types&fields/types";
 export const API_URL = "http://127.0.0.1:5000";
 
@@ -19,23 +19,47 @@ export const realService = {
         }
     },
 
-    fetchClientSearch: async (query: string) => {
+    fetchClientSearch: async (query: string, limit?: number, offset?: number) => {
         try {
-            const response = await fetch(`${API_URL}/grimpeurs/search?query=${query}`);
+            const url = new URL(`${API_URL}/grimpeurs/search`);
+            url.searchParams.append("query", query);
+
+            if (limit != null) url.searchParams.append("limit", limit.toString());
+            if (offset != null) url.searchParams.append("offset", offset.toString());
+
+            const response = await fetch(url.toString());            
             if (!response.ok) {
                 console.log(`Erreur HTTP: ${response.status}`);
-                return [];
+                return { data: [], total: 0 };
             }
-            const data = await response.json();
-            if (Array.isArray(data) && data.length > 0) {
-                return data;
-            } else {
-                console.log('Aucune donnée trouvée.');
-                return [];
-            }
+            const json = await response.json();
+            const data = Array.isArray(json.data) ? json.data : [];
+            const total = typeof json.total === "number" ? json.total : 0;
+            return { data, total };
         } catch (error) {
             console.error('Échec de la récupération du grimpeur:', error);
-            throw error;
+            return { data: [], total: 0 };
+        }
+    },
+
+    fetchClients: async (limit: number, offset: number) => {
+        try {
+        const res = await fetch(`${API_URL}/grimpeurs?limit=${limit}&offset=${offset}`, {
+            cache: "no-store", // toujours fetch côté serveur
+        });
+
+        if (!res.ok) {
+            throw new Error(`Erreur HTTP ${res.status}`);
+        }
+
+        const json = await res.json();
+        const data = Array.isArray(json.data) ? json.data : [];
+        const total = typeof json.total === "number" ? json.total : 0;
+
+        return { data, total };
+        } catch (err) {
+        console.error("Erreur dans fetchGrimpeurs:", err);
+        return { data: [], total: 0 };
         }
     },
 
