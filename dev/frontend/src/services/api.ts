@@ -29,6 +29,7 @@ export const {
   updateProduit,
   updateCotisationClient,
   updateGrimpeurSignature,
+  updateClientData,
 
 //------- Deleters -------
   deleteAbonnement,

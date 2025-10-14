@@ -9,7 +9,6 @@ export function ClientHeader(){
 
             <LinkClient src="/menu.svg" alt="Menu" href="/" name=""/>
             <LinkClient src="/ordinateur.svg" alt="Ordinateur" href="/client/saisies" name="Saisies"/>
-            <LinkClient src="/grimpeurs.svg" alt="Grimpeurs" href="/client/grimpeurs" name="Grimpeurs"/>
             <LinkClient src="/inscription.svg" alt="Inscription" href="/client/inscription" name="Inscription"/>
 
         </div>

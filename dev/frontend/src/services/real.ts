@@ -19,15 +19,15 @@ export const realService = {
         }
     },
 
-    fetchClientSearch: async (query: string, limit?: number, offset?: number) => {
+    fetchClientSearch: async (query: string, limit: number, offset: number) => {
         try {
-            const url = new URL(`${API_URL}/grimpeurs/search`);
-            url.searchParams.append("query", query);
+            const params = new URLSearchParams({
+                query,
+                limit: limit.toString(),
+                offset: offset.toString(),
+            });
 
-            if (limit != null) url.searchParams.append("limit", limit.toString());
-            if (offset != null) url.searchParams.append("offset", offset.toString());
-
-            const response = await fetch(url.toString());            
+            const response = await fetch(`${API_URL}/grimpeurs/search?${params.toString()}`);            
             if (!response.ok) {
                 console.log(`Erreur HTTP: ${response.status}`);
                 return { data: [], total: 0 };
@@ -451,6 +451,26 @@ export const realService = {
         }
 
         return { success: true, message: json.message || "Signature enregistrée", data: json };
+        } catch (error: any) {
+            return { success: false, message: error.message || "Erreur réseau inconnue" };
+        }
+    },
+
+    updateClientData: async (client: Client): Promise<ApiResponse> => {
+        try {
+            const response = await fetch(`${API_URL}/grimpeurs/${client.NumGrimpeur}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(client),
+            });
+
+            const json = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                return { success: false, message: json.message || `Erreur HTTP: ${response.status}` };
+            }
+
+            return { success: true, message: json.message || "Client mis à jour", data: json.grimpeur };
         } catch (error: any) {
             return { success: false, message: error.message || "Erreur réseau inconnue" };
         }

@@ -135,18 +135,23 @@ class GrimpeurAccords(Resource):
         filename = f"grimpeur_{id}_{date.today().isoformat()}.png".replace(" ", "_")
         filepath = os.path.join(signaturePath, filename)
 
-        with open(filepath, "wb") as f:
-            f.write(signature_bytes)
-
         with sesh() as session:
             grimpeur = session.query(Clients.Grimpeur).filter_by(NumGrimpeur=id).first()
             if not grimpeur:
                 return {"message": "Grimpeur not found"}, 404
 
+            if grimpeur.CheminSignature and os.path.exists(grimpeur.CheminSignature):
+                try:
+                    os.remove(grimpeur.CheminSignature)
+                except Exception as e:
+                    print(f"Impossible de supprimer l'ancienne signature : {e}")
+
+            with open(filepath, "wb") as f:
+                f.write(signature_bytes)
+
             grimpeur.CheminSignature = filepath
             grimpeur.has_signed = True
 
-            # Mise à jour des accords optionnels
             def str_to_bool(val): return str(val).lower() in ["true", "1", "yes"]
             accord_reglement = request.args.get("AccordReglement")
             accord_parental = request.args.get("AccordParental")
@@ -157,12 +162,14 @@ class GrimpeurAccords(Resource):
                 grimpeur.AccordParental = str_to_bool(accord_parental)
 
             session.commit()
+
             return {
                 "message": "Signature enregistrée",
                 "CheminSignature": filepath,
                 "AccordReglement": grimpeur.AccordReglement,
                 "AccordParental": grimpeur.AccordParental,
             }, 200
+
 
 
 class GrimpeurSearch(Resource):

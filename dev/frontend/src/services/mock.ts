@@ -367,6 +367,14 @@ export const mockService = {
         };
     },
 
+    updateClientData: async (client: Client): Promise<ApiResponse> => {
+        return {
+            success: true,
+            message: `Mock: Données du client mises à jour avec succès`,
+            data: { ...client, NumGrimpeur: client.NumGrimpeur},
+        };
+    },
+
 //----------------------------------- Deleters -----------------------------------
     deleteAbonnement: async (idAbonnement: number) => {
         return {success: true, message: `Mock: ${JSON.stringify(idAbonnement)}`};

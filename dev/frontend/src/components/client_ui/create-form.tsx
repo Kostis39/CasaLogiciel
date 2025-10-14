@@ -28,6 +28,7 @@ import { fetchAbonnements, fetchTickets, postClientData, postTransaction, update
 import SignatureCanvas from "react-signature-canvas";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { getStatutVoieBg } from "./clientInfo";
 
 
 
@@ -356,10 +357,10 @@ export function DraftForm() {
                     <ToggleGroupItem
                       key={value}
                       value={value.toString()}
-                      className="min-w-[5rem]
+                      className={`min-w-[5rem] ${getStatutVoieBg(value)}
                         data-[state=on]:border-blue-500
-                        hover:bg-gray-100 transition-colors
-                      "
+                        transition-colors
+                      `}
                     >
                       {label}
                     </ToggleGroupItem>

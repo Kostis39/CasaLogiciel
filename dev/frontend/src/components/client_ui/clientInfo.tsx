@@ -3,31 +3,30 @@ import { deleteSeance, isAlreadyEntered, isDateValid, postSeanceClient, updateCo
 import { clientFields } from "@/src/types&fields/fields";
 import { Client, ApiResponse } from "@/src/types&fields/types";
 import Image from "next/image";
-import Link from "next/link";
-import {useEffect, useState } from "react";
+import {useEffect, useRef, useState } from "react";
 import { Button } from "@/src/components/ui/button"
 import { toast } from "react-toastify";
 import { API_URL } from "@/src/services/real";
 
 interface ClientGridProps {
   clientInfo: Client;
+  onEdit?: () => void;
 }
 
-export function ClientGrid( {clientInfo} : ClientGridProps ) {
-  
-  const [inCasa, setInCasa] = useState<boolean>(false);
-  const [isLoading, setLoading] = useState<boolean>(true);
+export function ClientGrid({ clientInfo, onEdit }: ClientGridProps) {
+  const [inCasa, setInCasa] = useState(false);
+  const [isLoading, setLoading] = useState(true);
+  const lastNumRef = useRef<number | null>(null); // 👈 On garde le dernier NumGrimpeur
 
   useEffect(() => {
-    let alreadyCalled = false;
+    // si même client, ne rien faire
+    if (lastNumRef.current === clientInfo.NumGrimpeur) return;
+    lastNumRef.current = clientInfo.NumGrimpeur;
 
     const fetchEnteredStatus = async () => {
-      if (alreadyCalled) return;
-      alreadyCalled = true;
-
       setLoading(true);
 
-      if (clientInfo.NumGrimpeur === null) {
+      if (clientInfo.NumGrimpeur == null) {
         setInCasa(false);
         setLoading(false);
         return;
@@ -37,9 +36,9 @@ export function ClientGrid( {clientInfo} : ClientGridProps ) {
         const status = await isAlreadyEntered(clientInfo.NumGrimpeur);
         setInCasa(status);
 
+        // ⚠️ Ne créer une séance que si non déjà entré
         if (!status) {
           const result = await postSeanceClient(clientInfo.NumGrimpeur);
-
           if (!result.success) {
             toast.warning(result.message);
             setInCasa(false);
@@ -57,7 +56,8 @@ export function ClientGrid( {clientInfo} : ClientGridProps ) {
     };
 
     fetchEnteredStatus();
-  }, [clientInfo.NumGrimpeur]);
+  }, [clientInfo.NumGrimpeur]); // ne dépend que du NumGrimpeur
+
 
 
 
@@ -108,16 +108,14 @@ export function ClientGrid( {clientInfo} : ClientGridProps ) {
             </div>
           </div>
 
-
-
-          <Link
-          href={`./grimpeurs/?id=${clientInfo.NumGrimpeur}`}
-          className="flex items-center justify-center mr-3 border border-black rounded hover:bg-gray-100 transition"
-          >
-            <p className="text-sm font-semibold text-gray-700 ">
+      {onEdit && (
+        <Button
+          onClick={onEdit}
+        >
               Modifier
-            </p>
-          </Link>
+        </Button>
+      )}
+
         </div>
       </div>
 
@@ -180,6 +178,7 @@ export function ClientGrid( {clientInfo} : ClientGridProps ) {
             >
               Annuler Entrée
             </Button>
+
           </div>
         </div>
 
