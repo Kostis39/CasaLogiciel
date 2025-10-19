@@ -105,7 +105,11 @@ class Grimpeur(Resource):
 
             for key, value in json_data.items():
                 if key in ALLOWED_FIELDS:
+                    # Ne pas écraser CheminSignature si vide
+                    if key == "CheminSignature" and not value:
+                        continue
                     setattr(grimpeur, key, value)
+
 
             session.commit()
             return grimpeur.to_dict(), 200

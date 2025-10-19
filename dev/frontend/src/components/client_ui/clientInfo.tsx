@@ -1,5 +1,5 @@
 "use client";
-import { deleteSeance, isAlreadyEntered, isDateValid, postSeanceClient, updateCotisationClient } from "@/src/services/api";
+import { deleteSeance, fetchClientById, isAlreadyEntered, isDateValid, postSeanceClient, postTransaction, updateClientData, updateCotisationClient } from "@/src/services/api";
 import { clientFields } from "@/src/types&fields/fields";
 import { Client, ApiResponse } from "@/src/types&fields/types";
 import Image from "next/image";
@@ -7,38 +7,41 @@ import {useEffect, useRef, useState } from "react";
 import { Button } from "@/src/components/ui/button"
 import { toast } from "react-toastify";
 import { API_URL } from "@/src/services/real";
+import { ConfirmButton } from "./buttonConfirm";
 
 interface ClientGridProps {
-  clientInfo: Client;
+  numClient: number;
   onEdit?: () => void;
 }
 
-export function ClientGrid({ clientInfo, onEdit }: ClientGridProps) {
+export function ClientGrid({ numClient, onEdit }: ClientGridProps) {
   const [inCasa, setInCasa] = useState(false);
   const [isLoading, setLoading] = useState(true);
-  const lastNumRef = useRef<number | null>(null); // 👈 On garde le dernier NumGrimpeur
+  const lastNumRef = useRef<number | null>(null);
+  const [clientInfo, setClientInfo] = useState<Client | null>(null);
+  const [cacheBuster, setCacheBuster] = useState(Date.now());
 
   useEffect(() => {
     // si même client, ne rien faire
-    if (lastNumRef.current === clientInfo.NumGrimpeur) return;
-    lastNumRef.current = clientInfo.NumGrimpeur;
+    if (lastNumRef.current === numClient) return;
+    lastNumRef.current = numClient;
 
     const fetchEnteredStatus = async () => {
       setLoading(true);
 
-      if (clientInfo.NumGrimpeur == null) {
+      if (numClient == null) {
         setInCasa(false);
         setLoading(false);
         return;
       }
 
       try {
-        const status = await isAlreadyEntered(clientInfo.NumGrimpeur);
+        const status = await isAlreadyEntered(numClient);
         setInCasa(status);
 
         // ⚠️ Ne créer une séance que si non déjà entré
         if (!status) {
-          const result = await postSeanceClient(clientInfo.NumGrimpeur);
+          const result = await postSeanceClient(numClient);
           if (!result.success) {
             toast.warning(result.message);
             setInCasa(false);
@@ -54,20 +57,82 @@ export function ClientGrid({ clientInfo, onEdit }: ClientGridProps) {
         setLoading(false);
       }
     };
+    const loadClient = async () => {
+      try{
+        const data = await fetchClientById(numClient);
+        setClientInfo(data);
+      } catch (error) {
+        toast.error("Erreur de chargement client");
+      }
+    }
 
+    loadClient();
     fetchEnteredStatus();
-  }, [clientInfo.NumGrimpeur]); // ne dépend que du NumGrimpeur
+    setCacheBuster(Date.now());
+  }, [numClient]); // ne dépend que du NumGrimpeur
 
+  if (!clientInfo){
+    return (
+      <p>Le Grimpeur n'existe pas ou est introuvable.</p>
+    );
+  }
 
+    const handleClick1 = async () => {
+      if (!clientInfo) return;
 
+      setLoading(true);
 
-    const handleClick1 = () => {
-      setInCasa(!inCasa);
-      alert("Fiare entrée unique");
-      postSeanceClient(clientInfo.NumGrimpeur);
+      try {
+        // 1️⃣ Ajouter 1 ticket au client
+        const updatedClient: Client = {
+          ...clientInfo,
+          NbSeanceRest: (clientInfo.NbSeanceRest ?? 0) + 1,
+        };
+
+        const updateResult = await updateClientData(updatedClient);
+        if (!updateResult.success) {
+          toast.error(`Erreur mise à jour tickets : ${updateResult.message}`);
+          setLoading(false);
+          return;
+        }
+
+        // 2️⃣ Créer la transaction pour le ticket
+        const ticketTransaction = await postTransaction({
+          TypeObjet: "ticket",
+          IdObjet: 1, // ticket unique
+          NumGrimpeur: numClient,
+          NbSeanceTicket: 1,
+        });
+
+        if (!ticketTransaction.success) {
+          toast.error(`Erreur transaction ticket : ${ticketTransaction.message}`);
+          setLoading(false);
+          return;
+        }
+
+        // 3️⃣ Créer la séance associée
+        const seanceResult = await postSeanceClient(numClient);
+
+        if (!seanceResult.success) {
+          toast.error(`Erreur création séance : ${seanceResult.message}`);
+          setInCasa(false);
+        } else {
+          toast.success("Ticket ajouté et séance créée !");
+          setInCasa(true);
+        }
+
+      } catch (error) {
+        toast.error("Erreur lors de l'entrée unique");
+        setInCasa(false);
+      } finally {
+        setLoading(false);
+      }
     };
+
+
+
     const handleClick2 = async () => {
-      const response = await deleteSeance(clientInfo.NumGrimpeur);
+      const response = await deleteSeance(numClient);
       response.success ? toast.success(response.message) : toast.error(response.message), setInCasa(false);
     };
 
@@ -76,7 +141,22 @@ export function ClientGrid({ clientInfo, onEdit }: ClientGridProps) {
 
 
   return (
-    <div className={`flex flex-col h-full ${getStatutVoieBg(clientInfo.StatutVoie)}`}>
+    <div className={`flex flex-col h-full ${getStatutVoieBg(clientInfo.StatutVoie)} rounded-md relative`}>
+      {onEdit && (
+        <Button
+          size="lg"
+          variant="outline"
+          onClick={onEdit}
+          className="absolute top-4 right-4 p-2 w-12 h-12 flex items-center justify-center cursor-pointer"
+        >
+          <Image 
+            src="/inscription.svg" 
+            alt="Modifier" 
+            width={24} 
+            height={24} 
+          />
+        </Button>
+      )}
       <div className="overflow-auto [flex:1] flex items-center">
 
         <div className="flex flex-col items-center gap-0.5 mr-4">
@@ -108,14 +188,6 @@ export function ClientGrid({ clientInfo, onEdit }: ClientGridProps) {
             </div>
           </div>
 
-      {onEdit && (
-        <Button
-          onClick={onEdit}
-        >
-              Modifier
-        </Button>
-      )}
-
         </div>
       </div>
 
@@ -132,6 +204,7 @@ export function ClientGrid({ clientInfo, onEdit }: ClientGridProps) {
               typeSignature="Règlement Intérieur"
               accord={clientInfo.AccordReglement}
               cheminSignature={clientInfo.CheminSignature}
+              cacheBuster={cacheBuster}
             />
           </div>
 
@@ -140,6 +213,7 @@ export function ClientGrid({ clientInfo, onEdit }: ClientGridProps) {
               typeSignature="Autorisation Parentale"
               accord={clientInfo.AccordParental}
               cheminSignature={clientInfo.CheminSignature}
+              cacheBuster={cacheBuster}
             />
           </div>
 
@@ -162,23 +236,26 @@ export function ClientGrid({ clientInfo, onEdit }: ClientGridProps) {
             <Button
               onClick={handleClick1}
               disabled={isLoading}
-              variant="outline"
-              className="w-3/4 h-3/4 text-lg"
+              variant="default"
+              className="w-3/4 h-3/4 text-lg cursor-pointer"
             >
-              Entrée
+              Entrée Unique
             </Button>
           </div>
 
           <div className="flex justify-center">
-            <Button
-              onClick={inCasa ? handleClick2 : undefined}
-              disabled={!inCasa || isLoading}
-              variant="outline"
-              className="w-3/4 h-3/4 text-lg"
-            >
-              Annuler Entrée
-            </Button>
-
+            <ConfirmButton
+              triggerText="Annuler Entrée"
+              title="Confirmer l'annulation de l'entrée"
+              description="Êtes-vous sûr(e) de vouloir annuler cette entrée ? Cette action ne peut pas être annulée."
+              onConfirm={handleClick2}
+              confirmText="Oui, annuler"
+              cancelText="Non, conserver"
+              variantConfirm="destructive"
+              triggerSize="lg"
+              triggerVariant="outline"
+              triggerClassName="w-3/4 h-3/4 text-lg cursor-pointer"
+            />
           </div>
         </div>
 
@@ -192,17 +269,19 @@ function SignatureClient({
   typeSignature,
   accord,
   cheminSignature,
+  cacheBuster,
 }: {
   typeSignature: string;
   accord: boolean | undefined;
   cheminSignature: string | undefined;
+  cacheBuster: number;
 }) {
   return (
     <div className="flex flex-col items-center justify-center">
       <p className="font-bold text-gray-700">{typeSignature}</p>
       {cheminSignature && accord && (
         <img
-          src={`${API_URL}/${cheminSignature}`} // ou ton endpoint pour servir les images
+          src={`${API_URL}/${cheminSignature}?v=${cacheBuster}`} // ou ton endpoint pour servir les images
           alt="Si signature non visible verifier l'accord"
           className="mt-2 w-40 h-auto border"
         />

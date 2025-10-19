@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import {DraftForm} from '@/src/components/client_ui/create-form';
+import {DraftForm} from '@/src/components/client_ui/clientForm';
 
 export const metadata: Metadata = {
   title: 'Créer un Grimpeur',
