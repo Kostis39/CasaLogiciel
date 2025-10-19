@@ -1,4 +1,4 @@
-import { ApiResponse, Client, ClientForm, Transaction } from "../types&fields/types";
+import { ApiResponse, Client, ClientForm, Transaction, TransactionForm } from "../types&fields/types";
 import { getTodayPlusOneYear, isDateValid, haveDateJSON } from "./api";
 
 export const mockService = {
@@ -315,7 +315,7 @@ export const mockService = {
         });
     },
 
-    postTransaction: async (data: Transaction) => {
+    postTransaction: async (data: TransactionForm) => {
         return {
             success: true,
             message: `Mock: Transaction créée avec les données ${JSON.stringify(data)}`,
@@ -374,6 +374,15 @@ export const mockService = {
             data: { ...client, NumGrimpeur: client.NumGrimpeur},
         };
     },
+
+    updateTransaction: async (transaction: Transaction): Promise<ApiResponse> => {
+        return {
+            success: true,
+            message: `Mock: Transaction mise à jour avec succès`,
+            data: { ...transaction, id: transaction.IdTransac },
+        };
+    },
+
 
 //----------------------------------- Deleters -----------------------------------
     deleteAbonnement: async (idAbonnement: number) => {

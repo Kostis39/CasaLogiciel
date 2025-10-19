@@ -1,5 +1,5 @@
 import { fetchClients, getTodayPlusOneYear, haveDateJSON, isDateValid } from "./api";
-import { Client, ApiResponse, Transaction, ClientForm } from "../types&fields/types";
+import { Client, ApiResponse, TransactionForm, ClientForm, Transaction } from "../types&fields/types";
 export const API_URL = "http://127.0.0.1:5000";
 
 export const realService = {
@@ -266,7 +266,7 @@ export const realService = {
     },
 
 
-  postTransaction: async (data: Transaction): Promise<ApiResponse> => {
+  postTransaction: async (data: TransactionForm): Promise<ApiResponse> => {
     try {
       const now = new Date();
       const date = now.toISOString().split("T")[0];
@@ -475,6 +475,37 @@ export const realService = {
             return { success: false, message: error.message || "Erreur réseau inconnue" };
         }
     },
+
+    updateTransaction: async (transaction: Transaction): Promise<ApiResponse> => {
+        try {
+            const response = await fetch(`${API_URL}/transactions`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(transaction),
+            });
+
+            const json = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    message: json.message || `Erreur HTTP: ${response.status}`,
+                };
+            }
+
+            return {
+                success: true,
+                message: json.message || "Transaction mise à jour",
+                data: json, // ou json.transaction si ton API renvoie { transaction: {...} }
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                message: error.message || "Erreur réseau inconnue",
+            };
+        }
+    },
+
 
 //----------------------------------- Deleters -----------------------------------
     deleteAbonnement: async (idAbonnement: number): Promise<ApiResponse> => {

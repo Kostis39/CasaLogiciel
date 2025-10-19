@@ -9,122 +9,126 @@ sesh = get_session(engine)
 
 
 class Seances(Resource):
+    """Gestion des séances (liste, création, suppression)"""
+
     def get(self):
+        """Récupère toutes les séances avec pagination"""
+        limit = request.args.get("limit", 20, type=int)
+        offset = request.args.get("offset", 0, type=int)
+
         with sesh() as session:
-            seances = session.query(Clients.Seance).all()
-            return [seance.to_dict() for seance in seances]
+            query = session.query(Clients.Seance)
+            total = query.count()
+            seances = query.offset(offset).limit(limit).all()
 
-    def post(self):  # Penser à ajouter de la vérification de validité des données
+            if not seances:
+                return {"message": "Aucune séance trouvée."}, 404
+
+            return {"data": [s.to_dict() for s in seances], "total": total}, 200
+
+    def post(self):
+        """Crée une nouvelle séance pour un grimpeur"""
         json = request.get_json()
-        idgrimpeur = json.get("NumGrimpeur")
+        id_grimpeur = json.get("NumGrimpeur")
 
-        if not idgrimpeur:
-            return {"message": "Missing NumGrimpeur in JSON data"}, 400
+        if not id_grimpeur:
+            return {"message": "Le champ 'NumGrimpeur' est requis."}, 400
 
-        # On récupère la date et l'heure du serveur
         now = datetime.now()
         date_seance = now.date()
         heure_seance = now.time()
 
-        nouv_seance = Clients.Seance()
+        nouvelle_seance = Clients.Seance()
 
-        # Vérification de l'existence du grimpeur
         with sesh() as session:
-            grimpeur = session.query(Clients.Grimpeur).filter_by(NumGrimpeur=idgrimpeur).first()
+            grimpeur = session.query(Clients.Grimpeur).filter_by(NumGrimpeur=id_grimpeur).first()
             if not grimpeur:
-                return {"message": "Grimpeur not found"}, 404
+                return {"message": "Grimpeur introuvable."}, 404
 
-            # Vérification abonnement ou tickets
+            # Vérifie si le grimpeur a un abonnement ou des tickets valides
             if (grimpeur.DateFinAbo is None or grimpeur.DateFinAbo <= date.today()) and grimpeur.NbSeanceRest <= 0:
-                return {"message": "Le grimpeur n'a pas d'entrée valide"}, 403
+                return {"message": "Le grimpeur n’a pas d’entrée valide."}, 403
             else:
-                if grimpeur.DateFinAbo is not None and grimpeur.DateFinAbo >= date.today():
-                    # Vérifie s'il existe déjà une séance aujourd'hui
+                if grimpeur.DateFinAbo and grimpeur.DateFinAbo >= date.today():
+                    # Vérifie qu'il n’a pas déjà une séance aujourd’hui
                     seance_exist = session.query(Clients.Seance).filter_by(
-                        NumGrimpeur=idgrimpeur, DateSeance=date_seance
+                        NumGrimpeur=id_grimpeur, DateSeance=date_seance
                     ).first()
                     if seance_exist:
-                        return {"message": "Une séance d'abonnement existe déjà aujourd'hui"}, 403
-                    nouv_seance.TypeEntree = "Abonnement"
+                        return {"message": "Une séance d’abonnement existe déjà aujourd’hui."}, 403
+                    nouvelle_seance.TypeEntree = "Abonnement"
                 elif grimpeur.NbSeanceRest > 0:
                     grimpeur.NbSeanceRest -= 1
-                    nouv_seance.TypeEntree = "Ticket"
+                    nouvelle_seance.TypeEntree = "Ticket"
 
-            # Création de la séance
-            nouv_seance.NumGrimpeur = idgrimpeur
-            nouv_seance.DateSeance = date_seance
-            nouv_seance.HeureSeance = heure_seance
+            nouvelle_seance.NumGrimpeur = id_grimpeur
+            nouvelle_seance.DateSeance = date_seance
+            nouvelle_seance.HeureSeance = heure_seance
 
-            session.add(nouv_seance)
-            session.commit()  # ici le commit met à jour à la fois la séance et le NbSeanceRest
-            session.refresh(nouv_seance)
+            session.add(nouvelle_seance)
+            session.commit()
+            session.refresh(nouvelle_seance)
 
-        return {"message": "Séance crée via " + nouv_seance.TypeEntree}, 201
-
+        return {"message": f"Séance créée via {nouvelle_seance.TypeEntree}."}, 201
 
     def delete(self, IdSeance):
+        """Supprime une séance par son identifiant"""
         with sesh() as session:
             seance = session.query(Clients.Seance).filter_by(IdSeance=IdSeance).first()
-
             if not seance:
-                return {"message": f"Aucune séance trouvée avec IdSeance {IdSeance}"}, 404
+                return {"message": f"Aucune séance trouvée avec l’identifiant {IdSeance}."}, 404
 
             session.delete(seance)
             session.commit()
-            return {"message": f"Séance {IdSeance} supprimée avec succès"}, 200
+            return {"message": f"Séance {IdSeance} supprimée avec succès."}, 200
 
-class SeancesSearch(Resource):
-    def get(self, idGrimpeur):
+
+class SeancesById(Resource):
+    """GET /seances/id/<id_seance> — Récupère une séance précise"""
+    def get(self, id_seance):
+        limit = request.args.get("limit", 20, type=int)
+        offset = request.args.get("offset", 0, type=int)
+
         with sesh() as session:
-            grimpeur = (
-                session.query(Clients.Grimpeur)
-                .filter_by(NumGrimpeur=idGrimpeur)
-                .first()
-            )
-            if not grimpeur:
-                return {"message": "Seane of Grimpeur not found"}, 404
+            query = session.query(Clients.Seance).filter_by(IdSeance=id_seance)
+            total = query.count()
+            seances = query.offset(offset).limit(limit).all()
 
-            aujourd_hui = date.today()
-            seance_auj = (
-                session.query(Clients.Seance)
-                .filter_by(NumGrimpeur=idGrimpeur, DateSeance=aujourd_hui)
-                .first()
-            )
-            return {"est_la": seance_auj != None}, 200
+            if not seances:
+                return {"message": f"Aucune séance trouvée avec l’identifiant {id_seance}."}, 404
 
-    def delete(self, idGrimpeur):
+            return {"data": [s.to_dict() for s in seances], "total": total}, 200
+
+
+class SeancesByGrimpeur(Resource):
+    """GET /seances/grimpeur/<num_grimpeur> — Récupère les séances d’un grimpeur"""
+    def get(self, num_grimpeur):
+        limit = request.args.get("limit", 20, type=int)
+        offset = request.args.get("offset", 0, type=int)
+
         with sesh() as session:
-            grimpeur = session.query(Clients.Grimpeur).filter_by(NumGrimpeur=idGrimpeur).first()
-            if not grimpeur:
-                return {"message": "Grimpeur not found"}, 404
+            query = session.query(Clients.Seance).filter_by(NumGrimpeur=num_grimpeur)
+            total = query.count()
+            seances = query.offset(offset).limit(limit).all()
 
-            aujourd_hui = date.today()
+            if not seances:
+                return {"message": f"Aucune séance trouvée pour le grimpeur {num_grimpeur}."}, 404
 
-            seances_auj = session.query(Clients.Seance).filter_by(NumGrimpeur=idGrimpeur, DateSeance=aujourd_hui).all()
-            if not seances_auj:
-                return {"message": "Aucune séance à supprimer"}, 404
+            return {"data": [s.to_dict() for s in seances], "total": total}, 200
 
-            for seance in seances_auj:
-                if seance.TypeEntree == "ticket":
-                    grimpeur.NbSeanceRest += 1  # remise du ticket
-                session.delete(seance)
 
-            session.commit()
+class SeancesByDate(Resource):
+    """GET /seances/date/<date_str> — Récupère les séances à une date donnée"""
+    def get(self, date_str):
+        limit = request.args.get("limit", 20, type=int)
+        offset = request.args.get("offset", 0, type=int)
 
-            return {"message": f"{len(seances_auj)} séance(s) supprimée(s) avec succès"}, 200
-
-class SeancesByDate(Resource): # Ressource pour filtrer les séances par date
-    def get(self):
-        date_debut = request.args.get("date_debut") # Si date_fin est fourni, on filtre entre les deux dates sinon c'est la date du jour précisé
-        date_fin = request.args.get("date_fin")
         with sesh() as session:
-            query = session.query(Clients.Seance)
-            if date_debut and date_fin:
-                query = query.filter(
-                    Clients.Seance.DateSeance >= date_debut,
-                    Clients.Seance.DateSeance <= date_fin
-                )
-            elif date_debut:
-                query = query.filter(Clients.Seance.DateSeance == date_debut)
-            seances = query.all()
-            return [seance.to_dict() for seance in seances], 200
+            query = session.query(Clients.Seance).filter_by(DateSeance=date_str)
+            total = query.count()
+            seances = query.offset(offset).limit(limit).all()
+
+            if not seances:
+                return {"message": f"Aucune séance trouvée pour la date {date_str}."}, 404
+
+            return {"data": [s.to_dict() for s in seances], "total": total}, 200

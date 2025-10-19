@@ -63,7 +63,7 @@ export type ApiResponse<T = any> = {
   data?: T;
 };
 
-export interface Transaction {
+export type TransactionForm ={
   TypeObjet: string;
   IdObjet: number;
   NumGrimpeur: number;
@@ -74,4 +74,24 @@ export interface Transaction {
   TypeTicket?: string;
   NbSeanceTicket?: number;
   NbSeanceRest?: number;
-}
+};
+
+export type Transaction = {
+    IdTransac: number;               
+    TypeObjet: string;               
+    IdObjet: number;                 
+    ModePaiment?: string | null;     
+    DateTransac: string;             
+    HeureTransac: string;
+    MontantFinalTransac?: number | null;
+    Note?: string | null;
+    NumGrimpeur?: number | null;
+};
+
+export type Seance = {
+  IdSeance: number;
+  DateSeance: string;
+  HeureSeance: string;
+  TypeEntree: string;
+  NumGrimpeur: number;
+};

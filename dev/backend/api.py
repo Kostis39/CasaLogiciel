@@ -46,9 +46,10 @@ api.add_resource(GrimpeursListe, "/grimpeurs")
 api.add_resource(Grimpeur, "/grimpeurs/<int:id>")
 api.add_resource(GrimpeurSearch, "/grimpeurs/search")
 api.add_resource(GrimpeurAccords, "/grimpeurs/accord/<int:id>")
-api.add_resource(Seances, "/seances")  # Note: pour le post envoyer un JSON
-api.add_resource(SeancesByDate, "/seancesbydate")
-api.add_resource(SeancesSearch, "/seances/<int:idGrimpeur>")
+api.add_resource(Seances, "/seances")
+api.add_resource(SeancesById, "/seances/id/<int:id_seance>")
+api.add_resource(SeancesByGrimpeur, "/seances/grimpeur/<int:num_grimpeur>")
+api.add_resource(SeancesByDate, "/seances/date/<string:date_str>")
 api.add_resource(Produit, "/produit/<int:id>")
 api.add_resource(SousProduit, "/sousproduits/<int:idParent>")
 api.add_resource(RacineProduits, "/racineproduits")
@@ -58,9 +59,10 @@ api.add_resource(Ticket, "/ticket/<int:id>")
 api.add_resource(Abonnements, "/abonnements")
 api.add_resource(Abonnement, "/abonnement/<int:id>")
 api.add_resource(Transactions, "/transactions")
-api.add_resource(
-    TransactionByDate, "/transaction"
-)  # Note: utiliser querystring ?date="date"
+api.add_resource(TransactionById, "/transactions/id/<int:id_transac>")
+api.add_resource(TransactionsByGrimpeur, "/transactions/grimpeur/<int:num_grimpeur>")
+api.add_resource(TransactionsByDate, "/transactions/date/<string:date_str>")
+
 
 
 if __name__ == "__main__":

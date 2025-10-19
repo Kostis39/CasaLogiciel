@@ -30,6 +30,7 @@ export const {
   updateCotisationClient,
   updateGrimpeurSignature,
   updateClientData,
+  updateTransaction,
 
 //------- Deleters -------
   deleteAbonnement,
