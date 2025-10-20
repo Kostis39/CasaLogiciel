@@ -11,7 +11,13 @@ import {
 } from '@/src/components/ui/dialog';
 import { Input } from '@/src/components/ui/input';
 import { Plus } from 'lucide-react';
-import { deleteAbonnement, fetchAbonnements, postAbonnement, updateAbonnement } from '@/src/services/api';
+import {
+  deleteAbonnement,
+  fetchAbonnements,
+  postAbonnement,
+  updateAbonnement,
+} from '@/src/services/api';
+import { toast } from 'react-toastify';
 
 interface Abonnement {
   IdAbo: number;
@@ -39,8 +45,12 @@ export default function AbonnementsPage() {
 
   const storeAbo = async () => {
     try {
-      const data = await fetchAbonnements();
-      setAbonnements(data);
+      const res = await fetchAbonnements();
+      if (res.success && Array.isArray(res.data)) {
+        setAbonnements(res.data);
+      } else {
+        console.error('Erreur de récupération:', res.message);
+      }
     } catch (error) {
       console.error('Erreur fetch abonnements:', error);
     }
@@ -75,9 +85,11 @@ export default function AbonnementsPage() {
 
     try {
       const res = await postAbonnement(body);
-      if (res && res.ok) {
-        storeAbo();
+      if (res.success) {
+        await storeAbo();
         setIsCreateDialogOpen(false);
+      } else {
+        console.error('Erreur création:', res.message);
       }
     } catch (error) {
       console.error('Erreur création abonnement:', error);
@@ -95,9 +107,11 @@ export default function AbonnementsPage() {
 
     try {
       const res = await updateAbonnement(selectedAbonnement.IdAbo, body);
-      if (res && res.ok) {
-        storeAbo();
+      if (res.success) {
+        await storeAbo();
         setEditMode(false);
+      } else {
+        console.error('Erreur update:', res.message);
       }
     } catch (error) {
       console.error('Erreur update abonnement:', error);
@@ -114,13 +128,16 @@ export default function AbonnementsPage() {
 
     try {
       const res = await deleteAbonnement(selectedAbonnement.IdAbo);
-      if (res && res.ok) {
-        storeAbo();
+      if (res.success) {
+        toast.success(res.message || 'Abonnement supprimé avec succès');
+        await storeAbo();
         setIsDetailDialogOpen(false);
         setConfirmDelete(false);
+      } else {
+        toast.error(res.message || 'Erreur lors de la suppression de l\'abonnement');
       }
     } catch (error) {
-      console.error('Erreur suppression abonnement:', error);
+      toast.error('Erreur lors de la suppression de l\'abonnement');
     }
   };
 
@@ -162,11 +179,14 @@ export default function AbonnementsPage() {
       </Button>
 
       {/* Dialog Création */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={() => {
-        setIsCreateDialogOpen(false);
-        setEditMode(false);
-        setConfirmDelete(false);
-      }}>
+      <Dialog
+        open={isCreateDialogOpen}
+        onOpenChange={() => {
+          setIsCreateDialogOpen(false);
+          setEditMode(false);
+          setConfirmDelete(false);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Nouvel abonnement</DialogTitle>
@@ -178,16 +198,32 @@ export default function AbonnementsPage() {
             </div>
             <div>
               <label className="block font-semibold mb-1">Durée (jours)</label>
-              <Input type="number" min={1} value={dureeAbonnement} onChange={(e) => setDureeAbonnement(e.target.value)} />
+              <Input
+                type="number"
+                min={1}
+                value={dureeAbonnement}
+                onChange={(e) => setDureeAbonnement(e.target.value)}
+              />
             </div>
             <div>
               <label className="block font-semibold mb-1">Prix</label>
-              <Input type="number" min={0} step="0.01" value={prixAbonnement} onChange={(e) => setPrixAbonnement(e.target.value)} />
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                value={prixAbonnement}
+                onChange={(e) => setPrixAbonnement(e.target.value)}
+              />
             </div>
           </div>
           <DialogFooter className="flex justify-end mt-6 gap-2">
-            <Button variant="secondary" onClick={() => setIsCreateDialogOpen(false)}>Annuler</Button>
-            <Button onClick={handleCreate} disabled={!nomAbonnement.trim() || !dureeAbonnement || !prixAbonnement}>
+            <Button variant="secondary" onClick={() => setIsCreateDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button
+              onClick={handleCreate}
+              disabled={!nomAbonnement.trim() || !dureeAbonnement || !prixAbonnement}
+            >
               Créer
             </Button>
           </DialogFooter>
@@ -195,11 +231,14 @@ export default function AbonnementsPage() {
       </Dialog>
 
       {/* Dialog Détail */}
-      <Dialog open={isDetailDialogOpen} onOpenChange={() => {
-        setIsDetailDialogOpen(false);
-        setEditMode(false);
-        setConfirmDelete(false);
-      }}>
+      <Dialog
+        open={isDetailDialogOpen}
+        onOpenChange={() => {
+          setIsDetailDialogOpen(false);
+          setEditMode(false);
+          setConfirmDelete(false);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Détails de l'abonnement</DialogTitle>
@@ -207,30 +246,56 @@ export default function AbonnementsPage() {
           <div className="space-y-4">
             <div>
               <label className="block font-semibold mb-1">Nom</label>
-              <Input value={nomAbonnement} onChange={(e) => setNomAbonnement(e.target.value)} disabled={!editMode} />
+              <Input
+                value={nomAbonnement}
+                onChange={(e) => setNomAbonnement(e.target.value)}
+                disabled={!editMode}
+              />
             </div>
             <div>
               <label className="block font-semibold mb-1">Durée (jours)</label>
-              <Input type="number" min={1} value={dureeAbonnement} onChange={(e) => setDureeAbonnement(e.target.value)} disabled={!editMode} />
+              <Input
+                type="number"
+                min={1}
+                value={dureeAbonnement}
+                onChange={(e) => setDureeAbonnement(e.target.value)}
+                disabled={!editMode}
+              />
             </div>
             <div>
               <label className="block font-semibold mb-1">Prix</label>
-              <Input type="number" step="0.01" value={prixAbonnement} onChange={(e) => setPrixAbonnement(e.target.value)} disabled={!editMode} />
+              <Input
+                type="number"
+                step="0.01"
+                value={prixAbonnement}
+                onChange={(e) => setPrixAbonnement(e.target.value)}
+                disabled={!editMode}
+              />
             </div>
           </div>
           <DialogFooter className="flex justify-between mt-6">
             {!editMode ? (
               <>
                 <Button onClick={() => setEditMode(true)}>Modifier</Button>
-                <Button variant={confirmDelete ? 'destructive' : 'secondary'} onClick={handleDelete}>
+                <Button
+                  variant={confirmDelete ? 'destructive' : 'secondary'}
+                  onClick={handleDelete}
+                >
                   {confirmDelete ? 'Confirmer suppression' : 'Supprimer'}
                 </Button>
-                <Button variant="secondary" onClick={() => setIsDetailDialogOpen(false)}>Fermer</Button>
+                <Button variant="secondary" onClick={() => setIsDetailDialogOpen(false)}>
+                  Fermer
+                </Button>
               </>
             ) : (
               <>
-                <Button variant="secondary" onClick={() => setEditMode(false)}>Annuler</Button>
-                <Button onClick={handleUpdate} disabled={!nomAbonnement.trim() || !dureeAbonnement || !prixAbonnement}>
+                <Button variant="secondary" onClick={() => setEditMode(false)}>
+                  Annuler
+                </Button>
+                <Button
+                  onClick={handleUpdate}
+                  disabled={!nomAbonnement.trim() || !dureeAbonnement || !prixAbonnement}
+                >
                   Enregistrer
                 </Button>
               </>

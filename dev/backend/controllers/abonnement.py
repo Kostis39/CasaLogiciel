@@ -55,11 +55,25 @@ class Abonnement(Resource):
             return abo.to_dict(), 200
 
     def delete(self, id):
-        with sesh() as session:
-            abo = session.query(Clients.Abonnement).filter_by(IdAbo=id).first()
-            if not abo:
-                return {"message": "Abonnement not found"}, 404
+            with sesh() as session:
+                # On cherche l'abonnement
+                abo = session.query(Clients.Abonnement).filter_by(IdAbo=id).first()
+                if not abo:
+                    return {"message": "Abonnement not found"}, 404
 
-            session.delete(abo)
-            session.commit()
-            return {"message": "Abonnement deleted"}, 200
+                # Vérifier si cet abonnement a été utilisé dans une transaction
+                transaction_exist = (
+                    session.query(Clients.Transaction)
+                    .filter_by(TypeObjet="abonnement", IdObjet=id)
+                    .first()
+                )
+
+                if transaction_exist:
+                    return {
+                        "message": "Impossible de supprimer cet abonnement : il a déjà été utilisé dans une transaction."
+                    }, 400
+
+                # Si non utilisé → suppression autorisée
+                session.delete(abo)
+                session.commit()
+                return {"message": "Abonnement supprimé avec succès."}, 200

@@ -56,10 +56,25 @@ class Ticket(Resource):
 
     def delete(self, id):
         with sesh() as session:
+            # Recherche du ticket
             ticket = session.query(Clients.Ticket).filter_by(IdTicket=id).first()
             if not ticket:
                 return {"message": "Ticket not found"}, 404
 
+            # Vérifie si le ticket a déjà été utilisé dans une transaction
+            transaction_exist = (
+                session.query(Clients.Transaction)
+                .filter_by(TypeObjet="ticket", IdObjet=id)
+                .first()
+            )
+
+            if transaction_exist:
+                return {
+                    "message": "Impossible de supprimer ce ticket : il a déjà été utilisé dans une transaction."
+                }, 400
+
+            # Si non utilisé → suppression autorisée
             session.delete(ticket)
             session.commit()
-            return {"message": "Ticket deleted"}, 200
+            return {"message": "Ticket supprimé avec succès."}, 200
+

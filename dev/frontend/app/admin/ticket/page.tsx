@@ -12,6 +12,7 @@ import {
 import { Input } from '@/src/components/ui/input';
 import { Plus } from 'lucide-react';
 import { deleteTicket, fetchTickets, postTicket, updateTicket } from '@/src/services/api';
+import { toast } from 'react-toastify';
 
 interface Ticket {
   IdTicket: number;
@@ -24,14 +25,11 @@ export default function TicketsPage() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
-  // Deux états pour ouvrir les dialogs séparément
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
-
   const [editMode, setEditMode] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  // Form states pour créer/modifier
   const [typeTicket, setTypeTicket] = useState('');
   const [nbSeanceTicket, setNbSeanceTicket] = useState('');
   const [prixTicket, setPrixTicket] = useState('');
@@ -41,15 +39,14 @@ export default function TicketsPage() {
   }, []);
 
   const storeTickets = async () => {
-    try {
-      const data = await fetchTickets();
-      setTickets(data);
-    } catch (error) {
-      console.error('Erreur fetch tickets:', error);
+    const res = await fetchTickets();
+    if (res.success && Array.isArray(res.data)) {
+      setTickets(res.data);
+    } else {
+      toast.warning(res.message || 'Impossible de récupérer les tickets');
     }
   };
 
-  // Ouvre le dialog création et reset champs
   const openCreateDialog = () => {
     setSelectedTicket(null);
     setTypeTicket('');
@@ -60,7 +57,6 @@ export default function TicketsPage() {
     setConfirmDelete(false);
   };
 
-  // Ouvre le dialog détail (mode lecture)
   const openDetailDialog = (ticket: Ticket) => {
     setSelectedTicket(ticket);
     setTypeTicket(ticket.TypeTicket);
@@ -80,14 +76,12 @@ export default function TicketsPage() {
       PrixTicket: parseFloat(prixTicket),
     };
 
-    try {
-      const res = await postTicket(body);
-      if (res && res.ok) {
-        storeTickets();
-        setIsCreateDialogOpen(false);
-      }
-    } catch (error) {
-      console.error('Erreur création ticket:', error);
+    const res = await postTicket(body);
+    if (res.success) {
+      await storeTickets();
+      setIsCreateDialogOpen(false);
+    } else {
+      toast.warning(res.message);
     }
   };
 
@@ -100,14 +94,12 @@ export default function TicketsPage() {
       PrixTicket: parseFloat(prixTicket),
     };
 
-    try {
-      const res = await updateTicket(selectedTicket.IdTicket, body);
-      if (res && res.ok) {
-        storeTickets();
-        setEditMode(false);
-      }
-    } catch (error) {
-      console.error('Erreur update ticket:', error);
+    const res = await updateTicket(selectedTicket.IdTicket, body);
+    if (res.success) {
+      await storeTickets();
+      setEditMode(false);
+    } else {
+      toast.warning(res.message);
     }
   };
 
@@ -119,15 +111,13 @@ export default function TicketsPage() {
       return;
     }
 
-    try {
-      const res = await deleteTicket(selectedTicket.IdTicket);
-      if (res && res.ok) {
-        storeTickets();
-        setIsDetailDialogOpen(false);
-        setConfirmDelete(false);
-      }
-    } catch (error) {
-      console.error('Erreur suppression ticket:', error);
+    const res = await deleteTicket(selectedTicket.IdTicket);
+    if (res.success) {
+      await storeTickets();
+      setIsDetailDialogOpen(false);
+      setConfirmDelete(false);
+    } else {
+      toast.warning(res.message);
     }
   };
 
@@ -139,7 +129,6 @@ export default function TicketsPage() {
         {Array.isArray(tickets) && tickets.length === 0 ? (
           <p className="text-center text-gray-500">Aucun ticket disponible.</p>
         ) : (
-          Array.isArray(tickets) &&
           tickets.map((ticket) => (
             <div
               key={ticket.IdTicket}
