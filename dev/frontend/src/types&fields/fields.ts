@@ -24,7 +24,7 @@ export const clientFields: {
   },
   { label: "Date d'inscription", key: "DateInscrGrimpeur" },
   { label: "Numéro de licence", key: "NumLicenceGrimpeur" },
-  { label: "Club", key: "Club" },
+  { label: "Club", key: "ClubId" },
   { label: "Téléphone", key: "TelGrimpeur" },
   { label: "Email", key: "EmailGrimpeur" },
   { label: "Solde", key: "Solde", format: (v: number) => v !== undefined ? `${v.toFixed(2)} €` : "—" },

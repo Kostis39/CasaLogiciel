@@ -1,8 +1,7 @@
 from sqlalchemy import String, ForeignKey
 from sqlalchemy_serializer import SerializerMixin
 from datetime import date, time
-from sqlalchemy.orm import Mapped, mapped_column
-
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .Base import Casabase
 
 
@@ -26,8 +25,7 @@ class Grimpeur(Casabase, SerializerMixin):
     AccordReglement: Mapped[bool] = mapped_column(nullable=True)
     AccordParental: Mapped[bool] = mapped_column(nullable=True)
     CheminSignature: Mapped[str] = mapped_column(String(255), nullable=True)
-    Club: Mapped[str] = mapped_column(String(255), nullable=True)
-
+    ClubId: Mapped[int] = mapped_column(ForeignKey("Club.IdClub"), nullable=True)
 
 class Ticket(Casabase, SerializerMixin):
     __tablename__ = "Ticket"

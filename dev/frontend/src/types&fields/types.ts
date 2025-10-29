@@ -10,7 +10,7 @@ export type Client = {
   Solde?: number;
   StatutVoie?: number;
   Note?: string | null;
-  Club?: string | null;
+  ClubId?: number | null;
 
   TypeAbo: string | null;
   TypeTicket: string | null;
@@ -30,7 +30,7 @@ export type ClientForm = {
   TelGrimpeur?: string;
   EmailGrimpeur?: string;
   NumLicenceGrimpeur?: string;
-  Club?: string;
+  ClubId?: number;
   StatutVoie?: number;
   TypeAbo?: string;
   DateFinAbo?: string;
@@ -94,4 +94,25 @@ export type Seance = {
   HeureSeance: string;
   TypeEntree: string;
   NumGrimpeur: number;
+};
+
+export type ClubForm = {
+  NomClub: string;
+  CodePostClub: string;
+  VilleClub: string;
+  TelClub: string;
+  EmailClub: string;
+  AdresseClub: string;
+  SiteInternet: string;
+};
+
+export type Club = {
+  IdClub: number;
+  NomClub: string;
+  CodePostClub: string;
+  VilleClub: string;
+  TelClub: string;
+  EmailClub: string;
+  AdresseClub: string;
+  SiteInternet: string;
 };

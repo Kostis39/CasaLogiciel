@@ -23,8 +23,8 @@ import {
 } from "@/src/components/ui/select";
 import { Switch } from "@/src/components/ui/switch";
 import { Textarea } from "@/src/components/ui/textarea";
-import { ClientForm } from "@/src/types&fields/types";
-import { fetchAbonnements, fetchTickets, postClientData, postTransaction, updateGrimpeurSignature } from "@/src/services/api";
+import { Abonnement, ClientForm, Club, Ticket } from "@/src/types&fields/types";
+import { fetchAbonnements, fetchClubs, fetchTickets, postClientData, postTransaction, updateGrimpeurSignature } from "@/src/services/api";
 import SignatureCanvas from "react-signature-canvas";
 import { toast } from "react-toastify";
 import Link from "next/link";
@@ -45,8 +45,9 @@ export function DraftForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasSucceeded, setHasSucceeded] = useState(false);
 
-  const [abonnements, setAbonnements] = useState<any[]>([]);
-  const [tickets, setTickets] = useState<any[]>([]);
+  const [abonnements, setAbonnements] = useState<Abonnement[]>([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [clubs, setClubs] = useState<Club[]>([]);
 
   const [createdGrimpeurId, setCreatedGrimpeurId] = useState<number | null>(null);
 
@@ -61,6 +62,10 @@ export function DraftForm() {
       const ticketRes = await fetchTickets();
       if (ticketRes.success && ticketRes.data) {
         setTickets(ticketRes.data);
+      }
+      const clubRes = await fetchClubs();
+      if (clubRes.success && clubRes.data) {
+        setClubs(clubRes.data);
       }
     };
     loadData();
@@ -318,17 +323,37 @@ return (
             {/* Club */}
             <FormField
               control={form.control}
-              name="Club"
+              name="ClubId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Club</FormLabel>
                   <FormControl>
-                    <Input
-                      value={field.value ?? ""}
-                      onChange={(e) => field.onChange(e.target.value || null)}
-                      placeholder="Entrer le club"
-                    />
+                    <Select
+                      value={field.value?.toString() ?? ""}
+                      onValueChange={(val) => {
+                        if (val === "none" || val === "") {
+                          field.onChange(undefined);
+                        } else {
+                          field.onChange(Number(val));
+                        }
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choisir un club" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="none">Aucun</SelectItem>
+                        {clubs.map((club) => (
+                          <SelectItem key={club.IdClub} value={club.IdClub.toString()}>
+                            {club.NomClub}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />

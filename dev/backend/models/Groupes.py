@@ -1,7 +1,7 @@
 from sqlalchemy import String, ForeignKey
 from sqlalchemy_serializer import SerializerMixin
 from datetime import date, time
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .Base import Casabase
 
@@ -22,13 +22,14 @@ class Creneau(Casabase, SerializerMixin):
 class Club(Casabase, SerializerMixin):
     __tablename__ = "Club"
 
-    IdClub: Mapped[int] = mapped_column(primary_key=True)
+    IdClub: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     NomClub: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
-    CodePostClub: Mapped[int] = mapped_column()
-    VilleClub: Mapped[str] = mapped_column(String(50))
-    TelClub: Mapped[int] = mapped_column()
-    EmailClub: Mapped[str] = mapped_column(String(50))
-    AdresseClub: Mapped[str] = mapped_column(String(90))
+    CodePostClub: Mapped[int] = mapped_column(String(20), nullable=True)
+    VilleClub: Mapped[str] = mapped_column(String(50), nullable=True)
+    TelClub: Mapped[int] = mapped_column(String(20), nullable=True)
+    EmailClub: Mapped[str] = mapped_column(String(50), nullable=True)
+    AdresseClub: Mapped[str] = mapped_column(String(90), nullable=True)
+    SiteInternet: Mapped[str] = mapped_column(String(150), nullable=True)
 
 
 class GrimpeurClub(Casabase, SerializerMixin):

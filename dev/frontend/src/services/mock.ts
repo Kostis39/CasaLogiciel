@@ -1,4 +1,4 @@
-import { ApiResponse, Client, ClientForm, Transaction, TransactionForm } from "../types&fields/types";
+import { ApiResponse, Client, ClientForm, Club, ClubForm, Transaction, TransactionForm } from "../types&fields/types";
 import { getTodayPlusOneYear, isDateValid, haveDateJSON } from "./api";
 
 export const mockService = {
@@ -404,6 +404,77 @@ export const mockService = {
 //----------------------------------- Others -----------------------------------
     isAlreadyEntered: async (id: number) => {
         return true;
-    }
+    },
+    //----------------------------------- Clubs -----------------------------------
+    fetchClubs: async () => {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        const clubs = [
+            {
+                IdClub: 1,
+                NomClub: "Club Alpin Grenoble",
+                CodePostClub: "38000",
+                VilleClub: "Grenoble",
+                TelClub: "0476000000",
+                EmailClub: "contact@clubalpingrenoble.fr",
+                AdresseClub: "12 rue des Alpes",
+                SiteInternet: "https://clubalpingrenoble.fr"
+            },
+            {
+                IdClub: 2,
+                NomClub: "Club Vertical Paris",
+                CodePostClub: "75015",
+                VilleClub: "Paris",
+                TelClub: "0145000000",
+                EmailClub: "info@verticalparis.fr",
+                AdresseClub: "45 avenue des Grimpeurs",
+                SiteInternet: "https://verticalparis.fr"
+            }
+        ];
+        return { success: true, message: "Mock clubs", data: clubs };
+    },
+
+    postClub: async (clubData: ClubForm) => {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        return {
+            success: true,
+            message: "Club créé (mock)",
+            data: { ...clubData, IdClub: Math.floor(Math.random() * 1000) + 3 }
+        };
+    },
+
+    updateClub: async (idClub: number, clubData: ClubForm) => {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        return {
+            success: true,
+            message: `Club ${idClub} mis à jour (mock)`,
+            data: { ...clubData, IdClub: idClub }
+        };
+    },
+
+    deleteClub: async (idClub: number) => {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        return {
+            success: true,
+            message: `Club ${idClub} supprimé (mock)`
+        };
+    },
+
+    fetchClubById: async (clubId: number): Promise<ApiResponse> => {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        if (clubId === 1) {
+            return {
+                success: true,
+                message: "Mock club trouvé",
+                data: {
+                    IdClub: 1,
+                    NomClub: "Club Alpin Grenoble"
+                }
+            };
+        }
+
+        return { success: false, message: "Aucun club trouvé", data: null };
+    },
+
 
 }

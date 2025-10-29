@@ -7,6 +7,7 @@ import {
   fetchAbonnements,
   fetchClientById,
   fetchTickets,
+  fetchClubs,
   getTodayPlusOneYear,
   postTransaction,
   updateClientData,
@@ -25,6 +26,7 @@ import { API_URL } from "@/src/services/real";
 import { getStatutVoieBg } from "./clientInfo";
 import { Switch } from "../ui/switch";
 import { ConfirmButton } from "./buttonConfirm";
+import LoadingSpinner from "../ui/LoadingSpinner";
 
 interface ClientEditProps {
   numClient: number;
@@ -38,46 +40,88 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
   const [isAddingTicket, setIsAddingTicket] = useState(false);
   const [abonnements, setAbonnements] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
+  const [clubs, setClubs] = useState<any[]>([]);
   const [newAbo, setNewAbo] = useState<string | null>(null);
   const [newAboDate, setNewAboDate] = useState<string>("");
   const [newTicket, setNewTicket] = useState<string | null>(null);
   const [newTicketSeances, setNewTicketSeances] = useState<number>(0);
   const sigCanvas = useRef<SignatureCanvas | null>(null);
   const [isUpdatingSignature, setIsUpdatingSignature] = useState(false);
+  const [signatureDrawn, setSignatureDrawn] = useState(false);
   const [clientInfo, setClientInfo] = useState<Client | null>(null);
   const [formData, setFormData] = useState<Client | null>(null);
+  const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
+    setLoading(true);
     const loadClient = async () => {
       try{
         const data = await fetchClientById(numClient);
-        setClientInfo(data);
-        setFormData(data);
+        // clone to avoid shared references between clientInfo and formData
+        const clone = JSON.parse(JSON.stringify(data));
+        setClientInfo(clone);
+        setFormData(JSON.parse(JSON.stringify(data)));
       } catch (error) {
         toast.error("Erreur de chargement client");
       }
     }
     loadClient();
+    setLoading(false);
   }, [numClient]);
 
   useEffect(() => {
+    setLoading(true);
     const loadData = async () => {
       const aboRes = await fetchAbonnements();
       if (aboRes.success && aboRes.data) setAbonnements(aboRes.data);
       const ticketRes = await fetchTickets();
       if (ticketRes.success && ticketRes.data) setTickets(ticketRes.data);
+      const clubRes = await fetchClubs();
+      if (clubRes.success && clubRes.data) setClubs(clubRes.data);
     };
     loadData();
+    setLoading(false);
   }, []);
 
   if (!clientInfo || !formData){
     return (
-      <p>Recharger la page.</p>
+      <LoadingSpinner/>
     );
   }
 
   const handleChange = (key: keyof Client, value: any) =>
     setFormData((prev) => (prev ? ({ ...prev, [key]: value } as Client) : prev));
+
+  // Compute whether there are unsaved changes.
+  const computeIsDirty = () => {
+    if (!clientInfo || !formData) return false;
+
+    // Basic compare of form fields
+    try {
+      if (JSON.stringify(formData) !== JSON.stringify(clientInfo)) return true;
+    } catch {
+      // fallback: consider dirty if stringify fails
+      return true;
+    }
+
+    // New abonnement / ticket pending selection (not yet saved)
+    if (newAbo) return true;
+    if (newTicket) return true;
+    if (newAboDate) return true;
+    if (newTicketSeances && Number(newTicketSeances) !== (clientInfo.NbSeanceRest ?? 0)) return true;
+
+    // Unsaved signature on canvas (user drew something but didn't save)
+    try {
+      // rely on signatureDrawn state which updates on canvas onEnd
+      if (signatureDrawn) return true;
+    } catch {
+      // ignore errors
+    }
+
+    return false;
+  };
+  const isDirty = computeIsDirty();
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -272,6 +316,7 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
           };
         });
         sigCanvas.current?.clear();
+        setSignatureDrawn(false);
       } else toast.error(res.message || "Erreur lors de la mise à jour");
     } catch (err: any) {
       toast.error(err.message || "Erreur réseau");
@@ -299,7 +344,28 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
             <InputField label="Téléphone" value={formData.TelGrimpeur || ""} onChange={(v) => handleChange("TelGrimpeur", v)} />
             <InputField label="Email" type="email" value={formData.EmailGrimpeur || ""} onChange={(v) => handleChange("EmailGrimpeur", v)} />
             <InputField label="Licence" value={formData.NumLicenceGrimpeur || ""} onChange={(v) => handleChange("NumLicenceGrimpeur", v)} />
-            <InputField label="Club" value={formData.Club || ""} onChange={(v) => handleChange("Club", v)} />
+            <div className="flex flex-col w-full">
+              <label className="text-sm font-semibold text-gray-700 mb-1">Club</label>
+              <Select
+                value={formData.ClubId?.toString() ?? "none"}
+                onValueChange={(val) => {
+                  if (val === "none" || val === "") handleChange("ClubId", undefined as any);
+                  else handleChange("ClubId", Number(val));
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Choisir un club" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Aucun</SelectItem>
+                  {clubs.map((club) => (
+                    <SelectItem key={club.IdClub} value={club.IdClub.toString()}>
+                      {club.NomClub}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <InputField label="Solde (€)" type="number" value={formData.Solde ?? ""} onChange={(v) => handleChange("Solde", Number(v))} />
           </div>
 
@@ -354,7 +420,7 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
                   }
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Choisir un abonnement" />
                 </SelectTrigger>
                 <SelectContent>
@@ -413,7 +479,7 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
                   }
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Choisir un ticket" />
                 </SelectTrigger>
                 <SelectContent>
@@ -467,9 +533,22 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
               </div>
             )}
             <div className="flex flex-col">
-              <SignatureCanvas ref={sigCanvas} penColor="black" backgroundColor="white" canvasProps={{ className: "border w-full sm:w-96 h-40 bg-white rounded shadow-sm" }} />
+              <SignatureCanvas
+                ref={sigCanvas}
+                penColor="black"
+                backgroundColor="white"
+                canvasProps={{ className: "border w-full sm:w-96 h-40 bg-white rounded shadow-sm" }}
+                onEnd={() => {
+                  try {
+                    const drawn = !!(sigCanvas.current && !sigCanvas.current.isEmpty());
+                    setSignatureDrawn(drawn);
+                  } catch {
+                    setSignatureDrawn(true);
+                  }
+                }}
+              />
               <div className="flex gap-2 mt-2">
-                <Button type="button" variant="secondary" size="sm" onClick={() => sigCanvas.current?.clear()}>Effacer</Button>
+                <Button type="button" variant="secondary" size="sm" onClick={() => { sigCanvas.current?.clear(); setSignatureDrawn(false); }}>Effacer</Button>
                 <Button type="button" variant="default" size="sm" onClick={handleSignatureSave} disabled={isUpdatingSignature}>
                   {isUpdatingSignature ? "Enregistrement..." : "Mettre à jour la signature"}
                 </Button>
@@ -494,15 +573,22 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
 
         {/* --- Actions --- */}
         <div className="flex gap-3 items-center justify-center">
-          <ConfirmButton
-            triggerText="Annuler"
-            title="Confirmer l'annulation"
-            description="Êtes-vous sûr(e) de vouloir annuler ? Toutes les modifications non enregistrées seront perdues."
-            onConfirm={() => onCancel?.()}
-            confirmText="Oui, annuler"
-            cancelText="Non, continuer"
-            variantConfirm="destructive"
-          />
+          {/* Only show confirmation dialog when there are unsaved changes */}
+          {isDirty ? (
+            <ConfirmButton
+              triggerText="Annuler"
+              title="Confirmer l'annulation"
+              description="Êtes-vous sûr(e) de vouloir annuler ? Toutes les modifications non enregistrées seront perdues."
+              onConfirm={() => onCancel?.()}
+              confirmText="Oui, annuler"
+              cancelText="Non, continuer"
+              variantConfirm="destructive"
+            />
+          ) : (
+            <Button type="button" variant="outline" onClick={() => onCancel?.()}>
+              Annuler
+            </Button>
+          )}
           <Button size="lg" type="submit" disabled={isSaving}>{isSaving ? "Enregistrement..." : "Enregistrer"}</Button>
         </div>
 

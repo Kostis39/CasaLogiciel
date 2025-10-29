@@ -10,6 +10,7 @@ from controllers.abonnement import *
 from controllers.ticket import *
 from controllers.seance import *
 from controllers.transaction import *
+from controllers.club import *
 
 # Flask Setup
 app = Flask(__name__)
@@ -22,21 +23,6 @@ sesh = get_session(engine)
 
 # Test connection
 test_connection(engine)
-
-
-# Tests classes
-class Users(Resource):
-    def get(self):
-        return {"users": ["Alice", "Bob", "Charlie"]}
-
-
-class Products(Resource):
-    def get(self):
-        return {"products": ["Laptop", "Smartphone", "Tablet"]}
-
-
-api.add_resource(Users, "/users")
-api.add_resource(Products, "/products")
 
 
 # Vraies classes
@@ -62,6 +48,10 @@ api.add_resource(Transactions, "/transactions")
 api.add_resource(TransactionById, "/transactions/id/<int:id_transac>")
 api.add_resource(TransactionsByGrimpeur, "/transactions/grimpeur/<int:num_grimpeur>")
 api.add_resource(TransactionsByDate, "/transactions/date/<string:date_str>")
+
+api.add_resource(ClubsListe, "/clubs")                              # GET all, POST new
+api.add_resource(ClubResource, "/clubs/<int:id>")                   # GET, PUT, DELETE by id
+api.add_resource(ClubGrimpeurs, "/clubs/<int:id>/grimpeurs")        # GET tous les grimpeurs d’un club
 
 
 

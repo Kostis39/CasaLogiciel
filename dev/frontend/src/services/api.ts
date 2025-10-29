@@ -41,6 +41,11 @@ export const {
   
 //------- Others -------
   isAlreadyEntered,
+  fetchClubs,
+  postClub,
+  updateClub,
+  deleteClub,
+  fetchClubById,
 } = api;
 
 

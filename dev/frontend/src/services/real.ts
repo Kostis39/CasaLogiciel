@@ -1,5 +1,5 @@
 import { fetchClients, getTodayPlusOneYear, haveDateJSON, isDateValid } from "./api";
-import { Client, ApiResponse, TransactionForm, ClientForm, Transaction } from "../types&fields/types";
+import { Client, ApiResponse, TransactionForm, ClientForm, Transaction, Club, ClubForm } from "../types&fields/types";
 export const API_URL = "http://127.0.0.1:5000";
 
 export const realService = {
@@ -593,6 +593,94 @@ export const realService = {
             console.error('Échec de la vérification d"entré d"un grimpeur', error);
             return false;
         }
+    },
+
+    // Fonctions pour les clubs
+    fetchClubs: async (): Promise<ApiResponse> => {
+        try {
+            const response = await fetch(`${API_URL}/clubs`);
+            const json = await response.json();
+            const data = Array.isArray(json.data) ? json.data : [];
+
+            if (!response.ok) {
+                return { success: false, message: `Erreur HTTP: ${response.status}` };
+            }
+
+            return { success: true, message: "Clubs récupérés", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
+        }
+    },
+
+    postClub: async (clubData: ClubForm): Promise<ApiResponse> => {
+        try {
+            const response = await fetch(`${API_URL}/clubs`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(clubData),
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                return { success: false, message: data.message || `Erreur HTTP: ${response.status}` };
+            }
+
+            return { success: true, message: "Club créé", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
+        }
+    },
+
+    updateClub: async (idClub: number, clubData: ClubForm): Promise<ApiResponse> => {
+        try {
+            const response = await fetch(`${API_URL}/clubs/${idClub}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(clubData),
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                return { success: false, message: data.message || `Erreur HTTP: ${response.status}` };
+            }
+
+            return { success: true, message: "Club mis à jour", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
+        }
+    },
+
+    deleteClub: async (idClub: number): Promise<ApiResponse> => {
+        try {
+            const response = await fetch(`${API_URL}/clubs/${idClub}`, {
+                method: 'DELETE',
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                return { success: false, message: data.message || `Erreur HTTP: ${response.status}` };
+            }
+
+            return { success: true, message: "Club supprimé", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
+        }
+    },
+
+    fetchClubById: async (clubId: number): Promise<ApiResponse> => {
+    try {
+        const response = await fetch(`${API_URL}/clubs/${clubId}`);
+        const data = await response.json();
+        if (!response.ok) {
+            return { success: false, message: data.message || `Erreur HTTP: ${response.status}` };
+        }
+        return { success: true, message: "Club du grimpeur récupéré", data };
+    } catch {
+        return { success: false, message: "Impossible de contacter le serveur" };
+    }
     },
 
 };

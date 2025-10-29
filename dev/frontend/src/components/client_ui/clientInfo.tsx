@@ -1,13 +1,14 @@
 "use client";
-import { deleteSeance, fetchClientById, isAlreadyEntered, isDateValid, postSeanceClient, postTransaction, updateClientData, updateCotisationClient } from "@/src/services/api";
+import { deleteSeance, fetchClientById, fetchClubById, isAlreadyEntered, isDateValid, postSeanceClient, postTransaction, updateClientData, updateCotisationClient } from "@/src/services/api";
 import { clientFields } from "@/src/types&fields/fields";
-import { Client, ApiResponse } from "@/src/types&fields/types";
+import { Client, ApiResponse, Club } from "@/src/types&fields/types";
 import Image from "next/image";
 import {useEffect, useRef, useState } from "react";
 import { Button } from "@/src/components/ui/button"
 import { toast } from "react-toastify";
 import { API_URL } from "@/src/services/real";
 import { ConfirmButton } from "./buttonConfirm";
+import LoadingSpinner from "@/src/components/ui/LoadingSpinner";
 
 interface ClientGridProps {
   numClient: number;
@@ -20,6 +21,7 @@ export function ClientGrid({ numClient, onEdit }: ClientGridProps) {
   const lastNumRef = useRef<number | null>(null);
   const [clientInfo, setClientInfo] = useState<Client | null>(null);
   const [cacheBuster, setCacheBuster] = useState(Date.now());
+  const [clubName, setClubName] = useState<string>("");
 
   useEffect(() => {
     // si même client, ne rien faire
@@ -58,9 +60,25 @@ export function ClientGrid({ numClient, onEdit }: ClientGridProps) {
       }
     };
     const loadClient = async () => {
-      try{
+      try {
         const data = await fetchClientById(numClient);
         setClientInfo(data);
+        
+        if (data?.ClubId) {
+          try {
+            const clubResponse = await fetchClubById(data.ClubId) as ApiResponse<Club>;
+            if (clubResponse.success && clubResponse.data) {
+              setClubName(clubResponse.data.NomClub);
+            } else {
+              setClubName(`${data.ClubId}`);
+            }
+          } catch (error) {
+            console.error("Error fetching club:", error);
+            setClubName(`${data.ClubId}`);
+          }
+        } else {
+          setClubName("—");
+        }
       } catch (error) {
         toast.error("Erreur de chargement client");
       }
@@ -71,6 +89,9 @@ export function ClientGrid({ numClient, onEdit }: ClientGridProps) {
     setCacheBuster(Date.now());
   }, [numClient]); // ne dépend que du NumGrimpeur
 
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
   if (!clientInfo){
     return (
       <p>Le Grimpeur n'existe pas ou est introuvable.</p>
@@ -137,11 +158,21 @@ export function ClientGrid({ numClient, onEdit }: ClientGridProps) {
     };
 
 
-    const fieldInfoClient = clientFields.map(f => ({ label: f.label, value: f.format ? f.format(clientInfo[f.key]) : clientInfo[f.key] ?? "—", }));
+    const fieldInfoClient = clientFields.map(f => {
+      if (f.key === "ClubId") {
+        return { label: f.label, value: clubName };
+      }
+      return {
+        label: f.label,
+        value: f.format ? f.format(clientInfo[f.key]) : clientInfo[f.key] ?? "—",
+      };
+    });
 
 
   return (
+    
     <div className={`flex flex-col h-full ${getStatutVoieBg(clientInfo.StatutVoie)} rounded-md relative`}>
+      
       {onEdit && (
         <Button
           size="lg"
@@ -160,9 +191,7 @@ export function ClientGrid({ numClient, onEdit }: ClientGridProps) {
       <div className="overflow-auto [flex:1] flex items-center">
 
         <div className="flex flex-col items-center gap-0.5 mr-4">
-          {isLoading ? (
-            <div>Chargement...</div>
-          ) : inCasa ? (
+          {inCasa ? (
             <div className="text-green-500 font-bold">En salle</div>
           ) : (
             <div className="text-red-500 font-bold">Hors salle</div>

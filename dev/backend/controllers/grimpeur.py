@@ -1,6 +1,6 @@
 from flask import request
 from flask_restful import Resource
-from models import Clients
+from models import Clients, Groupes
 from db import create_engine, get_session
 from datetime import date
 import base64
@@ -14,7 +14,7 @@ signaturePath = "static/uploads/signatures"
 
 ALLOWED_FIELDS = [
     "NomGrimpeur", "PrenomGrimpeur", "DateNaissGrimpeur", "TelGrimpeur",
-    "EmailGrimpeur", "NumLicenceGrimpeur", "Club", "StatutVoie",
+    "EmailGrimpeur", "NumLicenceGrimpeur", "ClubId", "StatutVoie",
     "TypeAbo", "DateFinAbo", "TypeTicket", "NbSeanceRest",
     "DateFinCoti", "AccordReglement", "AccordParental", "CheminSignature", "Note"
 ]
@@ -73,6 +73,20 @@ class GrimpeursListe(Resource):
         if errors:
             return {"message": errors, "errors": errors}, 400
 
+        # Vérification que ClubId existe dans Club
+        club_id = json_data.get("ClubId")
+        if club_id is not None:
+            with sesh() as session:
+                club_exists = (
+                    session.query(Groupes.Club)
+                    .filter_by(IdClub=club_id)
+                    .first()
+                )
+                if not club_exists:
+                    return {
+                        "message": f"ClubId {club_id} n'existe pas dans la table Club"
+                    }, 400
+
         nouv_grimp = Clients.Grimpeur()
 
         for key, value in json_data.items():
@@ -98,11 +112,28 @@ class Grimpeur(Resource):
 
     def put(self, id):
         json_data = request.get_json()
+        if not json_data:
+            return {"message": "Aucune donnée fournie"}, 400
+
         with sesh() as session:
             grimpeur = session.query(Clients.Grimpeur).filter_by(NumGrimpeur=id).first()
             if not grimpeur:
-                return {"message": "Grimpeur not found"}, 404
+                return {"message": "Grimpeur introuvable"}, 404
 
+            # Vérification que ClubId existe dans Club (si fourni)
+            club_id = json_data.get("ClubId")
+            if club_id is not None:
+                club_exists = (
+                    session.query(Groupes.Club)
+                    .filter_by(IdClub=club_id)
+                    .first()
+                )
+                if not club_exists:
+                    return {
+                        "message": f"ClubId {club_id} n'existe pas dans la table Club"
+                    }, 400
+
+            # Mise à jour des champs autorisés
             for key, value in json_data.items():
                 if key in ALLOWED_FIELDS:
                     # Ne pas écraser CheminSignature si vide
@@ -110,9 +141,11 @@ class Grimpeur(Resource):
                         continue
                     setattr(grimpeur, key, value)
 
-
             session.commit()
-            return grimpeur.to_dict(), 200
+            return {
+                "message": "Grimpeur mis à jour avec succès",
+                "grimpeur": grimpeur.to_dict()
+            }, 200
 
     def delete(self, id):
         with sesh() as session:

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchClients, fetchClientSearch } from "@/src/services/api";
 import { ClientCard } from "./clientCard";
 import { useSearchParams, useRouter } from "next/navigation";
+import LoadingSpinner from "../ui/LoadingSpinner";
 
 export const ClientListClientComponent = ({ query }: { query: string }) => {
   const [grimpeurs, setGrimpeurs] = useState<any[]>([]);
@@ -165,7 +166,7 @@ export const ClientListClientComponent = ({ query }: { query: string }) => {
       <div ref={bottomSentinelRef} className="h-1" />
 
       {loading && (
-        <div className="text-center py-2 text-gray-500">Chargement...</div>
+        <LoadingSpinner/>
       )}
 
       {!hasNext && !loading && grimpeurs.length > 0 && (
