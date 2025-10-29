@@ -61,6 +61,7 @@ export type ApiResponse<T = any> = {
   success: boolean;
   message: string;
   data?: T;
+  total?: number;
 };
 
 export type TransactionForm ={

@@ -8,7 +8,7 @@ import { Button } from "@/src/components/ui/button"
 import { toast } from "react-toastify";
 import { API_URL } from "@/src/services/real";
 import { ConfirmButton } from "./buttonConfirm";
-import LoadingSpinner from "@/src/components/ui/LoadingSpinner";
+import LoadingSpinner from "@/src/components/client_ui/LoadingSpinner";
 
 interface ClientGridProps {
   numClient: number;

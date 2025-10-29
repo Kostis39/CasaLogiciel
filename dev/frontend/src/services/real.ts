@@ -1,8 +1,35 @@
-import { fetchClients, getTodayPlusOneYear, haveDateJSON, isDateValid } from "./api";
-import { Client, ApiResponse, TransactionForm, ClientForm, Transaction, Club, ClubForm } from "../types&fields/types";
+import { fetchClients, getTodayPlusOneYear, isDateValid } from "./api";
+import { Client, ApiResponse, TransactionForm, ClientForm, Transaction, ClubForm } from "../types&fields/types";
 export const API_URL = "http://127.0.0.1:5000";
 
 export const realService = {
+    // Récupère un ticket par son id
+    fetchTicketById: async (id: number): Promise<ApiResponse> => {
+        try {
+            const response = await fetch(`${API_URL}/ticket/${id}`);
+            const data = await response.json();
+            if (!response.ok) {
+                return { success: false, message: data.message || `Erreur HTTP: ${response.status}` };
+            }
+            return { success: true, message: "Ticket récupéré", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
+        }
+    },
+
+    // Récupère un abonnement par son id
+    fetchAbonnementById: async (id: number): Promise<ApiResponse> => {
+        try {
+            const response = await fetch(`${API_URL}/abonnement/${id}`);
+            const data = await response.json();
+            if (!response.ok) {
+                return { success: false, message: data.message || `Erreur HTTP: ${response.status}` };
+            }
+            return { success: true, message: "Abonnement récupéré", data };
+        } catch {
+            return { success: false, message: "Impossible de contacter le serveur" };
+        }
+    },
 
 //----------------------------------- Fetchers -----------------------------------
     fetchClientById: async (id: number) : Promise<Client | null> => {

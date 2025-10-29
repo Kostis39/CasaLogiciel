@@ -71,17 +71,6 @@ class Seances(Resource):
 
         return {"message": f"Séance créée via {nouvelle_seance.TypeEntree}."}, 201
 
-    def delete(self, IdSeance):
-        """Supprime une séance par son identifiant"""
-        with sesh() as session:
-            seance = session.query(Clients.Seance).filter_by(IdSeance=IdSeance).first()
-            if not seance:
-                return {"message": f"Aucune séance trouvée avec l’identifiant {IdSeance}."}, 404
-
-            session.delete(seance)
-            session.commit()
-            return {"message": f"Séance {IdSeance} supprimée avec succès."}, 200
-
 
 class SeancesById(Resource):
     """GET /seances/id/<id_seance> — Récupère une séance précise"""
@@ -98,6 +87,16 @@ class SeancesById(Resource):
                 return {"message": f"Aucune séance trouvée avec l’identifiant {id_seance}."}, 404
 
             return {"data": [s.to_dict() for s in seances], "total": total}, 200
+
+    def delete(self, id_seance):
+        """Supprime une séance spécifique par son identifiant."""
+        with sesh() as session:
+            seance = session.get(Clients.Seance, id_seance)
+            if not seance:
+                return {"message": f"Aucune séance trouvée avec l’identifiant {id_seance}."}, 404
+            session.delete(seance)
+            session.commit()
+            return {"message": f"Séance {id_seance} supprimée avec succès."}, 200
 
 
 class SeancesByGrimpeur(Resource):

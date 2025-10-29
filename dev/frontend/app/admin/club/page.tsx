@@ -15,7 +15,7 @@ import { Card } from '@/src/components/ui/card';
 import { Club } from '@/src/types&fields/types';
 import { deleteClub, fetchClubs, postClub, updateClub } from '@/src/services/api';
 import { toast } from 'react-toastify';
-import LoadingSpinner from '@/src/components/ui/LoadingSpinner';
+import LoadingSpinner from '@/src/components/client_ui/LoadingSpinner';
 
 const TOAST_MESSAGES = {
   DELETE_SUCCESS: 'Club supprimé avec succès',

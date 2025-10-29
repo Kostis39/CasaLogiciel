@@ -8,7 +8,7 @@ export function ClientHeader(){
         <div className="flex flex-col">
 
             <LinkClient src="/menu.svg" alt="Menu" href="/" name=""/>
-            <LinkClient src="/ordinateur.svg" alt="Ordinateur" href="/client/saisies" name="Saisies"/>
+            <LinkClient src="/ordinateur.svg" alt="Ordinateur" href="/client" name="Saisies"/>
             <LinkClient src="/inscription.svg" alt="Inscription" href="/client/inscription" name="Inscription"/>
             <LinkClient src="/history.svg" alt="Historique" href="/client/history" name="Historique"/>
         </div>

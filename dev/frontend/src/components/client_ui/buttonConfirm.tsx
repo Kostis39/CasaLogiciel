@@ -12,7 +12,7 @@ import {
 type ButtonProps = React.ComponentProps<typeof Button>;
 
 type ConfirmButtonProps = {
-  triggerText: string;
+  triggerText: string | ReactNode;
   title: string;
   description: string | ReactNode;
   onConfirm: () => void;

@@ -92,6 +92,16 @@ class TransactionById(Resource):
                 "total": total
             }, 200
 
+    def delete(self, id_transac):
+        """Supprime une transaction spécifique par son identifiant."""
+        with sesh() as session:
+            transac = session.get(Clients.Transaction, id_transac)
+            if not transac:
+                return {"message": f"Aucune transaction trouvée avec l'identifiant {id_transac}."}, 404
+            session.delete(transac)
+            session.commit()
+            return {"message": f"Transaction {id_transac} supprimée avec succès."}, 200
+
 
 class TransactionsByGrimpeur(Resource):
     """GET /transactions/grimpeur/<num_grimpeur> — Récupère les transactions d’un grimpeur."""

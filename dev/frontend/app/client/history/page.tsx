@@ -1,8 +1,16 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { toast } from "react-toastify";
+import LoadingSpinner from "@/src/components/client_ui/LoadingSpinner";
 export const API_URL = "http://127.0.0.1:5000";
 import { ApiResponse, Seance, Transaction } from "@/src/types&fields/types";
 import { ConfirmButton } from "@/src/components/client_ui/buttonConfirm";
+import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select";
+import { Card } from "@/src/components/ui/card";
+import Image from "next/image";
+import { fetchAbonnementById, fetchTicketById } from "@/src/services/api";
 
 const formatDate = (dateStr?: string) => {
   if (!dateStr) return "-";
@@ -39,50 +47,80 @@ function EditModal<T extends object>({
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
       <div
-        className="absolute inset-0 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/20 backdrop-blur-sm"
         onClick={onClose}
       ></div>
 
-      <div className="relative bg-white p-4 rounded shadow w-96 z-10">
-        <h2 className="text-lg font-bold mb-2">Modifier</h2>
-        {fields.map((key) => (
-          <div className="mb-2" key={String(key)}>
-            <label className="block text-sm font-medium mb-1">
-              {String(key)}
-            </label>
-            <input
-              type="text"
-              value={(formData as any)[key] ?? ""}
-              onChange={(e) =>
-                setFormData({ ...formData, [key]: e.target.value })
-              }
-              className="w-full border px-2 py-1 rounded"
-            />
-          </div>
-        ))}
-        <div className="flex justify-end gap-2 mt-4">
-          <button
+      <Card className="relative bg-white p-6 rounded-lg shadow-lg w-[480px] z-10 border-0">
+        <h2 className="text-xl font-semibold mb-4">Modifier</h2>
+        <div className="space-y-4">
+          {fields.map((key) => (
+            <div key={String(key)}>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {String(key)}
+              </label>
+              <Input
+                type="text"
+                value={(formData as any)[key] ?? ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, [key]: e.target.value })
+                }
+              />
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-end gap-3 mt-6">
+          <Button
+            variant="outline"
             onClick={onClose}
-            className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400 transition"
           >
             Annuler
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => onSave(formData)}
-            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
           >
             Enregistrer
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
 
 export default function AdminPage() {
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [editingSeance, setEditingSeance] = useState<Seance | null>(null);
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  // Pour stocker les noms des tickets/abonnements par id
+  const [objectNames, setObjectNames] = useState<Record<string, string>>({});
+
+  // Récupère le nom du ticket ou abonnement pour une transaction
+  const getObjectName = async (type: string, id: number) => {
+    const key = `${type}-${id}`;
+    if (objectNames[key]) return objectNames[key];
+    if (type === "ticket") {
+      const res = await fetchTicketById(id);
+      if (res.success && res.data && res.data.TypeTicket) {
+        setObjectNames((prev) => ({ ...prev, [key]: res.data.TypeTicket }));
+        return res.data.TypeTicket;
+      }
+    } else if (type === "abonnement") {
+      const res = await fetchAbonnementById(id);
+      if (res.success && res.data && res.data.TypeAbo) {
+        setObjectNames((prev) => ({ ...prev, [key]: res.data.TypeAbo }));
+        return res.data.TypeAbo;
+      }
+    }
+    return type;
+  };
+
+
+  const [isLoading, setIsLoading] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [seances, setSeances] = useState<Seance[]>([]);
   const [tab, setTab] = useState<"transactions" | "seances">("transactions");
+  const [totalTransactions, setTotalTransactions] = useState<number>(0);
+  const [totalSeances, setTotalSeances] = useState<number>(0);
 
   const [filters, setFilters] = useState({
     type: "all",
@@ -96,15 +134,39 @@ export default function AdminPage() {
   const [hasMoreTransactions, setHasMoreTransactions] = useState(true);
   const [hasMoreSeances, setHasMoreSeances] = useState(true);
 
-  const [editingTransaction, setEditingTransaction] =
-    useState<Transaction | null>(null);
-  const [editingSeance, setEditingSeance] = useState<Seance | null>(null);
-  const tableContainerRef = useRef<HTMLDivElement>(null);
+  // Précharge les noms à chaque chargement des transactions
+  useEffect(() => {
+    const fetchNames = async () => {
+      const promises = transactions.map(async (t) => {
+        if ((t.TypeObjet === "ticket" || t.TypeObjet === "abonnement") && t.IdObjet) {
+          await getObjectName(t.TypeObjet, t.IdObjet);
+        }
+      });
+      await Promise.all(promises);
+    };
+    if (transactions.length) fetchNames();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transactions]);
+
+  // Précharge les noms à chaque chargement des transactions
+  useEffect(() => {
+    const fetchNames = async () => {
+      const promises = transactions.map(async (t) => {
+        if ((t.TypeObjet === "ticket" || t.TypeObjet === "abonnement") && t.IdObjet) {
+          await getObjectName(t.TypeObjet, t.IdObjet);
+        }
+      });
+      await Promise.all(promises);
+    };
+    if (transactions.length) fetchNames();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transactions]);
 
   // -------------------------------
   // FETCH TRANSACTIONS
   // -------------------------------
   const fetchTransactions = async () => {
+    setIsLoading(true);
     try {
       let url = `${API_URL}/transactions`;
       if (filters.type === "id" && filters.id)
@@ -121,13 +183,18 @@ export default function AdminPage() {
 
       if (res.ok && json.data) {
         setTransactions(json.data);
-        setHasMoreTransactions(json.data.length === filters.limit);
+        setTotalTransactions(json.total || 0);
+        setHasMoreTransactions(filters.offset + filters.limit < (json.total || 0));
       } else {
         setTransactions([]);
+        setTotalTransactions(0);
         setHasMoreTransactions(false);
       }
     } catch (err) {
       console.error(err);
+      toast.error("Erreur lors du chargement des transactions");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -135,6 +202,7 @@ export default function AdminPage() {
   // FETCH SEANCES
   // -------------------------------
   const fetchSeances = async () => {
+    setIsLoading(true);
     try {
       let url = `${API_URL}/seances`;
       if (filters.type === "id" && filters.id)
@@ -151,13 +219,18 @@ export default function AdminPage() {
 
       if (res.ok && json.data) {
         setSeances(json.data);
-        setHasMoreSeances(json.data.length === filters.limit);
+        setTotalSeances(json.total || 0);
+        setHasMoreSeances(filters.offset + filters.limit < (json.total || 0));
       } else {
         setSeances([]);
+        setTotalSeances(0);
         setHasMoreSeances(false);
       }
     } catch (err) {
       console.error(err);
+      toast.error("Erreur lors du chargement des séances");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -178,7 +251,12 @@ export default function AdminPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(t),
     });
-    alert((await res.json()).message);
+    const response = await res.json();
+    if (res.ok) {
+      toast.success(response.message);
+    } else {
+      toast.error(response.message);
+    }
     setEditingTransaction(null);
     fetchTransactions();
   };
@@ -189,7 +267,12 @@ export default function AdminPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(s),
     });
-    alert((await res.json()).message);
+    const response = await res.json();
+    if (res.ok) {
+      toast.success(response.message);
+    } else {
+      toast.error(response.message);
+    }
     setEditingSeance(null);
     fetchSeances();
   };
@@ -198,13 +281,23 @@ export default function AdminPage() {
     const res = await fetch(`${API_URL}/transactions/id/${id}`, {
       method: "DELETE",
     });
-    alert((await res.json()).message);
+    const response = await res.json();
+    if (res.ok) {
+      toast.success(response.message);
+    } else {
+      toast.error(response.message);
+    }
     fetchTransactions();
   };
 
   const handleDeleteSeance = async (id: number) => {
     const res = await fetch(`${API_URL}/seances/id/${id}`, { method: "DELETE" });
-    alert((await res.json()).message);
+    const response = await res.json();
+    if (res.ok) {
+      toast.success(response.message);
+    } else {
+      toast.error(response.message);
+    }
     fetchSeances();
   };
 
@@ -212,67 +305,64 @@ export default function AdminPage() {
   // UI
   // -------------------------------
   return (
-    <div className="p-4 overflow-auto">
-      <h1 className="text-2xl font-bold mb-4">Administration</h1>
+    <div className="p-6 overflow-auto bg-gray-50/30 min-h-screen">
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Historique</h1>
 
-      {/* Onglets */}
-      <div className="mb-4 flex flex-col gap-2" ref={tableContainerRef}>
-        <div>
-          <button
-            onClick={() => {
-              setTab("transactions");
-              setFilters((prev) => ({ ...prev, offset: 0 }));
-            }}
-            className={`mr-2 px-3 py-1 ${
-              tab === "transactions"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200 text-gray-800"
-            }`}
-          >
-            Transactions
-          </button>
+      <Card className="p-6 bg-white/80 backdrop-blur-sm shadow-sm">
+        {/* Onglets */}
+        <div className="mb-6 flex flex-col gap-4" ref={tableContainerRef}>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => {
+                setTab("transactions");
+                setFilters((prev) => ({ ...prev, offset: 0 }));
+              }}
+              variant={tab === "transactions" ? "default" : "outline"}
+              className="w-32 transition-all duration-200"
+            >
+              Transactions
+            </Button>
 
-          <button
-            onClick={() => {
-              setTab("seances");
-              setFilters((prev) => ({ ...prev, offset: 0 }));
-            }}
-            className={`px-3 py-1 ${
-              tab === "seances"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200 text-gray-800"
-            }`}
-          >
-            Séances
-          </button>
-        </div>
+            <Button
+              onClick={() => {
+                setTab("seances");
+                setFilters((prev) => ({ ...prev, offset: 0 }));
+              }}
+              variant={tab === "seances" ? "default" : "outline"}
+              className="w-32 transition-all duration-200"
+            >
+              Séances
+            </Button>
+          </div>
 
-        {/* Filtres dynamiques */}
-        <div className="flex flex-col md:flex-row gap-2 md:items-center md:gap-3 w-full md:w-auto">
-          {/* Sélecteur du type de recherche */}
-          <select
-            value={filters.type}
-            onChange={(e) =>
-              setFilters({
-                ...filters,
-                type: e.target.value,
-                id: "",
-                grimpeur: "",
-                date: "",
-                offset: 0,
-              })
-            }
-            className="border px-3 py-2 rounded"
-          >
-            <option value="all">Tous</option>
-            <option value="id">Par ID</option>
-            <option value="grimpeur">Par Grimpeur</option>
-            <option value="date">Par Date</option>
-          </select>
+          {/* Filtres dynamiques */}
+          <div className="flex flex-wrap gap-3 items-center">
+            <Select 
+              value={filters.type}
+              onValueChange={(value) =>
+                setFilters({
+                  ...filters,
+                  type: value,
+                  id: "",
+                  grimpeur: "",
+                  date: "",
+                  offset: 0,
+                })
+              }
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Type de filtre" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous</SelectItem>
+                <SelectItem value="id">Par ID</SelectItem>
+                <SelectItem value="grimpeur">Par Grimpeur</SelectItem>
+                <SelectItem value="date">Par Date</SelectItem>
+              </SelectContent>
+            </Select>
 
-          {/* Champ de recherche selon le type */}
           {filters.type !== "all" && (
-            <input
+            <Input
               type={filters.type === "date" ? "date" : "number"}
               placeholder={
                 filters.type === "id"
@@ -300,137 +390,234 @@ export default function AdminPage() {
                   offset: 0,
                 })
               }
-              className="border px-3 py-2 rounded w-full md:w-64 focus:outline-none focus:ring-2 border-blue-500 ring-blue-400"
+              className="w-full md:w-64"
             />
           )}
+          </div>
         </div>
-      </div>
 
       {/* TABLEAUX */}
-      {tab === "transactions" ? (
+      {isLoading ? (
+        <LoadingSpinner />
+      ) : tab === "transactions" ? (
         transactions.length ? (
-          <table className="w-full border-collapse border">
-            <thead>
+          <div className="relative overflow-x-auto rounded-lg border border-gray-200">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+                <tr>
+                  <th className="p-4"><div className="flex items-center gap-2"><Image src="/hash.svg" alt="ID" width={16} height={16} /> ID</div></th>
+                  <th className="p-4"><div className="flex items-center gap-2"><Image src="/user.svg" alt="Grimpeur" width={16} height={16} /> Grimpeur</div></th>
+                  <th className="p-4">Type</th>
+                  <th className="p-4"><div className="flex items-center gap-2"><Image src="/calendar.svg" alt="Date" width={16} height={16} /> Date</div></th>
+                  <th className="p-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.map((t) => (
+                  <tr key={t.IdTransac} className="border-t border-gray-200 bg-white hover:bg-gray-50 transition-colors">
+                    <td className="p-4 font-medium">{t.IdTransac}</td>
+                    <td className="p-4">{t.NumGrimpeur ?? "-"}</td>
+                      <td className={`p-4 rounded font-medium ${
+                        t.TypeObjet === "ticket"
+                          ? "text-blue-500"
+                          : t.TypeObjet === "abonnement"
+                          ? "text-green-500"
+                          : "text-gray-500"
+                      }`}>
+                        {(t.TypeObjet === "ticket" || t.TypeObjet === "abonnement") && t.IdObjet
+                          ? objectNames[`${t.TypeObjet}-${t.IdObjet}`] || t.TypeObjet
+                          : t.TypeObjet}
+                      </td>
+                    <td className="p-4">{formatDate(t.DateTransac)}</td>
+                    <td className="p-4">
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingTransaction(t)}
+                          className="h-8 px-2"
+                        >
+                          <Image src="/inscription.svg" alt="Modifier" width={16} height={16} className="mr-1" />
+                          Modifier
+                        </Button>
+                        <ConfirmButton
+                          triggerText={
+                            <div className="flex items-center gap-1">
+                              <Image src="/trash-2.svg" alt="Supprimer" width={16} height={16} />
+                              <span>Supprimer</span>
+                            </div>
+                          }
+                          title="Confirmation de suppression"
+                          description={`Voulez-vous vraiment supprimer la transaction ${t.IdTransac} ?`}
+                          onConfirm={() => handleDeleteTransaction(t.IdTransac)}
+                          variantConfirm="destructive"
+                          triggerSize="sm"
+                          triggerVariant="outline"
+                          triggerClassName="h-8 px-2"
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-gray-500 mt-4">Aucune transaction trouvée.</p>
+        )
+      ) : seances.length ? (
+        <div className="relative overflow-x-auto rounded-lg border border-gray-200">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-100">
               <tr>
-                <th className="border p-1">ID</th>
-                <th className="border p-1">Grimpeur</th>
-                <th className="border p-1">Type</th>
-                <th className="border p-1">Date</th>
-                <th className="border p-1">Actions</th>
+                <th className="p-4"><div className="flex items-center gap-2"><Image src="/hash.svg" alt="ID" width={16} height={16} /> ID</div></th>
+                <th className="p-4"><div className="flex items-center gap-2"><Image src="/user.svg" alt="Grimpeur" width={16} height={16} /> Grimpeur</div></th>
+                <th className="p-4">Type</th>
+                <th className="p-4"><div className="flex items-center gap-2"><Image src="/calendar.svg" alt="Date" width={16} height={16} /> Date</div></th>
+                <th className="p-4">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {transactions.map((t) => (
-                <tr key={t.IdTransac}>
-                  <td className="border p-1">{t.IdTransac}</td>
-                  <td className="border p-1">{t.NumGrimpeur ?? "-"}</td>
-                  <td className="border p-1">{t.TypeObjet}</td>
-                  <td className="border p-1">{formatDate(t.DateTransac)}</td>
-                  <td className="border p-1 flex gap-1">
-                    <button
-                      onClick={() => setEditingTransaction(t)}
-                      className="bg-green-500 px-2 text-white rounded hover:bg-green-600 transition"
-                    >
-                      Modifier
-                    </button>
-                    <ConfirmButton
-                      triggerText="Supprimer"
-                      title="Confirmation de suppression"
-                      description={`Voulez-vous vraiment supprimer la transaction ${t.IdTransac} ?`}
-                      onConfirm={() => handleDeleteTransaction(t.IdTransac)}
-                      variantConfirm="destructive"
-                      triggerVariant="outline"
-                      triggerClassName="px-2 bg-red-500 text-white"
-                    />
+              {seances.map((s) => (
+                <tr key={s.IdSeance} className="border-t border-gray-200 bg-white hover:bg-gray-50 transition-colors">
+                  <td className="p-4 font-medium">{s.IdSeance}</td>
+                  <td className="p-4">{s.NumGrimpeur}</td>
+                  <td className={`p-4 ${
+                        s.TypeEntree === "ticket"
+                          ? "text-blue-500"
+                          : s.TypeEntree === "abonnement"
+                          ? "text-green-500"
+                          : "text-gray-500"
+                      }`}>{s.TypeEntree}</td>
+                  <td className="p-4">{formatDate(s.DateSeance)}</td>
+                  <td className="p-4">
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setEditingSeance(s)}
+                        className="h-8 px-2"
+                      >
+                        <Image src="/inscription.svg" alt="Modifier" width={16} height={16} className="mr-1" />
+                        Modifier
+                      </Button>
+                      <ConfirmButton
+                        triggerText={
+                          <div className="flex items-center gap-1">
+                            <Image src="/trash-2.svg" alt="Supprimer" width={16} height={16} />
+                            <span>Supprimer</span>
+                          </div>
+                        }
+                        title="Confirmation de suppression"
+                        description={`Voulez-vous vraiment supprimer la séance ${s.IdSeance} ?`}
+                        onConfirm={() => handleDeleteSeance(s.IdSeance)}
+                        variantConfirm="destructive"
+                        triggerSize="sm"
+                        triggerVariant="outline"
+                        triggerClassName="h-8 px-2"
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        ) : (
-          <p className="text-gray-500 mt-4">Aucune transaction trouvée.</p>
-        )
-      ) : seances.length ? (
-        <table className="w-full border-collapse border">
-          <thead>
-            <tr>
-              <th className="border p-1">ID</th>
-              <th className="border p-1">Grimpeur</th>
-              <th className="border p-1">Type</th>
-              <th className="border p-1">Date</th>
-              <th className="border p-1">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {seances.map((s) => (
-              <tr key={s.IdSeance}>
-                <td className="border p-1">{s.IdSeance}</td>
-                <td className="border p-1">{s.NumGrimpeur}</td>
-                <td className="border p-1">{s.TypeEntree}</td>
-                <td className="border p-1">{formatDate(s.DateSeance)}</td>
-                <td className="border p-1 flex gap-1">
-                  <button
-                    onClick={() => setEditingSeance(s)}
-                    className="bg-green-500 px-2 text-white rounded hover:bg-green-600 transition"
-                  >
-                    Modifier
-                  </button>
-                  <ConfirmButton
-                    triggerText="Supprimer"
-                    title="Confirmation de suppression"
-                    description={`Voulez-vous vraiment supprimer la séance ${s.IdSeance} ?`}
-                    onConfirm={() => handleDeleteSeance(s.IdSeance)}
-                    variantConfirm="destructive"
-                    triggerVariant="outline"
-                    triggerClassName="px-2 bg-red-500 text-white"
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        </div>
       ) : (
         <p className="text-gray-500 mt-4">Aucune séance trouvée.</p>
       )}
 
       {/* PAGINATION */}
-      <div className="mt-4 flex items-center gap-2">
-        <button
-          className="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300 transition disabled:opacity-50"
-          disabled={filters.offset === 0}
-          onClick={() =>
-            setFilters((prev) => ({
-              ...prev,
-              offset: Math.max(0, prev.offset - prev.limit),
-            }))
-          }
-        >
-          ← Précédent
-        </button>
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-4 text-sm">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={filters.offset === 0}
+            onClick={() => setFilters((prev) => ({ ...prev, offset: 0 }))}
+          >
+            <Image src="/chevrons-left.svg" alt="Premier" width={16} height={16} />
+          </Button>
 
-        <span className="px-2 py-1 text-gray-700 font-medium">
-          Page {Math.floor(filters.offset / filters.limit) + 1}
-        </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={filters.offset === 0}
+            onClick={() =>
+              setFilters((prev) => ({
+                ...prev,
+                offset: Math.max(0, prev.offset - prev.limit),
+              }))
+            }
+          >
+            <Image src="/chevron-left.svg" alt="Précédent" width={16} height={16} className="mr-1" />
+            Précédent
+          </Button>
 
-        <button
-          className="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300 transition disabled:opacity-50"
-          disabled={tab === "transactions" ? !hasMoreTransactions : !hasMoreSeances}
-          onClick={() =>
-            setFilters((prev) => ({
-              ...prev,
-              offset: prev.offset + prev.limit,
-            }))
-          }
-        >
-          Suivant →
-        </button>
+          <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-md border">
+            <span className="text-gray-500">Page</span>
+            <Input
+              type="number"
+              min="1"
+              max={Math.ceil((tab === "transactions" ? totalTransactions : totalSeances) / filters.limit)}
+              className="w-16 h-8 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              value={Math.floor(filters.offset / filters.limit) + 1}
+              onChange={(e) => {
+                const page = parseInt(e.target.value) || 1;
+                const maxPage = Math.ceil((tab === "transactions" ? totalTransactions : totalSeances) / filters.limit);
+                const targetPage = Math.min(Math.max(1, page), maxPage);
+                setFilters((prev) => ({
+                  ...prev,
+                  offset: (targetPage - 1) * prev.limit,
+                }));
+              }}
+            />
+            <span className="text-gray-500">sur {Math.ceil((tab === "transactions" ? totalTransactions : totalSeances) / filters.limit)}</span>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={tab === "transactions" ? !hasMoreTransactions : !hasMoreSeances}
+            onClick={() =>
+              setFilters((prev) => ({
+                ...prev,
+                offset: prev.offset + prev.limit,
+              }))
+            }
+          >
+            Suivant
+            <Image src="/chevron-right.svg" alt="Suivant" width={16} height={16} className="ml-1" />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={filters.offset === Math.floor((tab === "transactions" ? totalTransactions : totalSeances) / filters.limit) * filters.limit}
+            onClick={() => {
+              const total = tab === "transactions" ? totalTransactions : totalSeances;
+              const maxOffset = Math.floor(total / filters.limit) * filters.limit;
+              setFilters((prev) => ({
+                ...prev,
+                offset: maxOffset,
+              }));
+            }}
+          >
+            <Image src="/chevrons-right.svg" alt="Dernier" width={16} height={16} />
+          </Button>
+        </div>
+
+        <div className="text-gray-500">
+          Total : {tab === "transactions" ? totalTransactions : totalSeances} {tab === "transactions" ? "transactions" : "séances"}
+        </div>
       </div>
+      </Card>
 
       {/* MODALS */}
       {editingTransaction && (
         <EditModal
           item={editingTransaction}
-          fields={Object.keys(editingTransaction).filter(
+          fields={Object.keys(editingTransaction as Transaction).filter(
             (k) => k !== "IdTransac"
           ) as (keyof Transaction)[]}
           onClose={() => setEditingTransaction(null)}
@@ -440,7 +627,7 @@ export default function AdminPage() {
       {editingSeance && (
         <EditModal
           item={editingSeance}
-          fields={Object.keys(editingSeance).filter(
+          fields={Object.keys(editingSeance as Seance).filter(
             (k) => k !== "IdSeance"
           ) as (keyof Seance)[]}
           onClose={() => setEditingSeance(null)}

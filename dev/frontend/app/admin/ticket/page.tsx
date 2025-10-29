@@ -15,7 +15,7 @@ import { deleteTicket, fetchTickets, postTicket, updateTicket } from '@/src/serv
 import { toast } from 'react-toastify';
 import { Ticket } from '@/src/types&fields/types';
 import { Card } from '@/src/components/ui/card';
-import LoadingSpinner from '@/src/components/ui/LoadingSpinner';
+import LoadingSpinner from '@/src/components/client_ui/LoadingSpinner';
 
 const TOAST_MESSAGES = {
   DELETE_SUCCESS: 'Ticket supprimé avec succès',

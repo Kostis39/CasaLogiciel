@@ -26,7 +26,7 @@ import { API_URL } from "@/src/services/real";
 import { getStatutVoieBg } from "./clientInfo";
 import { Switch } from "../ui/switch";
 import { ConfirmButton } from "./buttonConfirm";
-import LoadingSpinner from "../ui/LoadingSpinner";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface ClientEditProps {
   numClient: number;

@@ -4,6 +4,32 @@ import { getTodayPlusOneYear, isDateValid, haveDateJSON } from "./api";
 export const mockService = {
 
 //----------------------------------- Fetchers -----------------------------------
+    fetchTicketById: async (id: number): Promise<ApiResponse> => {
+        return {
+            success: true,
+            message: "Mock ticket trouvé",
+            data: {
+                IdTicket: id,
+                TypeTicket: "Entrée",
+                NbSeanceTicket: 1,
+                PrixTicket: 11.0
+            }
+        };
+    },
+
+    fetchAbonnementById: async (id: number): Promise<ApiResponse> => {
+        return {
+            success: true,
+            message: "Mock abonnement trouvé",
+            data: {
+                IdAbo: id,
+                TypeAbo: "Mensuel",
+                DureeAbo: 30,
+                PrixAbo: 45.5
+            }
+        };
+    },
+
     fetchClientById: async (id: number) : Promise<Client | null> => {
         await new Promise((resolve) => setTimeout(resolve, 100));
         const one = {

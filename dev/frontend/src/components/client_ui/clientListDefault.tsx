@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchClients, fetchClientSearch } from "@/src/services/api";
 import { ClientCard } from "./clientCard";
 import { useSearchParams, useRouter } from "next/navigation";
-import LoadingSpinner from "../ui/LoadingSpinner";
+import LoadingSpinner from "./LoadingSpinner";
 
 export const ClientListClientComponent = ({ query }: { query: string }) => {
   const [grimpeurs, setGrimpeurs] = useState<any[]>([]);

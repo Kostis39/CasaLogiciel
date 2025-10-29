@@ -6,6 +6,8 @@ const api = USE_MOCK ? mockService : realService;
 
 export const {
 //------- Fetchers -------
+  fetchTicketById,
+  fetchAbonnementById,
   fetchClientById,
   fetchClientSearch,
   fetchClients,
