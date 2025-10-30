@@ -591,7 +591,7 @@ export const realService = {
 
     deleteSeance: async (NumGrimpeur: number): Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/seances/${NumGrimpeur}`, {
+            const response = await fetch(`${API_URL}/seances/grimpeur/${NumGrimpeur}`, {
                 method: 'DELETE',
             });
 

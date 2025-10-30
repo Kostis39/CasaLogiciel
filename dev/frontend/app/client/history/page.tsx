@@ -3,14 +3,14 @@ import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import LoadingSpinner from "@/src/components/client_ui/LoadingSpinner";
 export const API_URL = "http://127.0.0.1:5000";
-import { ApiResponse, Seance, Transaction } from "@/src/types&fields/types";
+import { Abonnement, ApiResponse, Seance, Ticket, Transaction } from "@/src/types&fields/types";
 import { ConfirmButton } from "@/src/components/client_ui/buttonConfirm";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select";
 import { Card } from "@/src/components/ui/card";
 import Image from "next/image";
-import { fetchAbonnementById, fetchTicketById } from "@/src/services/api";
+import { fetchAbonnementById, fetchAbonnements, fetchTicketById, fetchTickets } from "@/src/services/api";
 
 const formatDate = (dateStr?: string) => {
   if (!dateStr) return "-";
@@ -93,26 +93,46 @@ export default function AdminPage() {
   const tableContainerRef = useRef<HTMLDivElement>(null);
   // Pour stocker les noms des tickets/abonnements par id
   const [objectNames, setObjectNames] = useState<Record<string, string>>({});
+  const [abonnements, setAbonnements] = useState<Abonnement[]>([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+        const aboRes = await fetchAbonnements();
+      if (aboRes.success && aboRes.data) setAbonnements(aboRes.data);
+        const ticketRes = await fetchTickets();
+      if (ticketRes.success && ticketRes.data) setTickets(ticketRes.data);
+    };
+    loadData();
+  }, []);
+
+  useEffect(() => {
+  const names: Record<string, string> = {};
+
+  tickets.forEach((t) => {
+    names[`ticket-${t.IdTicket}`] = t.TypeTicket;
+  });
+
+  abonnements.forEach((a) => {
+    names[`abonnement-${a.IdAbo}`] = a.TypeAbo;
+  });
+
+  setObjectNames(names);
+}, [tickets, abonnements]);
+
 
   // Récupère le nom du ticket ou abonnement pour une transaction
-  const getObjectName = async (type: string, id: number) => {
-    const key = `${type}-${id}`;
-    if (objectNames[key]) return objectNames[key];
+  const getObjectName = (type: "ticket" | "abonnement", id: number) => {
     if (type === "ticket") {
-      const res = await fetchTicketById(id);
-      if (res.success && res.data && res.data.TypeTicket) {
-        setObjectNames((prev) => ({ ...prev, [key]: res.data.TypeTicket }));
-        return res.data.TypeTicket;
-      }
+      const ticket = tickets.find((t) => t.IdTicket === id);
+      return ticket?.TypeTicket || "Ticket inconnu";
     } else if (type === "abonnement") {
-      const res = await fetchAbonnementById(id);
-      if (res.success && res.data && res.data.TypeAbo) {
-        setObjectNames((prev) => ({ ...prev, [key]: res.data.TypeAbo }));
-        return res.data.TypeAbo;
-      }
+      const abo = abonnements.find((a) => a.IdAbo === id);
+      return abo?.TypeAbo || "Abonnement inconnu";
     }
-    return type;
+    return "-";
   };
+
 
 
   const [isLoading, setIsLoading] = useState(false);
@@ -139,7 +159,7 @@ export default function AdminPage() {
     const fetchNames = async () => {
       const promises = transactions.map(async (t) => {
         if ((t.TypeObjet === "ticket" || t.TypeObjet === "abonnement") && t.IdObjet) {
-          await getObjectName(t.TypeObjet, t.IdObjet);
+          getObjectName(t.TypeObjet, t.IdObjet);
         }
       });
       await Promise.all(promises);
@@ -482,13 +502,17 @@ export default function AdminPage() {
                 <tr key={s.IdSeance} className="border-t border-gray-200 bg-white hover:bg-gray-50 transition-colors">
                   <td className="p-4 font-medium">{s.IdSeance}</td>
                   <td className="p-4">{s.NumGrimpeur}</td>
-                  <td className={`p-4 ${
-                        s.TypeEntree === "ticket"
-                          ? "text-blue-500"
-                          : s.TypeEntree === "abonnement"
-                          ? "text-green-500"
-                          : "text-gray-500"
-                      }`}>{s.TypeEntree}</td>
+<td className={`p-4 rounded font-medium ${
+  s.AboId ? "text-green-500" : s.TicketId ? "text-blue-500" : "text-gray-500"
+}`}>
+  {s.AboId
+    ? getObjectName("abonnement", s.AboId)
+    : s.TicketId
+    ? getObjectName("ticket", s.TicketId)
+    : "-"}
+</td>
+
+
                   <td className="p-4">{formatDate(s.DateSeance)}</td>
                   <td className="p-4">
                     <div className="flex gap-2">

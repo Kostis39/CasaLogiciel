@@ -16,7 +16,8 @@ ALLOWED_FIELDS = [
     "NomGrimpeur", "PrenomGrimpeur", "DateNaissGrimpeur", "TelGrimpeur",
     "EmailGrimpeur", "NumLicenceGrimpeur", "ClubId", "StatutVoie",
     "TypeAbo", "DateFinAbo", "TypeTicket", "NbSeanceRest",
-    "DateFinCoti", "AccordReglement", "AccordParental", "CheminSignature", "Note"
+    "DateFinCoti", "AccordReglement", "AccordParental", "CheminSignature", "Note",
+    "TicketId", "AboId"
 ]
 
 def validate_grimpeur_data(data):

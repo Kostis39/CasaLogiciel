@@ -160,6 +160,7 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
 
         updated = {
           ...updated,
+          AboId: abo.IdAbo,
           DateFinAbo: dateFin,
           TypeAbo: abo.TypeAbo,
         };
@@ -184,6 +185,7 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
 
         updated = {
           ...updated,
+          TicketId: ticket.IdTicket,
           TypeTicket: ticket.TypeTicket,
           NbSeanceRest: nbRest,
         };
@@ -237,6 +239,7 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
       const updatedClient = {
         ...formData,
         DateFinAbo: dateFin,
+        AboId: abo.IdAbo,
         TypeAbo: abo.TypeAbo,
       };
       const updateRes = await updateClientData(updatedClient);
@@ -274,6 +277,7 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
 
       const updatedClient = {
         ...formData,
+        TicketId: ticket.IdTicket,
         TypeTicket: ticket.TypeTicket,
         NbSeanceRest: nbRest,
       };
@@ -394,7 +398,7 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
           {/* --- Fin abonnement actuelle --- */}
           <div className="flex flex-col gap-2">
             <InputField 
-              label="Fin abonnement actuelle"
+              label={`Fin abonnement actuelle: ${abonnements.find((a) => a.IdAbo === formData.AboId)?.TypeAbo || "Aucun"}`}
               type="date" 
               value={formData.DateFinAbo || ""} 
               onChange={(v) => handleChange("DateFinAbo", v)} 
@@ -457,11 +461,12 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
           {/* --- Tickets restants actuel --- */}
           <div className="flex flex-col gap-2">
             <InputField 
-              label="Séances restantes actuelles"
+              label={`Séances restantes actuelles: ${tickets.find((t) => t.IdTicket === formData.TicketId)?.TypeTicket || "Aucun"}`}
               type="number" 
               value={formData.NbSeanceRest ?? ""} 
               onChange={(v) => handleChange("NbSeanceRest", Number(v))} 
             />
+            
           </div>
 
           {/* --- Nouveau ticket --- */}

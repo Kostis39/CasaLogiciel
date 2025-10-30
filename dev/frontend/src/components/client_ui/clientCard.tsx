@@ -16,8 +16,9 @@ export function ClientCard(
 
   const handleClick = () => {
     const params = new URLSearchParams(searchParams);
+    params.delete("createSeance");
     params.set("id", num.toString());
-    router.replace(`?${params.toString()}`);  // utilise push pour garder historique
+    router.replace(`?${params.toString()}`); 
   };
 
   return (

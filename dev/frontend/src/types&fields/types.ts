@@ -21,6 +21,9 @@ export type Client = {
   AccordReglement?: boolean;
   AccordParental?: boolean;
   CheminSignature?: string ;
+
+  TicketId?: number | null;
+  AboId?: number | null;
 };
 
 export type ClientForm = {
@@ -41,6 +44,8 @@ export type ClientForm = {
   AccordParental?: boolean;
   CheminSignature?: string | null;
   Note?: string;
+  TicketId?: number;
+  AboId?: number;
 };
 
 export type Ticket = {
@@ -93,8 +98,9 @@ export type Seance = {
   IdSeance: number;
   DateSeance: string;
   HeureSeance: string;
-  TypeEntree: string;
   NumGrimpeur: number;
+  TicketId?: number;
+  AboId?: number;
 };
 
 export type ClubForm = {

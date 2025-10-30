@@ -26,6 +26,9 @@ class Grimpeur(Casabase, SerializerMixin):
     AccordParental: Mapped[bool] = mapped_column(nullable=True)
     CheminSignature: Mapped[str] = mapped_column(String(255), nullable=True)
     ClubId: Mapped[int] = mapped_column(ForeignKey("Club.IdClub"), nullable=True)
+    TicketId: Mapped[int] = mapped_column(ForeignKey("Ticket.IdTicket"), nullable=True)
+    AboId: Mapped[int] = mapped_column(ForeignKey("Abonnement.IdAbo"), nullable=True)
+
 
 class Ticket(Casabase, SerializerMixin):
     __tablename__ = "Ticket"
@@ -51,12 +54,11 @@ class Seance(Casabase, SerializerMixin):
     IdSeance: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     DateSeance: Mapped[date] = mapped_column(nullable=False)
     HeureSeance: Mapped[time] = mapped_column(nullable=False)
-    TypeEntree: Mapped[str] = mapped_column()
-
     NumGrimpeur: Mapped[int] = mapped_column(
         ForeignKey("Grimpeur.NumGrimpeur"), nullable=False
     )
-
+    TicketId: Mapped[int] = mapped_column(ForeignKey("Ticket.IdTicket"), nullable=True)
+    AboId: Mapped[int] = mapped_column(ForeignKey("Abonnement.IdAbo"), nullable=True)
 
 class Transaction(Casabase, SerializerMixin):
     __tablename__ = "Transaction"

@@ -15,9 +15,9 @@ CSV_SEANCE = "Séance.csv"
 
 tables_db = ["Club", "Abonnement", "Ticket", "Grimpeur", "Seance"]
 
-USER="matt"
+USER="root"
 PASSWORD="Fèf6f(9c6"
-HOST = "172.18.0.4"
+HOST = "172.18.0.5"
 PORT = 3306
 DATABASE="casabase"
 

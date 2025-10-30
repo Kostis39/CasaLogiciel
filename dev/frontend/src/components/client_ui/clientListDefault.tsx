@@ -135,13 +135,16 @@ export const ClientListClientComponent = ({ query }: { query: string }) => {
 
   // --- Synchronisation du paramètre id ---
   useEffect(() => {
-    if (grimpeurs.length === 1) {
-      const currentId = searchParams.get("id");
+    if (grimpeurs.length > 0) {
+      const shouldCreateSeance = searchParams.get("createSeance") === "true";
       const newId = grimpeurs[0].NumGrimpeur.toString();
 
-      if (currentId !== newId) {
+      if (shouldCreateSeance || grimpeurs.length === 1) {
         const params = new URLSearchParams(searchParams);
         params.set("id", newId);
+        if (shouldCreateSeance) {
+          params.set("createSeance", "true");
+        }
         router.replace(`?${params.toString()}`);
       }
     }

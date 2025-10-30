@@ -12,6 +12,7 @@ const SearchClient = () => {
 
     const handleSearch = useDebouncedCallback((searchTerm: string) => {
         const params = new URLSearchParams(searchParams);
+        params.delete("createSeance"); // Réinitialiser createSeance à chaque nouvelle recherche
         if (searchTerm) {
             params.set("query", searchTerm);
         } else {
@@ -30,6 +31,14 @@ const SearchClient = () => {
             defaultValue={searchParams.get('query')?.toString()}
             onChange={(e) => {
                 handleSearch(e.target.value);
+            }}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                    const params = new URLSearchParams(searchParams);
+                    params.delete("id"); // Réinitialiser l'ID pour forcer la mise à jour
+                    params.set("createSeance", "true");
+                    replace(`${pathname}?${params.toString()}`);
+                }
             }}
         />
           <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-50" />

@@ -61,17 +61,66 @@ class Abonnement(Resource):
                 if not abo:
                     return {"message": "Abonnement not found"}, 404
 
-                # Vérifier si cet abonnement a été utilisé dans une transaction
-                transaction_exist = (
+                # Vérifie si l'abonnement est utilisé dans une transaction
+                transaction_first = (
                     session.query(Clients.Transaction)
                     .filter_by(TypeObjet="abonnement", IdObjet=id)
                     .first()
                 )
+                transaction_count = (
+                    session.query(Clients.Transaction)
+                    .filter_by(TypeObjet="abonnement", IdObjet=id)
+                    .count()
+                )
 
-                if transaction_exist:
+                # Vérifie si l'abonnement est attribué à un grimpeur
+                grimpeur_first = (
+                    session.query(Clients.Grimpeur)
+                    .filter_by(AboId=id)
+                    .first()
+                )
+                grimpeur_count = (
+                    session.query(Clients.Grimpeur)
+                    .filter_by(AboId=id)
+                    .count()
+                )
+
+                # Vérifie si l'abonnement est utilisé dans une séance
+                seance_first = (
+                    session.query(Clients.Seance)
+                    .filter_by(AboId=id)
+                    .first()
+                )
+                seance_count = (
+                    session.query(Clients.Seance)
+                    .filter_by(AboId=id)
+                    .count()
+                )
+
+                if transaction_first:
                     return {
-                        "message": "Impossible de supprimer cet abonnement : il a déjà été utilisé dans une transaction."
+                        "message": (
+                            f"Impossible de supprimer l'abonnement ({id}) : il a déjà été utilisé "
+                            f"dans {transaction_count} transaction(s), première transaction ID = {transaction_first.IdTransac}."
+                        )
                     }, 400
+
+                if grimpeur_first:
+                    return {
+                        "message": (
+                            f"Impossible de supprimer l'abonnement ({id}) : il est attribué à "
+                            f"{grimpeur_count} grimpeur(s), premier grimpeur NumGrimpeur = {grimpeur_first.NumGrimpeur}."
+                        )
+                    }, 400
+
+                if seance_first:
+                    return {
+                        "message": (
+                            f"Impossible de supprimer l'abonnement ({id}) : il est utilisé dans "
+                            f"{seance_count} séance(s), première séance ID = {seance_first.IdSeance}."
+                        )
+                    }, 400
+
 
                 # Si non utilisé → suppression autorisée
                 session.delete(abo)

@@ -1,39 +1,63 @@
 "use client";
-import { deleteSeance, fetchClientById, fetchClubById, isAlreadyEntered, isDateValid, postSeanceClient, postTransaction, updateClientData, updateCotisationClient } from "@/src/services/api";
+import { 
+  deleteSeance, fetchClientById, fetchClubById, 
+  isAlreadyEntered, isDateValid, postSeanceClient, 
+  postTransaction, updateClientData 
+} from "@/src/services/api";
 import { clientFields } from "@/src/types&fields/fields";
 import { Client, ApiResponse, Club } from "@/src/types&fields/types";
 import Image from "next/image";
-import {useEffect, useRef, useState } from "react";
-import { Button } from "@/src/components/ui/button"
+import { useEffect, useRef, useState, useCallback } from "react";
+import { Button } from "@/src/components/ui/button";
 import { toast } from "react-toastify";
 import { API_URL } from "@/src/services/real";
 import { ConfirmButton } from "./buttonConfirm";
 import LoadingSpinner from "@/src/components/client_ui/LoadingSpinner";
 
+// --------------------------------------------------------------------
+
 interface ClientGridProps {
   numClient: number;
   onEdit?: () => void;
+  createSeance?: boolean;
 }
 
-export function ClientGrid({ numClient, onEdit }: ClientGridProps) {
+export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGridProps) {
   const [inCasa, setInCasa] = useState(false);
   const [isLoading, setLoading] = useState(true);
-  const lastNumRef = useRef<number | null>(null);
   const [clientInfo, setClientInfo] = useState<Client | null>(null);
   const [cacheBuster, setCacheBuster] = useState(Date.now());
   const [clubName, setClubName] = useState<string>("");
+  const lastNumRef = useRef<number | null>(null);
+  const [isLoadingEntree, setLoadingEntree] = useState(false);
 
+
+  // -------------------------------------------------------------
+  // ✅ Fonction factorisée pour recharger les infos du client
+  // -------------------------------------------------------------
+  const reloadClientInfo = useCallback(async () => {
+    if (!numClient) return;
+    try {
+      const updatedData = await fetchClientById(numClient);
+      setClientInfo(updatedData);
+    } catch (error) {
+      toast.error("Erreur lors du rechargement du client");
+    }
+  }, [numClient]);
+
+  // -------------------------------------------------------------
+  // Chargement initial du client + statut
+  // -------------------------------------------------------------
   useEffect(() => {
-    // si même client, ne rien faire
     if (lastNumRef.current === numClient) return;
     lastNumRef.current = numClient;
 
     const fetchEnteredStatus = async () => {
-      setLoading(true);
+      setLoadingEntree(true);
 
       if (numClient == null) {
         setInCasa(false);
-        setLoading(false);
+        setLoadingEntree(false);
         return;
       }
 
@@ -41,8 +65,7 @@ export function ClientGrid({ numClient, onEdit }: ClientGridProps) {
         const status = await isAlreadyEntered(numClient);
         setInCasa(status);
 
-        // ⚠️ Ne créer une séance que si non déjà entré
-        if (!status) {
+        if (!status && createSeance) {
           const result = await postSeanceClient(numClient);
           if (!result.success) {
             toast.warning(result.message);
@@ -50,20 +73,24 @@ export function ClientGrid({ numClient, onEdit }: ClientGridProps) {
           } else {
             toast.success(result.message);
             setInCasa(true);
+            await reloadClientInfo();
           }
         }
-      } catch (error) {
+      } catch {
         toast.warning("Erreur lors de la vérification du statut d'entrée");
         setInCasa(false);
+        setLoadingEntree(false);
       } finally {
-        setLoading(false);
+        setLoadingEntree(false);
       }
     };
+
+
     const loadClient = async () => {
       try {
         const data = await fetchClientById(numClient);
         setClientInfo(data);
-        
+
         if (data?.ClubId) {
           try {
             const clubResponse = await fetchClubById(data.ClubId) as ApiResponse<Club>;
@@ -72,101 +99,120 @@ export function ClientGrid({ numClient, onEdit }: ClientGridProps) {
             } else {
               setClubName(`${data.ClubId}`);
             }
-          } catch (error) {
-            console.error("Error fetching club:", error);
+          } catch {
             setClubName(`${data.ClubId}`);
           }
         } else {
           setClubName("—");
         }
-      } catch (error) {
+      } catch {
         toast.error("Erreur de chargement client");
       }
-    }
+    };
 
     loadClient();
     fetchEnteredStatus();
     setCacheBuster(Date.now());
-  }, [numClient]); // ne dépend que du NumGrimpeur
+  }, [numClient, createSeance]);
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-  if (!clientInfo){
-    return (
-      <p>Le Grimpeur n'existe pas ou est introuvable.</p>
-    );
-  }
+  // -------------------------------------------------------------
+  // Boutons d’action
+  // -------------------------------------------------------------
+  const handleEntreeUnique = async () => {
+    if (!clientInfo) return;
+    setLoadingEntree(true);
+    try {
+      const updatedClient: Client = {
+        ...clientInfo,
+        NbSeanceRest: (clientInfo.NbSeanceRest ?? 0) + 1,
+      };
 
-    const handleClick1 = async () => {
-      if (!clientInfo) return;
+      const updateResult = await updateClientData(updatedClient);
+      if (!updateResult.success) {
+        toast.error(`Erreur mise à jour tickets : ${updateResult.message}`);
+        return;
+      }
 
-      setLoading(true);
+      const ticketTransaction = await postTransaction({
+        TypeObjet: "ticket",
+        IdObjet: 1,
+        NumGrimpeur: numClient,
+        NbSeanceTicket: 1,
+      });
 
-      try {
-        // 1️⃣ Ajouter 1 ticket au client
-        const updatedClient: Client = {
-          ...clientInfo,
-          NbSeanceRest: (clientInfo.NbSeanceRest ?? 0) + 1,
-        };
+      if (!ticketTransaction.success) {
+        toast.error(`Erreur transaction ticket : ${ticketTransaction.message}`);
+        return;
+      }
 
-        const updateResult = await updateClientData(updatedClient);
-        if (!updateResult.success) {
-          toast.error(`Erreur mise à jour tickets : ${updateResult.message}`);
-          setLoading(false);
-          return;
-        }
+      const seanceResult = await postSeanceClient(numClient);
+      if (!seanceResult.success) {
+        toast.error(`Erreur création séance : ${seanceResult.message}`);
+        setInCasa(false);
+      } else {
+        toast.success("Ticket ajouté et séance créée !");
+        setInCasa(true);
+      }
 
-        // 2️⃣ Créer la transaction pour le ticket
-        const ticketTransaction = await postTransaction({
-          TypeObjet: "ticket",
-          IdObjet: 1, // ticket unique
-          NumGrimpeur: numClient,
-          NbSeanceTicket: 1,
-        });
+      // ✅ Rechargement du client à la fin
+      await reloadClientInfo();
 
-        if (!ticketTransaction.success) {
-          toast.error(`Erreur transaction ticket : ${ticketTransaction.message}`);
-          setLoading(false);
-          return;
-        }
+    } catch {
+      toast.error("Erreur lors de l'entrée unique");
+      setInCasa(false);
+    }finally {
+    setLoadingEntree(false);
+    }
+  };
 
-        // 3️⃣ Créer la séance associée
-        const seanceResult = await postSeanceClient(numClient);
+  const handleAnnulerEntree = async () => {
+    const response = await deleteSeance(numClient);
+    if (response.success) {
+      toast.success(response.message);
+      setInCasa(false);
+      await reloadClientInfo(); // ✅ refresh aussi ici
+    } else {
+      toast.error(response.message);
+    }
+  };
 
-        if (!seanceResult.success) {
-          toast.error(`Erreur création séance : ${seanceResult.message}`);
+  const handleEntreeSimple = async () => {
+    setLoadingEntree(true);
+    try {
+      if (!inCasa) {
+        const result = await postSeanceClient(numClient);
+        if (!result.success) {
+          toast.warning(result.message);
           setInCasa(false);
         } else {
-          toast.success("Ticket ajouté et séance créée !");
+          toast.success(result.message);
           setInCasa(true);
+          await reloadClientInfo(); // ✅ refresh ici aussi
         }
-
-      } catch (error) {
-        toast.error("Erreur lors de l'entrée unique");
-        setInCasa(false);
-      } finally {
-        setLoading(false);
+      } else {
+        toast.warning("Le grimpeur est déjà en salle");
       }
+    } catch {
+      toast.error("Erreur lors de la création de la séance");
+    } finally {
+      setLoadingEntree(false);
+    }
+  };
+
+  // -------------------------------------------------------------
+  // Rendu
+  // -------------------------------------------------------------
+  if (!clientInfo) return <p>Le Grimpeur n'existe pas ou est introuvable.</p>;
+
+  const fieldInfoClient = clientFields.map(f => {
+    if (f.key === "ClubId") {
+      return { label: f.label, value: clubName };
+    }
+    return {
+      label: f.label,
+      value: f.format ? f.format(clientInfo[f.key]) : clientInfo[f.key] ?? "—",
     };
-
-
-
-    const handleClick2 = async () => {
-      const response = await deleteSeance(numClient);
-      response.success ? toast.success(response.message) : toast.error(response.message), setInCasa(false);
-    };
-
-
-    const fieldInfoClient = clientFields.map(f => {
-      if (f.key === "ClubId") {
-        return { label: f.label, value: clubName };
-      }
-      return {
-        label: f.label,
-        value: f.format ? f.format(clientInfo[f.key]) : clientInfo[f.key] ?? "—",
-      };
-    });
+  });
 
 
   return (
@@ -260,16 +306,35 @@ export function ClientGrid({ numClient, onEdit }: ClientGridProps) {
         </div>
 
         {/* Actions sur le profil du grimpeur */}
-        <div className="grid grid-cols-2">
+        <div className="grid grid-cols-3">
           <div className="flex justify-center">
             <Button
-              onClick={handleClick1}
-              disabled={isLoading}
+              onClick={handleEntreeSimple}
+              disabled={isLoadingEntree}
               variant="default"
               className="w-3/4 h-3/4 text-lg cursor-pointer"
             >
-              Entrée Unique
-            </Button>
+              {isLoadingEntree ? (
+                <LoadingSpinner small color="white"/>
+              ) : (
+                "Entrée Simple"
+              )}
+              </Button>
+          </div>
+
+          <div className="flex justify-center">
+            <Button
+              onClick={handleEntreeUnique}
+              disabled={isLoadingEntree}
+              variant="default"
+              className="w-3/4 h-3/4 text-lg cursor-pointer"
+            >
+              {isLoadingEntree ? (
+                <LoadingSpinner small color="white" />
+              ) : (
+                "Entrée Unique"
+              )}
+              </Button>
           </div>
 
           <div className="flex justify-center">
@@ -277,7 +342,7 @@ export function ClientGrid({ numClient, onEdit }: ClientGridProps) {
               triggerText="Annuler Entrée"
               title="Confirmer l'annulation de l'entrée"
               description="Êtes-vous sûr(e) de vouloir annuler cette entrée ? Cette action ne peut pas être annulée."
-              onConfirm={handleClick2}
+              onConfirm={handleAnnulerEntree}
               confirmText="Oui, annuler"
               cancelText="Non, conserver"
               variantConfirm="destructive"

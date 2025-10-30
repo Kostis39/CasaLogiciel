@@ -182,7 +182,7 @@ export function DraftForm() {
 
       <div className="flex justify-center gap-4">
           <Link
-            href={`/client/saisies?query=${createdGrimpeurId}&id=${createdGrimpeurId}`}
+            href={`/client?query=${createdGrimpeurId}&id=${createdGrimpeurId}`}
             className={`${buttonVariants({variant: "default" })}`}
           >
             Voir le profil du grimpeur
@@ -409,11 +409,13 @@ return (
                     onValueChange={(val) => {
                       if (val === "none") {
                         form.setValue("TypeAbo", undefined);
+                        form.setValue("AboId", undefined); // ✅ on vide aussi
                         form.setValue("DateFinAbo", undefined);
                       } else {
                         const abo = abonnements.find((a) => a.TypeAbo === val);
                         if (abo) {
                           form.setValue("TypeAbo", abo.TypeAbo);
+                          form.setValue("AboId", abo.IdAbo); // ✅ on stocke l’ID
                           const dateFin = new Date();
                           dateFin.setDate(dateFin.getDate() + abo.DureeAbo);
                           form.setValue("DateFinAbo", dateFin.toISOString().split("T")[0]);
@@ -468,11 +470,13 @@ return (
                     onValueChange={(val) => {
                       if (val === "none") {
                         form.setValue("TypeTicket", undefined);
+                        form.setValue("TicketId", undefined); // ✅ on vide aussi
                         form.setValue("NbSeanceRest", undefined);
                       } else {
                         const ticket = tickets.find((t) => t.TypeTicket === val);
                         if (ticket) {
                           form.setValue("TypeTicket", ticket.TypeTicket);
+                          form.setValue("TicketId", ticket.IdTicket); // ✅ on stocke l’ID
                           form.setValue("NbSeanceRest", ticket.NbSeanceTicket);
                         }
                       }

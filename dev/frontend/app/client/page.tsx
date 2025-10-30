@@ -11,6 +11,7 @@ export default function Saisies() {
   const searchParams = useSearchParams();
   const query = searchParams.get("query") || "";
   const id = searchParams.get("id");
+  const createSeance = searchParams.get("createSeance") === "true";
   const [mode, setMode] = useState(0);
 
   const num = id ? Number(id) : null;
@@ -39,7 +40,7 @@ export default function Saisies() {
             <ClientEdit numClient={num} onCancel={handleCancelEdit} />
           </div>
         ) : (
-          <ClientGrid numClient={num} onEdit={handleEdit} />
+          <ClientGrid numClient={num} onEdit={handleEdit} createSeance={createSeance} />
         )}
       </div>
     </div>
