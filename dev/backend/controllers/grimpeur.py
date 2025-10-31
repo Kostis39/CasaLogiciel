@@ -5,8 +5,7 @@ from db import create_engine, get_session
 from datetime import date
 import base64
 import os
-from sqlalchemy import cast, String
-
+from sqlalchemy import or_, and_, cast, String
 engine = create_engine()
 sesh = get_session(engine)
 signaturePath = "static/uploads/signatures"
@@ -209,35 +208,47 @@ class GrimpeurAccords(Resource):
             }, 200
 
 
-
 class GrimpeurSearch(Resource):
     def get(self):
         query_string = request.args.get("query", type=str)
         limit = request.args.get("limit", 20, type=int)
         offset = request.args.get("offset", 0, type=int)
+
         if not query_string:
             return {"message": "Requête de recherche vide"}, 400
 
+        # Découper la requête en tokens
+        tokens = [t.strip() for t in query_string.split() if t.strip()]
+        if not tokens:
+            return {"message": "Requête vide après nettoyage"}, 400
+
         with sesh() as session:
-            if query_string.isdigit():
-                # Recherche partielle sur le début du NumGrimpeur
-                grimpeurs = (
-                    session.query(Clients.Grimpeur)
-                    .filter(cast(Clients.Grimpeur.NumGrimpeur, String).startswith(query_string))
-                )
-            else:
-                # Recherche partielle sur nom ou prénom
-                grimpeurs = (
-                    session.query(Clients.Grimpeur)
-                    .filter(
-                        Clients.Grimpeur.NomGrimpeur.ilike(f"%{query_string}%") |
-                        Clients.Grimpeur.PrenomGrimpeur.ilike(f"%{query_string}%")
+            conditions = []
+
+            for token in tokens:
+                subconds = [
+                    Clients.Grimpeur.NomGrimpeur.ilike(f"%{token}%"),
+                    Clients.Grimpeur.PrenomGrimpeur.ilike(f"%{token}%")
+                ]
+
+                # Si c’est un nombre, on cherche aussi par NumGrimpeur
+                if token.isdigit():
+                    subconds.append(
+                        cast(Clients.Grimpeur.NumGrimpeur, String).startswith(token)
                     )
-                )
+
+                # Chaque mot doit apparaître quelque part
+                conditions.append(or_(*subconds))
+
+            # Tous les tokens doivent matcher (AND entre eux)
+            grimpeurs = session.query(Clients.Grimpeur).filter(and_(*conditions))
+
             total = grimpeurs.count()
             grimpeurs = grimpeurs.offset(offset).limit(limit).all()
 
-        return {"data": [g.to_dict() for g in grimpeurs], "total": total}, 200
-
+        return {
+            "data": [g.to_dict() for g in grimpeurs],
+            "total": total
+        }, 200
 
 

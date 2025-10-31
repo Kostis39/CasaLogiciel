@@ -22,10 +22,10 @@ export const clientFields: {
       return `${dateStr} (${age} ans)`;
     }
   },
-  { label: "Date d'inscription", key: "DateInscrGrimpeur" },
-  { label: "Numéro de licence", key: "NumLicenceGrimpeur" },
-  { label: "Club", key: "ClubId" },
-  { label: "Téléphone", key: "TelGrimpeur" },
-  { label: "Email", key: "EmailGrimpeur" },
+  { label: "Date d'inscription", key: "DateInscrGrimpeur", format: (v: string) => v || "—"},
+  { label: "Numéro de licence", key: "NumLicenceGrimpeur", format: (v: string) => v || "—" },
+  { label: "Club", key: "ClubId", format: (v: string) => v || "—" },
+  { label: "Téléphone", key: "TelGrimpeur", format: (v: string) => v || "—" },
+  { label: "Email", key: "EmailGrimpeur", format: (v: string) => v || "—" },
   { label: "Solde", key: "Solde", format: (v: number) => v !== undefined ? `${v.toFixed(2)} €` : "—" },
 ];

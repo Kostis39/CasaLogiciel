@@ -150,6 +150,13 @@ export const ClientListClientComponent = ({ query }: { query: string }) => {
     }
   }, [grimpeurs, searchParams, router]);
 
+  if (grimpeurs.length === 0 && !loading && !error) {
+    return (
+      <div className="text-center text-gray-500 py-4">
+        Aucun client trouvé.
+      </div>
+    );
+  }
   // === UI ===
   return (
     <div ref={listRef} className="flex flex-col">

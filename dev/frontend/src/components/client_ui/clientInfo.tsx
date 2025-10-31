@@ -87,6 +87,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
 
 
     const loadClient = async () => {
+      setLoading(true);
       try {
         const data = await fetchClientById(numClient);
         setClientInfo(data);
@@ -107,10 +108,13 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
         }
       } catch {
         toast.error("Erreur de chargement client");
+        setLoading(false);
+        return;
       }
     };
 
     loadClient();
+    setLoading(false);
     fetchEnteredStatus();
     setCacheBuster(Date.now());
   }, [numClient, createSeance]);
@@ -203,6 +207,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
   // Rendu
   // -------------------------------------------------------------
   if (!clientInfo) return <p>Le Grimpeur n'existe pas ou est introuvable.</p>;
+  if (isLoading) return <LoadingSpinner />;
 
   const fieldInfoClient = clientFields.map(f => {
     if (f.key === "ClubId") {

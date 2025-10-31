@@ -36,8 +36,7 @@ const isFormValid = (form: typeof FORM_INITIAL_STATE) => {
     form.typeTicket.trim().length > 0 &&
     !isNaN(parseInt(form.nbSeanceTicket)) &&
     parseInt(form.nbSeanceTicket) > 0 &&
-    !isNaN(parseFloat(form.prixTicket)) &&
-    parseFloat(form.prixTicket) >= 0
+    !form.prixTicket || (!isNaN(parseFloat(form.prixTicket)) && parseFloat(form.prixTicket) >= 0)
   );
 };
 
@@ -94,7 +93,7 @@ export default function TicketsPage() {
     setForm({
       typeTicket: ticket.TypeTicket,
       nbSeanceTicket: ticket.NbSeanceTicket.toString(),
-      prixTicket: ticket.PrixTicket.toString(),
+      prixTicket: (ticket.PrixTicket !== null && ticket.PrixTicket !== undefined) ? ticket.PrixTicket.toString() : '',
     });
     setEditMode(false);
     setIsDetailDialogOpen(true);
@@ -213,7 +212,9 @@ export default function TicketsPage() {
                   </div>
                   <div className="flex justify-between items-center">
                     <span>Prix</span>
-                    <span className="font-medium">{ticket.PrixTicket.toFixed(2)} €</span>
+                    <span className="font-medium">
+                      {ticket.PrixTicket != null ? `${ticket.PrixTicket.toFixed(2)} €` : '—'}
+                    </span>
                   </div>
                 </div>
               </div>

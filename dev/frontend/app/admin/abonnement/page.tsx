@@ -40,7 +40,7 @@ const isFormValid = (form: typeof FORM_INITIAL_STATE) => {
   return (
     form.nomAbonnement.trim().length > 0 &&
     Number(form.dureeAbonnement) > 0 &&
-    Number(form.prixAbonnement) >= 0
+    (form.prixAbonnement === '' || Number(form.prixAbonnement) >= 0)
   );
 };
 
@@ -97,7 +97,7 @@ export default function AbonnementsPage() {
     setForm({
       nomAbonnement: abonnement.TypeAbo,
       dureeAbonnement: abonnement.DureeAbo.toString(),
-      prixAbonnement: abonnement.PrixAbo.toString(),
+     prixAbonnement: abonnement.PrixAbo != null ? abonnement.PrixAbo.toString() : '',
     });
     setEditMode(false);
     setIsDetailDialogOpen(true);
@@ -217,7 +217,9 @@ export default function AbonnementsPage() {
                     </div>
                     <div className="flex justify-between items-center">
                       <span>Prix</span>
-                      <span className="font-medium">{abonnement.PrixAbo.toFixed(2)} €</span>
+                      <span className="font-medium">
+                        {abonnement.PrixAbo != null ? `${abonnement.PrixAbo.toFixed(2)} €` : '—'}
+                      </span>
                     </div>
                   </div>
                 </div>

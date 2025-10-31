@@ -51,12 +51,12 @@ export type ClientForm = {
 export type Ticket = {
   IdTicket: number;
   TypeTicket: string;
-  PrixTicket: number;
+  PrixTicket?: number;
   NbSeanceTicket: number;
 };
 
 export type Abonnement = {
-        PrixAbo: number;
+        PrixAbo?: number;
         DureeAbo: number;
         TypeAbo: string;
         IdAbo: number;

@@ -41,7 +41,7 @@ export default function SectionLayout({ children }: { children: React.ReactNode 
                 </div>
             </nav>
             {/* Contenu de la page */}
-            <main className="pt-16 min-h-screen container mx-auto">
+            <main className="pt-16 overflow-auto h-[96vh]">
                 {children}
             </main>
         </div>
