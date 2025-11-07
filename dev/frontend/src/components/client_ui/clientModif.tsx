@@ -12,6 +12,7 @@ import {
   postTransaction,
   updateClientData,
   updateGrimpeurSignature,
+  getStatutVoieBg,
 } from "@/src/services/api";
 import {
   Select,
@@ -23,7 +24,6 @@ import {
 import { toast } from "react-toastify";
 import SignatureCanvas from "react-signature-canvas";
 import { API_URL } from "@/src/services/real";
-import { getStatutVoieBg } from "./clientInfo";
 import { Switch } from "../ui/switch";
 import { ConfirmButton } from "./buttonConfirm";
 import LoadingSpinner from "./LoadingSpinner";

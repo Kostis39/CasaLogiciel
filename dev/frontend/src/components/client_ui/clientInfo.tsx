@@ -1,6 +1,7 @@
 "use client";
 import { 
   deleteSeance, fetchClientById, fetchClubById, 
+  getStatutVoieBg, 
   isAlreadyEntered, isDateValid, postSeanceClient, 
   postTransaction, updateClientData 
 } from "@/src/services/api";
@@ -488,17 +489,3 @@ function AccesSalleInfo(client: Client){
     </div>
   );
 }
-
-export function getStatutVoieBg(StatutVoie: number | undefined) {
-  switch (StatutVoie) {
-    case 1: // Bloc
-      return "bg-orange-300";
-    case 2: //Voie
-      return "bg-green-300";
-    case 3: // Tête
-      return "bg-blue-300";
-    default:
-      return "bg-orange-300";
-  }
-}
-

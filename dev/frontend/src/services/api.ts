@@ -79,3 +79,16 @@ export function isDateValid(dateFinCoti: string | undefined | null): boolean {
   const cotiDate = new Date(dateFinCoti);
   return cotiDate >= today;
 }
+
+export function getStatutVoieBg(StatutVoie: number | undefined) {
+  switch (StatutVoie) {
+    case 1: // Bloc
+      return "bg-orange-300";
+    case 2: //Voie
+      return "bg-green-300";
+    case 3: // Tête
+      return "bg-blue-300";
+    default:
+      return "bg-orange-300";
+  }
+}

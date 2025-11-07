@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import clsx from "clsx";
-import { getStatutVoieBg } from "./clientInfo";
+import { getStatutVoieBg } from "@/src/services/api";
 
 export function ClientCard(
   { prenom, nom, num, statutVoie }: { prenom: string , nom: string , num: number, statutVoie: number | undefined }

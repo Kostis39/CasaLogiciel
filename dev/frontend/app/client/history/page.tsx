@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import LoadingSpinner from "@/src/components/client_ui/LoadingSpinner";
-export const API_URL = "http://127.0.0.1:5000";
 import { Abonnement, ApiResponse, Seance, Ticket, Transaction } from "@/src/types&fields/types";
 import { ConfirmButton } from "@/src/components/client_ui/buttonConfirm";
 import { Button } from "@/src/components/ui/button";
@@ -10,7 +9,8 @@ import { Input } from "@/src/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select";
 import { Card } from "@/src/components/ui/card";
 import Image from "next/image";
-import { fetchAbonnementById, fetchAbonnements, fetchTicketById, fetchTickets } from "@/src/services/api";
+import {fetchAbonnements, fetchTickets } from "@/src/services/api";
+import { API_URL } from "@/src/services/real";
 
 const formatDate = (dateStr?: string) => {
   if (!dateStr) return "-";

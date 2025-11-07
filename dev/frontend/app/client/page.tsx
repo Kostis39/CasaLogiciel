@@ -5,7 +5,7 @@ import { ClientListClientComponent } from "@/src/components/client_ui/clientList
 import ClientEdit from "@/src/components/client_ui/clientModif";
 import SearchClient from "@/src/components/client_ui/clientSearch";
 import { useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function Saisies() {
   const searchParams = useSearchParams();

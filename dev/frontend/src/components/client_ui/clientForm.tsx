@@ -24,14 +24,11 @@ import {
 import { Switch } from "@/src/components/ui/switch";
 import { Textarea } from "@/src/components/ui/textarea";
 import { Abonnement, ClientForm, Club, Ticket } from "@/src/types&fields/types";
-import { fetchAbonnements, fetchClubs, fetchTickets, postClientData, postTransaction, updateGrimpeurSignature } from "@/src/services/api";
+import { fetchAbonnements, fetchClubs, fetchTickets, getStatutVoieBg, postClientData, postTransaction, updateGrimpeurSignature } from "@/src/services/api";
 import SignatureCanvas from "react-signature-canvas";
 import { toast } from "react-toastify";
 import Link from "next/link";
-import { getStatutVoieBg } from "./clientInfo";
 import { ConfirmButton } from "./buttonConfirm";
-
-
 
 export function DraftForm() {
   const form = useForm<ClientForm>({
