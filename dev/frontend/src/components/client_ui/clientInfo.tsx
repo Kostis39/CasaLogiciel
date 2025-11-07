@@ -322,7 +322,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
               {isLoadingEntree ? (
                 <LoadingSpinner small color="white"/>
               ) : (
-                "Entrée Simple"
+                "Entrée"
               )}
               </Button>
           </div>
@@ -337,7 +337,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
               {isLoadingEntree ? (
                 <LoadingSpinner small color="white" />
               ) : (
-                "Entrée Unique"
+                "Ticket unique"
               )}
               </Button>
           </div>

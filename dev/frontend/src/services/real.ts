@@ -610,7 +610,7 @@ export const realService = {
 //----------------------------------- Others -----------------------------------
     isAlreadyEntered: async (id: number) => {
         try {
-            const response = await fetch(`${API_URL}/seances/${id}`);
+            const response = await fetch(`${API_URL}/seances/grimpeur/${id}/aujourdhui`);
             if (!response.ok) {
                 return false;
             }

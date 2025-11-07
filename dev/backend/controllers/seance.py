@@ -161,3 +161,22 @@ class SeancesByDate(Resource):
                 return {"message": f"Aucune séance trouvée pour la date {date_str}."}, 404
 
             return {"data": [s.to_dict() for s in seances], "total": total}, 200
+
+class SeanceExistante(Resource):
+    """GET /seances/grimpeur/<num_grimpeur>/aujourdhui — Vérifie si le grimpeur a déjà une séance aujourd'hui"""
+
+    def get(self, num_grimpeur):
+        """Renvoie True si le grimpeur a une séance aujourd'hui, sinon False"""
+        aujourd_hui = date.today()
+
+        with sesh() as session:
+            seance_exist = (
+                session.query(Clients.Seance)
+                .filter_by(NumGrimpeur=num_grimpeur, DateSeance=aujourd_hui)
+                .first()
+            )
+
+            if seance_exist:
+                return {"est_la": True, "DateSeance": str(aujourd_hui)}, 200
+            else:
+                return {"est_la": False, "DateSeance": str(aujourd_hui)}, 200
