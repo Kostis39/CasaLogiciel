@@ -16,7 +16,7 @@ ALLOWED_FIELDS = [
     "EmailGrimpeur", "NumLicenceGrimpeur", "ClubId", "StatutVoie",
     "TypeAbo", "DateFinAbo", "TypeTicket", "NbSeanceRest",
     "DateFinCoti", "AccordReglement", "AccordParental", "CheminSignature", "Note",
-    "TicketId", "AboId"
+    "TicketId", "AboId", "DateInscrGrimpeur"
 ]
 
 def validate_grimpeur_data(data):
@@ -187,16 +187,13 @@ class GrimpeurAccords(Resource):
                 f.write(signature_bytes)
 
             grimpeur.CheminSignature = filepath
-            grimpeur.has_signed = True
 
-            def str_to_bool(val): return str(val).lower() in ["true", "1", "yes"]
-            accord_reglement = request.args.get("AccordReglement")
             accord_parental = request.args.get("AccordParental")
 
-            if accord_reglement is not None:
-                grimpeur.AccordReglement = str_to_bool(accord_reglement)
+            grimpeur.AccordReglement = True
+            print("---------------Last AccordParental to", grimpeur.AccordReglement)
             if accord_parental is not None:
-                grimpeur.AccordParental = str_to_bool(accord_parental)
+                grimpeur.AccordParental = True
 
             session.commit()
 
@@ -206,7 +203,6 @@ class GrimpeurAccords(Resource):
                 "AccordReglement": grimpeur.AccordReglement,
                 "AccordParental": grimpeur.AccordParental,
             }, 200
-
 
 class GrimpeurSearch(Resource):
     def get(self):

@@ -133,6 +133,7 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
       // --- Signature ---
       if (sigCanvas.current && !sigCanvas.current.isEmpty()) {
         await handleSignatureSave();
+        updated = { ...formData, AccordReglement: true };
       }
 
       // --- Nouvel abonnement ---
@@ -345,6 +346,7 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
             <InputField label="Prénom" value={formData.PrenomGrimpeur} onChange={(v) => handleChange("PrenomGrimpeur", v)} />
             <InputField label="Nom" value={formData.NomGrimpeur} onChange={(v) => handleChange("NomGrimpeur", v)} />
             <InputField label="Date de naissance" type="date" value={formData.DateNaissGrimpeur || ""} onChange={(v) => handleChange("DateNaissGrimpeur", v)} />
+            <InputField label="Date d'inscription" type="date" value={formData.DateInscrGrimpeur || ""} onChange={(v) => handleChange("DateInscrGrimpeur", v)} />
             <InputField label="Téléphone" value={formData.TelGrimpeur || ""} onChange={(v) => handleChange("TelGrimpeur", v)} />
             <InputField label="Email" type="email" value={formData.EmailGrimpeur || ""} onChange={(v) => handleChange("EmailGrimpeur", v)} />
             <InputField label="Licence" value={formData.NumLicenceGrimpeur || ""} onChange={(v) => handleChange("NumLicenceGrimpeur", v)} />

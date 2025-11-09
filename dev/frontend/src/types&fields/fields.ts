@@ -22,7 +22,19 @@ export const clientFields: {
       return `${dateStr} (${age} ans)`;
     }
   },
-  { label: "Date d'inscription", key: "DateInscrGrimpeur", format: (v: string) => v || "—"},
+  { label: "Date d'inscription", key: "DateInscrGrimpeur",
+    format: (dateStr: string) => {
+      if (!dateStr) return "—";
+      const birthDate = new Date(dateStr);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return `${dateStr} (${age} ans)`;
+    }
+  },
   { label: "Numéro de licence", key: "NumLicenceGrimpeur", format: (v: string) => v || "—" },
   { label: "Club", key: "ClubId", format: (v: string) => v || "—" },
   { label: "Téléphone", key: "TelGrimpeur", format: (v: string) => v || "—" },

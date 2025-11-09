@@ -1,7 +1,7 @@
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, ForeignKey, Date
 from sqlalchemy_serializer import SerializerMixin
 from datetime import date, time
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 from .Base import Casabase
 
 
@@ -14,7 +14,7 @@ class Grimpeur(Casabase, SerializerMixin):
     DateNaissGrimpeur: Mapped[date] = mapped_column(nullable=True)
     EmailGrimpeur: Mapped[str] = mapped_column(String(50), nullable=True)
     TelGrimpeur: Mapped[str] = mapped_column(String(20), nullable=True)
-    DateInscrGrimpeur: Mapped[date] = mapped_column(nullable=False)
+    DateInscrGrimpeur = mapped_column(Date, default=date.today)    
     StatutVoie: Mapped[int] = mapped_column(nullable=True)
     DateFinCoti: Mapped[date] = mapped_column(nullable=True)
     NumLicenceGrimpeur: Mapped[str] = mapped_column(String(20), nullable=True)

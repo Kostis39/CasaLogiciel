@@ -72,7 +72,10 @@ export function DraftForm() {
   const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
     setIsSubmitting(true);
     try {
-      // 1️⃣ Création du grimpeur
+      if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
+        toast.error("Veuillez signer avant de créer le grimpeur !");
+        return;
+      }
       const result = await postClientData(data);
       if (!result.success || !result.data) {
         toast.error(result.message+"");

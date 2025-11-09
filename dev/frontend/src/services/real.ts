@@ -457,12 +457,10 @@ export const realService = {
     updateGrimpeurSignature: async (
         id: number,
         signatureBase64: string,
-        accordReglement?: boolean,
         accordParental?: boolean
     ): Promise<ApiResponse> => {
         try {
         const params: Record<string, string> = {};
-        if (accordReglement !== undefined) params["AccordReglement"] = String(accordReglement);
         if (accordParental !== undefined) params["AccordParental"] = String(accordParental);
 
         const response = await fetch(`${API_URL}/grimpeurs/accord/${id}`, {
