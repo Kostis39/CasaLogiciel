@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 import { 
   deleteSeance, fetchClientById, fetchClubById, 
@@ -42,6 +43,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
       const updatedData = await fetchClientById(numClient);
       setClientInfo(updatedData);
     } catch (error) {
+      console.error(error);
       toast.error("Erreur lors du rechargement du client");
     }
   }, [numClient]);
@@ -118,7 +120,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
     setLoading(false);
     fetchEnteredStatus();
     setCacheBuster(Date.now());
-  }, [numClient, createSeance]);
+  }, [numClient, createSeance, reloadClientInfo]);
 
   // -------------------------------------------------------------
   // Boutons d’action

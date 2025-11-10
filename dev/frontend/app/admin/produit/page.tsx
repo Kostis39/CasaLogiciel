@@ -1,3 +1,4 @@
+/**
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -162,7 +163,7 @@ export default function ProduitsPage() {
         >
           <IndentBars level={level} />
   
-          {/* Icône de flèche avec clic dédié */}
+          {/* Icône de flèche avec clic dédié }
           <div
             className="cursor-pointer flex items-center justify-center"
             style={{
@@ -312,7 +313,7 @@ export default function ProduitsPage() {
         </div>
       </div>
 
-      {/* Dialog ajout */}
+      {/* Dialog ajout }
       <Dialog open={dialogType !== null} onOpenChange={() => setDialogType(null)}>
         <DialogContent>
           <DialogHeader>
@@ -342,7 +343,7 @@ export default function ProduitsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Dialog détail produit */}
+      {/* Dialog détail produit}
       <Dialog open={detailProduit !== null} onOpenChange={() => { setDetailProduit(null); setEditMode(false); setConfirmDelete(false); }}>
         <DialogContent>
           <DialogHeader>
@@ -420,6 +421,16 @@ export default function ProduitsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+*/
+
+export default function ProduitsPage() {
+  return (
+    <div>
+      <h1>Page des produits - en construction</h1>
     </div>
   );
 }

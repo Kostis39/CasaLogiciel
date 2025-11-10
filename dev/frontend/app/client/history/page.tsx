@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { toast } from "react-toastify";
 import LoadingSpinner from "@/src/components/client_ui/LoadingSpinner";
 import { Abonnement, ApiResponse, Seance, Ticket, Transaction } from "@/src/types&fields/types";
@@ -61,7 +61,7 @@ function EditModal<T extends object>({
               </label>
               <Input
                 type="text"
-                value={(formData as any)[key] ?? ""}
+                value={(formData[key as keyof T] ?? "") as string}
                 onChange={(e) =>
                   setFormData({ ...formData, [key]: e.target.value })
                 }
@@ -185,7 +185,7 @@ export default function AdminPage() {
   // -------------------------------
   // FETCH TRANSACTIONS
   // -------------------------------
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     setIsLoading(true);
     try {
       let url = `${API_URL}/transactions`;
@@ -216,12 +216,12 @@ export default function AdminPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [filters]);
 
   // -------------------------------
   // FETCH SEANCES
   // -------------------------------
-  const fetchSeances = async () => {
+  const fetchSeances = useCallback(async () => {
     setIsLoading(true);
     try {
       let url = `${API_URL}/seances`;
@@ -252,7 +252,7 @@ export default function AdminPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [filters]);
 
   // -------------------------------
   // AUTO-REFRESH LORSQUE FILTRES OU ONGLET CHANGE
@@ -260,7 +260,8 @@ export default function AdminPage() {
   useEffect(() => {
     if (tab === "transactions") fetchTransactions();
     else fetchSeances();
-  }, [filters, tab]);
+  }, [tab, fetchTransactions, fetchSeances]);
+
 
   // -------------------------------
   // SAVE / DELETE

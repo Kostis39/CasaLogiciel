@@ -64,6 +64,7 @@ export default function ClubsPage() {
         toast.error(res.message || TOAST_MESSAGES.FETCH_ERROR);
       }
     } catch (error) {
+      console.error(error);
       toast.error(TOAST_MESSAGES.FETCH_ERROR);
     } finally {
       setIsLoading(false);
@@ -126,6 +127,7 @@ export default function ClubsPage() {
         toast.error(res.message || TOAST_MESSAGES.CREATE_ERROR);
       }
     } catch (error) {
+      console.error(error);
       toast.error(TOAST_MESSAGES.CREATE_ERROR);
     } finally {
       setIsLoading(false);
@@ -156,6 +158,7 @@ export default function ClubsPage() {
         toast.error(res.message || TOAST_MESSAGES.UPDATE_ERROR);
       }
     } catch (error) {
+      console.error(error);
       toast.error(TOAST_MESSAGES.UPDATE_ERROR);
     } finally {
       setIsLoading(false);
@@ -182,6 +185,7 @@ export default function ClubsPage() {
         toast.error(res.message || TOAST_MESSAGES.DELETE_ERROR);
       }
     } catch (error) {
+      console.error(error);
       toast.error(TOAST_MESSAGES.DELETE_ERROR);
     } finally {
       setIsLoading(false);

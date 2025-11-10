@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -18,7 +19,7 @@ import {
   updateAbonnement,
 } from '@/src/services/api';
 import { toast } from 'react-toastify';
-import { Abonnement, ApiResponse } from '@/src/types&fields/types';
+import { Abonnement } from '@/src/types&fields/types';
 import { Card } from '@/src/components/ui/card';
 import LoadingSpinner from '@/src/components/client_ui/LoadingSpinner';
 
@@ -69,6 +70,7 @@ export default function AbonnementsPage() {
         toast.error(res.message || TOAST_MESSAGES.FETCH_ERROR);
       }
     } catch (error) {
+      console.error(error);
       toast.error(TOAST_MESSAGES.FETCH_ERROR);
     } finally {
       setIsLoading(false);
@@ -123,6 +125,7 @@ export default function AbonnementsPage() {
         toast.error(res.message || TOAST_MESSAGES.CREATE_ERROR);
       }
     } catch (error) {
+      console.error(error);
       toast.error(TOAST_MESSAGES.CREATE_ERROR);
     } finally {
       setIsLoading(false);
@@ -149,6 +152,7 @@ export default function AbonnementsPage() {
         toast.error(res.message || TOAST_MESSAGES.UPDATE_ERROR);
       }
     } catch (error) {
+      console.error(error);
       toast.error(TOAST_MESSAGES.UPDATE_ERROR);
     } finally {
       setIsLoading(false);
@@ -175,6 +179,7 @@ export default function AbonnementsPage() {
         toast.error(res.message || TOAST_MESSAGES.DELETE_ERROR);
       }
     } catch (error) {
+      console.error(error);
       toast.error(TOAST_MESSAGES.DELETE_ERROR);
     } finally {
       setIsLoading(false);

@@ -4,9 +4,10 @@ import { fetchClients, fetchClientSearch } from "@/src/services/api";
 import { ClientCard } from "./clientCard";
 import { useSearchParams, useRouter } from "next/navigation";
 import LoadingSpinner from "./LoadingSpinner";
+import { Client } from "@/src/types&fields/types";
 
 export const ClientListClientComponent = ({ query }: { query: string }) => {
-  const [grimpeurs, setGrimpeurs] = useState<any[]>([]);
+  const [grimpeurs, setGrimpeurs] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasNext, setHasNext] = useState(true);
@@ -40,7 +41,7 @@ export const ClientListClientComponent = ({ query }: { query: string }) => {
               : Math.max(offset - limit, 0);
         }
 
-        let data: any[] = [];
+        let data: Client[] = [];
         let total = 0;
 
         if (query && query.trim() !== "") {
@@ -50,7 +51,7 @@ export const ClientListClientComponent = ({ query }: { query: string }) => {
         }
 
         setGrimpeurs((prev) => {
-          let combined: any[] = [];
+          let combined: Client[] = [];
 
           if (reset) {
             combined = data;
@@ -95,6 +96,7 @@ export const ClientListClientComponent = ({ query }: { query: string }) => {
     setHasNext(true);
     setHasPrev(false);
     fetchGrimpeurs("next", true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
   // --- Observer bas (scroll vers le bas) ---

@@ -62,7 +62,7 @@ export type Abonnement = {
         IdAbo: number;
 };
 
-export type ApiResponse<T = any> = {
+export type ApiResponse<T = unknown> = {
   success: boolean;
   message: string;
   data?: T;
@@ -123,3 +123,10 @@ export type Club = {
   AdresseClub: string;
   SiteInternet: string;
 };
+
+export type responsePostClientSignature = {
+  message: string,
+  CheminSignature: string,
+  AccordReglement: boolean,
+  AccordParental: boolean,
+}

@@ -1,7 +1,8 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Client } from "@/src/types&fields/types";
+import { Abonnement, Client, Club, Ticket } from "@/src/types&fields/types";
 import { Button } from "@/src/components/ui/button";
 import {
   fetchAbonnements,
@@ -38,9 +39,9 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isAddingAbo, setIsAddingAbo] = useState(false);
   const [isAddingTicket, setIsAddingTicket] = useState(false);
-  const [abonnements, setAbonnements] = useState<any[]>([]);
-  const [tickets, setTickets] = useState<any[]>([]);
-  const [clubs, setClubs] = useState<any[]>([]);
+  const [abonnements, setAbonnements] = useState<Abonnement[]>([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [clubs, setClubs] = useState<Club[]>([]);
   const [newAbo, setNewAbo] = useState<string | null>(null);
   const [newAboDate, setNewAboDate] = useState<string>("");
   const [newTicket, setNewTicket] = useState<string | null>(null);
@@ -50,11 +51,9 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
   const [signatureDrawn, setSignatureDrawn] = useState(false);
   const [clientInfo, setClientInfo] = useState<Client | null>(null);
   const [formData, setFormData] = useState<Client | null>(null);
-  const [loading, setLoading] = useState(false);
 
 
   useEffect(() => {
-    setLoading(true);
     const loadClient = async () => {
       try{
         const data = await fetchClientById(numClient);
@@ -63,15 +62,14 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
         setClientInfo(clone);
         setFormData(JSON.parse(JSON.stringify(data)));
       } catch (error) {
+        console.error(error);
         toast.error("Erreur de chargement client");
       }
     }
     loadClient();
-    setLoading(false);
   }, [numClient]);
 
   useEffect(() => {
-    setLoading(true);
     const loadData = async () => {
       const aboRes = await fetchAbonnements();
       if (aboRes.success && aboRes.data) setAbonnements(aboRes.data);
@@ -81,7 +79,6 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
       if (clubRes.success && clubRes.data) setClubs(clubRes.data);
     };
     loadData();
-    setLoading(false);
   }, []);
 
   if (!clientInfo || !formData){
@@ -90,8 +87,8 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
     );
   }
 
-  const handleChange = (key: keyof Client, value: any) =>
-    setFormData((prev) => (prev ? ({ ...prev, [key]: value } as Client) : prev));
+  const handleChange = <K extends keyof Client>(key: K, value: Client[K]) =>
+  setFormData((prev) => (prev ? ({ ...prev, [key]: value } as Client) : prev));
 
   // Compute whether there are unsaved changes.
   const computeIsDirty = () => {
@@ -200,8 +197,9 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
       setFormData(updated); // on met à jour le state local pour affichage
       toast.success("Client mis à jour avec succès !");
       onCancel?.();
-    } catch (err: any) {
-      toast.error(err.message || "Erreur lors de l'enregistrement");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(message);
     } finally {
       setIsSaving(false);
     }
@@ -250,8 +248,9 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
       setNewAbo("");
       setNewAboDate("");
       toast.success("Nouvel abonnement ajouté !");
-    } catch (err: any) {
-      toast.error(err.message || "Erreur lors de l'ajout du nouvel abonnement");
+    }catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(message || "Erreur ...");
     } finally {
       setIsAddingAbo(false);
     }
@@ -289,8 +288,9 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
       setNewTicket("");
       setNewTicketSeances(0);
       toast.success("Nouveau ticket ajouté !");
-    } catch (err: any) {
-      toast.error(err.message || "Erreur lors de l'ajout du ticket");
+    }catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(message || "Erreur ...");
     } finally {
       setIsAddingTicket(false);
     }
@@ -323,8 +323,9 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
         sigCanvas.current?.clear();
         setSignatureDrawn(false);
       } else toast.error(res.message || "Erreur lors de la mise à jour");
-    } catch (err: any) {
-      toast.error(err.message || "Erreur réseau");
+    }catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(message || "Erreur ...");
     } finally {
       setIsUpdatingSignature(false);
     }
@@ -355,7 +356,7 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
               <Select
                 value={formData.ClubId?.toString() ?? "none"}
                 onValueChange={(val) => {
-                  if (val === "none" || val === "") handleChange("ClubId", undefined as any);
+                  if (val === "none" || val === "") handleChange("ClubId", null);
                   else handleChange("ClubId", Number(val));
                 }}
               >

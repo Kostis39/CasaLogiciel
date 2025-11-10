@@ -1,4 +1,4 @@
-import { ApiResponse, Client, ClientForm, Club, ClubForm, Transaction, TransactionForm } from "../types&fields/types";
+import { Abonnement, ApiResponse, Client, ClientForm, Club, ClubForm, Ticket, Transaction, TransactionForm } from "../types&fields/types";
 import { getTodayPlusOneYear, isDateValid, haveDateJSON } from "./api";
 
 export const mockService = {
@@ -177,7 +177,7 @@ export const mockService = {
         return { data, total: TOTAL };
     },
 
-    fetchAbonnements: async () => {
+    fetchAbonnements: async (): Promise<ApiResponse<Abonnement[]>> => {
         return { success: true, message: "MockAbo", data:[
             {
                 "DureeAbo": 30,
@@ -188,7 +188,7 @@ export const mockService = {
         ]}
     },
 
-    fetchTickets: async () => {
+    fetchTickets: async (): Promise<ApiResponse<Ticket[]>> => {
         return  { success: true, message: "MockTicket", data:[
             {
                 "PrixTicket": 11.0,
@@ -256,6 +256,7 @@ export const mockService = {
     },
 
     fetchSousProduits: async (idParent: number) => {
+        if (!idParent){return;}
         return [
     {
         "IdReduc": null,
@@ -328,14 +329,27 @@ export const mockService = {
         return {success: true, message: `Mock: ${JSON.stringify(produitData)}`};
     },
 
-    postClientData: async (data: ClientForm): Promise<ApiResponse> => {
+    postClientData: async (data: ClientForm): Promise<ApiResponse<Client>> => {
         console.log("MOCK postClientData:", data);
         return new Promise((resolve) => {
         setTimeout(() => {
             resolve({
             success: true,
             message: "Client ajouté avec succès (mock)",
-            data: { ...data, NumGrimpeur: Math.floor(Math.random() * 1000) + 1 },
+            data: {
+            ...data,
+            NumGrimpeur: Math.floor(Math.random() * 1000) + 1,
+            TypeAbo: data.TypeAbo ?? null,
+            TypeTicket: data.TypeTicket ?? null,
+            DateFinAbo: data.DateFinAbo,
+            DateFinCoti: data.DateFinCoti ?? null,
+            NbSeanceRest: data.NbSeanceRest,
+            Note: data.Note ?? null,
+            ClubId: data.ClubId ?? null,
+            TicketId: data.TicketId ?? null,
+            AboId: data.AboId ?? null,
+            CheminSignature: data.CheminSignature ?? undefined
+            },
             });
         }, 200);
         });
@@ -429,10 +443,11 @@ export const mockService = {
 
 //----------------------------------- Others -----------------------------------
     isAlreadyEntered: async (id: number) => {
+        if (!id){return false;}
         return true;
     },
     //----------------------------------- Clubs -----------------------------------
-    fetchClubs: async () => {
+    fetchClubs: async (): Promise<ApiResponse<Club[]>> => {
         await new Promise((resolve) => setTimeout(resolve, 100));
         const clubs = [
             {

@@ -1,18 +1,20 @@
 import { Client } from "./types";
 
-export const clientFields: {
+type ClientField<K extends keyof Client = keyof Client> = {
   label: string;
-  key: keyof Client;
-  format?: (v: any) => string;
-}[] = [
+  key: K;
+  format?: (v: Client[K]) => string;
+};
+
+export const clientFields: ClientField[] = [
   { label: "Nom", key: "NomGrimpeur" },
   { label: "Prénom", key: "PrenomGrimpeur" },
   { 
     label: "Date de naissance", 
     key: "DateNaissGrimpeur",
-    format: (dateStr: string) => {
+    format: (dateStr) => {
       if (!dateStr) return "—";
-      const birthDate = new Date(dateStr);
+      const birthDate = new Date(dateStr as string);
       const today = new Date();
       let age = today.getFullYear() - birthDate.getFullYear();
       const m = today.getMonth() - birthDate.getMonth();
@@ -23,9 +25,9 @@ export const clientFields: {
     }
   },
   { label: "Date d'inscription", key: "DateInscrGrimpeur",
-    format: (dateStr: string) => {
+    format: (dateStr) => {
       if (!dateStr) return "—";
-      const birthDate = new Date(dateStr);
+      const birthDate = new Date(dateStr as string);
       const today = new Date();
       let age = today.getFullYear() - birthDate.getFullYear();
       const m = today.getMonth() - birthDate.getMonth();
@@ -35,9 +37,9 @@ export const clientFields: {
       return `${dateStr} (${age} ans)`;
     }
   },
-  { label: "Numéro de licence", key: "NumLicenceGrimpeur", format: (v: string) => v || "—" },
-  { label: "Club", key: "ClubId", format: (v: string) => v || "—" },
-  { label: "Téléphone", key: "TelGrimpeur", format: (v: string) => v || "—" },
-  { label: "Email", key: "EmailGrimpeur", format: (v: string) => v || "—" },
-  { label: "Solde", key: "Solde", format: (v: number) => v !== undefined ? `${v.toFixed(2)} €` : "—" },
+  { label: "Numéro de licence", key: "NumLicenceGrimpeur", format: (v) => (v as string) || "—" },
+  { label: "Club", key: "ClubId", format: (v) => (v as string) || "—" },
+  { label: "Téléphone", key: "TelGrimpeur", format: (v) => (v as string) || "—" },
+  { label: "Email", key: "EmailGrimpeur", format: (v) => (v as string) || "—" },
+  { label: "Solde", key: "Solde", format: (v) => (v !== undefined ? `${v} €` : "—") },
 ];

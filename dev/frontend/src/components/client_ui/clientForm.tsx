@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 import { useForm } from "react-hook-form";
 import { motion } from "motion/react";
@@ -142,9 +143,9 @@ export function DraftForm() {
     form.reset();
     sigCanvas.current?.clear();
 
-  } catch (err: any) {
-    toast.error(err.message || "Erreur lors de la création du client");
-    console.error("❌ Erreur:", err);
+  } catch (err) {
+    const message = (err as Error)?.message ?? "Erreur lors de la création du client";
+    toast.error(message);
   } finally {
     setIsSubmitting(false);
   }

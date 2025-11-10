@@ -1,5 +1,5 @@
-import { fetchClients, getTodayPlusOneYear, isDateValid } from "./api";
-import { Client, ApiResponse, TransactionForm, ClientForm, Transaction, ClubForm } from "../types&fields/types";
+import { getTodayPlusOneYear, isDateValid } from "./api";
+import { Client, ApiResponse, TransactionForm, ClientForm, Transaction, ClubForm, Abonnement, Ticket, Club, responsePostClientSignature } from "../types&fields/types";
 export const API_URL = "http://127.0.0.1:5000";
 
 export const realService = {
@@ -90,7 +90,7 @@ export const realService = {
         }
     },
 
-    fetchAbonnements: async (): Promise<ApiResponse<any[]>> => {
+    fetchAbonnements: async (): Promise<ApiResponse<Abonnement[]>> => {
         try {
             const response = await fetch(`${API_URL}/abonnements`);
             const data = await response.json().catch(() => ([]));
@@ -105,7 +105,7 @@ export const realService = {
         }
     },
 
-    fetchTickets: async (): Promise<ApiResponse> => {
+    fetchTickets: async (): Promise<ApiResponse<Ticket[]>> => {
         try {
             const response = await fetch(`${API_URL}/tickets`);
             const data = await response.json().catch(() => ([]));
@@ -259,9 +259,10 @@ export const realService = {
         }
     },
 
-    postClientData: async (data: ClientForm): Promise<ApiResponse> => {
+    postClientData: async (data: ClientForm): Promise<ApiResponse<Client>> => {
         try {
             // Copie des données sans TypeAbo ni TypeTicket
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { TypeAbo, TypeTicket, ...filteredData } = data;
 
             const response = await fetch(`${API_URL}/grimpeurs`, {
@@ -284,10 +285,11 @@ export const realService = {
                 message: json.message || "Client ajouté avec succès",
                 data: json.grimpeur,
             };
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
             return {
                 success: false,
-                message: error.message || "Erreur réseau inconnue",
+                message: message || "Erreur réseau inconnue",
             };
         }
     },
@@ -350,8 +352,9 @@ export const realService = {
       }
 
       return { success: true, message: "Transaction enregistrée", data: json };
-    } catch (error: any) {
-      return { success: false, message: error.message || "Erreur réseau inconnue" };
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, message: message || "Erreur réseau inconnue" };
     }
   },
 
@@ -458,7 +461,7 @@ export const realService = {
         id: number,
         signatureBase64: string,
         accordParental?: boolean
-    ): Promise<ApiResponse> => {
+    ): Promise<ApiResponse<responsePostClientSignature>> => {
         try {
         const params: Record<string, string> = {};
         if (accordParental !== undefined) params["AccordParental"] = String(accordParental);
@@ -476,12 +479,13 @@ export const realService = {
         }
 
         return { success: true, message: json.message || "Signature enregistrée", data: json };
-        } catch (error: any) {
-            return { success: false, message: error.message || "Erreur réseau inconnue" };
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            return { success: false, message: message || "Erreur réseau inconnue" };
         }
     },
 
-    updateClientData: async (client: Client): Promise<ApiResponse> => {
+    updateClientData: async (client: Client): Promise<ApiResponse<Client>> => {
         try {
             const response = await fetch(`${API_URL}/grimpeurs/${client.NumGrimpeur}`, {
                 method: "PUT",
@@ -496,9 +500,10 @@ export const realService = {
             }
 
             return { success: true, message: json.message || "Client mis à jour", data: json.grimpeur };
-        } catch (error: any) {
-            return { success: false, message: error.message || "Erreur réseau inconnue" };
-        }
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, message: message || "Erreur réseau inconnue" };
+    }
     },
 
     updateTransaction: async (transaction: Transaction): Promise<ApiResponse> => {
@@ -523,11 +528,9 @@ export const realService = {
                 message: json.message || "Transaction mise à jour",
                 data: json, // ou json.transaction si ton API renvoie { transaction: {...} }
             };
-        } catch (error: any) {
-            return {
-                success: false,
-                message: error.message || "Erreur réseau inconnue",
-            };
+        } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        return { success: false, message: message || "Erreur réseau inconnue" };
         }
     },
 
@@ -621,7 +624,7 @@ export const realService = {
     },
 
     // Fonctions pour les clubs
-    fetchClubs: async (): Promise<ApiResponse> => {
+    fetchClubs: async (): Promise<ApiResponse<Club[]>> => {
         try {
             const response = await fetch(`${API_URL}/clubs`);
             const json = await response.json();
