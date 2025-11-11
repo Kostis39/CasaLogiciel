@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 
 # Etablissement de la Base
 def create_engine():
-    with open("../../vpn-auth.txt", "r") as file:
+    with open("../vpn-auth.txt", "r") as file:
         lines = file.readlines()
         secret = lines[1].strip() if len(lines) > 1 else None
     if secret is None:
