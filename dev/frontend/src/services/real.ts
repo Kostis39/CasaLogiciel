@@ -1,6 +1,6 @@
 import { getTodayPlusOneYear, isDateValid } from "./api";
 import { Client, ApiResponse, TransactionForm, ClientForm, Transaction, ClubForm, Abonnement, Ticket, Club, responsePostClientSignature } from "../types&fields/types";
-export const API_URL = "http://127.0.0.1:5000";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const realService = {
     // Récupère un ticket par son id
