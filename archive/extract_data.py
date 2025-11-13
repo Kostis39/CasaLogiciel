@@ -3,27 +3,30 @@ import sqlite3
 import mariadb
 import sys
 from datetime import datetime
+from dotenv import load_dotenv
+import os
 
 #-------- Constantes des chemins de fichiers --------#
-PATH_SQL = "data_base.sql"
-PATH_DB = "data_base.db"
+load_dotenv()
+PATH_SQL = os.getenv("PATH_SQL")
+PATH_DB = os.getenv("PATH_DB")
 
-CSV_CLUB = "détails club.csv"
-CSV_ABO = "détails TYPAB.csv"
-CSV_STATUS = "détails SP.csv"
-CSV_GRIMPEUR = "Grimpeur.csv"
-CSV_SEANCE = "Séance.csv"
+CSV_CLUB = os.getenv("CSV_CLUB")
+CSV_ABO = os.getenv("CSV_ABO")
+CSV_STATUS = os.getenv("CSV_STATUS")
+CSV_GRIMPEUR = os.getenv("CSV_GRIMPEUR")
+CSV_SEANCE = os.getenv("CSV_SEANCE")
 
-ANNEE_MIN_SEANCE = 2022
+ANNEE_MIN_SEANCE_EXTRACT = int(os.getenv("ANNEE_MIN_SEANCE_EXTRACT"))
 
 tables_db = ["Club", "Abonnement", "Ticket", "Grimpeur", "Seance"]
 tables_mariadb = ["Seance", "Transaction", "Grimpeur", "Ticket", "Abonnement", "Club"]
 
-USER="root"
-PASSWORD="Fèf6f(9c6"
-HOST = "172.18.0.5"
-PORT = 3306
-DATABASE="casabase"
+USER=os.getenv("MY_USER")
+PASSWORD=os.getenv("PASSWORD")
+HOST = os.getenv("HOST")
+PORT = int(os.getenv("PORT"))
+DATABASE=os.getenv("DATABASE")
 
 #-------- Fonctions Utilitaires --------#
 
@@ -269,7 +272,7 @@ def extractSeance():
         not_inserted = 0
         for row in csvSeance:
             date = format_date(row[0])
-            if date and int(date.split('-')[0]) >= ANNEE_MIN_SEANCE:
+            if date and int(date.split('-')[0]) >= ANNEE_MIN_SEANCE_EXTRACT:
                 cursor.execute("""
                     INSERT INTO Seance (DateSeance, HeureSeance, NumGrimpeur)
                     VALUES (?, ?, ?)
@@ -284,7 +287,7 @@ def extractSeance():
 
     conn.commit()
     conn.close()
-    print(f"{inserted} séances insérées dans la base avec succès. {not_inserted} séances non insérées (avant {ANNEE_MIN_SEANCE}).")
+    print(f"{inserted} séances insérées dans la base avec succès. {not_inserted} séances non insérées (avant {ANNEE_MIN_SEANCE_EXTRACT}).")
 
 #-------- Fonction d'exportation des données vers MariaDB --------#
 
@@ -391,8 +394,20 @@ def exportDataToMariaDb():
     sqlite_conn.close()
     print("Données exportées avec succès vers MariaDB")
 
+#-------- Clean Up --------#
+
+if os.path.exists(PATH_SQL):
+  os.remove(PATH_SQL)
+else:
+  print(f"The file '{PATH_SQL}' does not exist")
+
+if os.path.exists(PATH_DB):
+  os.remove(PATH_DB)
+else:
+  print(f"The file '{PATH_DB}' does not exist")
+
 #-------- Exécution des fonctions --------#
-"""
+
 #Création de la base SQL et SQLite locale
 createBaseSQL()
 
@@ -402,7 +417,7 @@ extractAbo()
 extractTicket()
 extractGrimpeur()
 extractSeance()
-"""
+
 
 #Exportation des données vers MariaDB
-#exportDataToMariaDb()
+exportDataToMariaDb()
