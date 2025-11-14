@@ -10,30 +10,38 @@ pip install - r pyreqs.txt
 - npm : Next.js 15.3.2 + tailwind
 - Installer tt les packages requis:
 ```bash
+cd frontend
 npm install
 ```
 - Obtenir et stocker les fichiers `vpn-auth.txt` et `profile-userlocked.ovpn` dans le répertoire principal (demander à l'admin).
 - Obtenir et stocker le fichier `.env` dans `./archive` (demander à l'admin).
 
+## Se connecter à la base de donnée
+
+- Se connecter au VPN (ou de manière sécu à l'endroit où est stocker la bd):
+```bash
+sudo sh vpnlog.sh
+```
+
 ## Migration Base de Données
 
 - Mettre dans le dossier `archive` les fichiers **CSV sans Headers**.
-- Demander le fichier .env à mettre dans ce dossier pour faire fonctionner le tout
-- Lancer le script: `python extract_data.py`
+- Lancer le script:
+```python
+python extract_data.py
+```
 - Vérifier qu'il y ai bien ce message: `Données exportées avec succès vers MariaDB`
 
 ## Lancement 
 
-1. Se connecter au VPN (ou de manière sécu à l'endroit où est stocker la bd):
+1. Lancer l'API:
 ```bash
-sudo sh vpnlog.sh
-```
-2. Lancer l'API:
-```bash
+cd backend
 python api.py
 ```
-3. Lancer le frontend:
+2. Lancer le frontend:
 ```bash
+cd frontend
 npm run build 
 npm run start
 ```
