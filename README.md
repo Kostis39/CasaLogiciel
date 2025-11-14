@@ -28,6 +28,7 @@ sudo sh vpnlog.sh
 - Mettre dans le dossier `archive` les fichiers **CSV sans Headers**.
 - Lancer le script:
 ```python
+cd archive
 python extract_data.py
 ```
 - Vérifier qu'il y ai bien ce message: `Données exportées avec succès vers MariaDB`
@@ -45,6 +46,7 @@ cd frontend
 npm run build 
 npm run start
 ```
+C'est normal si il ya 2 Warning lors du build.
 
 ## Fichiers de config
 #### Extraction base de donnees
