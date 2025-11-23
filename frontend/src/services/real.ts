@@ -1,6 +1,6 @@
 import { getTodayPlusOneYear, isDateValid } from "./api";
 import { Client, ApiResponse, TransactionForm, ClientForm, Transaction, ClubForm, Abonnement, Ticket, Club, responsePostClientSignature } from "../types&fields/types";
-export const API_URL = process.env.NEXT_PUBLIC_API_URL;
+export const API_URL = "http://localhost:5000";
 
 export const realService = {
     // Récupère un ticket par son id
@@ -465,7 +465,7 @@ export const realService = {
         try {
         const params: Record<string, string> = {};
         if (accordParental !== undefined) params["AccordParental"] = String(accordParental);
-
+            console.log("API_URL actuelle:", signatureBase64);
         const response = await fetch(`${API_URL}/grimpeurs/accord/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },

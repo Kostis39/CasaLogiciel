@@ -1,19 +1,22 @@
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
+PASSWORD=os.getenv("DB_PASSWORD")
+DB_HOST=os.getenv("DB_HOST")
+DB_PORT=os.getenv("DB_PORT")
+DB_NAME=os.getenv("DB_NAME")
 
 # Etablissement de la Base
 def create_engine():
-    with open("../vpn-auth.txt", "r") as file:
-        lines = file.readlines()
-        secret = lines[1].strip() if len(lines) > 1 else None
-    if secret is None:
-        print("Secret non trouvé")
+    if PASSWORD is None:
+        print("Password non trouvé")
         exit(1)
 
     engine = sqlalchemy.create_engine(
-        f"mariadb+mariadbconnector://root:{secret}@172.18.0.5:3306/casabase", echo=True
-    )
+        f"mariadb+mariadbconnector://root:{PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}",    )
     return engine
 
 

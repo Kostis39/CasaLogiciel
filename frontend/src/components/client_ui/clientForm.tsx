@@ -26,7 +26,7 @@ import { Switch } from "@/src/components/ui/switch";
 import { Textarea } from "@/src/components/ui/textarea";
 import { Abonnement, ClientForm, Club, Ticket } from "@/src/types&fields/types";
 import { fetchAbonnements, fetchClubs, fetchTickets, getStatutVoieBg, postClientData, postTransaction, updateGrimpeurSignature } from "@/src/services/api";
-import SignatureCanvas from "react-signature-canvas";
+import SignaturePad from "signature_pad";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { ConfirmButton } from "./buttonConfirm";
@@ -49,7 +49,69 @@ export function DraftForm() {
 
   const [createdGrimpeurId, setCreatedGrimpeurId] = useState<number | null>(null);
 
-  const sigCanvas = useRef<SignatureCanvas>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const padRef = useRef<SignaturePad | null>(null);
+
+  const initCanvasAndPad = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // ajuster la résolution pour écrans haute densité
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    const ctx = canvas.getContext("2d");
+    if (ctx) ctx.scale(ratio, ratio);
+
+    // crée le pad et stocke dans la ref
+    const pad = new SignaturePad(canvas, {
+      penColor: "black",
+      backgroundColor: "white",
+    });
+    padRef.current = pad;
+  };
+  // initialisation (montage)
+  useEffect(() => {
+    initCanvasAndPad();
+  }, []);
+
+  // gestion du redimensionnement : réinitialise le canvas proprement
+  useEffect(() => {
+    const handleResize = () => {
+      // clear existing pad first
+      padRef.current?.clear();
+      padRef.current = null;
+      initCanvasAndPad();
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // écouteurs pointer pour détecter début/fin de dessin
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const handlePointerDown = () => {
+      // dès qu'on appuie, on considère qu'il y a une signature (temporaire)
+    };
+
+    const handlePointerUp = () => {
+      // quand on relâche, on vérifie réellement si le pad a des tracés
+      //const pad = padRef.current;
+    };
+
+    // Utilisation de pointer events (couvre souris + tactile)
+    canvas.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("pointerup", handlePointerUp);
+
+    return () => {
+      canvas.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("pointerup", handlePointerUp);
+    };
+  }, []); // on attache une seule fois au montage
+
 
   useEffect(() => {
     const loadData = async () => {
@@ -69,11 +131,14 @@ export function DraftForm() {
     loadData();
   }, []);
 
-
   const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
     setIsSubmitting(true);
     try {
-      if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
+      if (!data.DateFinCoti) {
+        toast.error("Veuillez cotiser avant de créer le grimpeur !");
+        return;
+      }
+      if (padRef.current?.isEmpty()) {
         toast.error("Veuillez signer avant de créer le grimpeur !");
         return;
       }
@@ -86,38 +151,47 @@ export function DraftForm() {
       setCreatedGrimpeurId(result.data.NumGrimpeur);
       const grimpeur = result.data;
 
-    const signatureBase64 = sigCanvas.current?.getTrimmedCanvas().toDataURL("image/png");
-    if (signatureBase64) {
-      const sigResult = await updateGrimpeurSignature(
-        grimpeur.NumGrimpeur,
-        signatureBase64,
-        data.AccordReglement,
-        data.AccordParental
-      );
-
-      if (!sigResult.success) {
-        toast.error(sigResult.message);
-        return; // stop ici
-      }
-    }
-
-    // 3️⃣ Création transaction si abonnement ou ticket choisi
-    if (data.TypeAbo) {
-      const abo = abonnements.find((a) => a.TypeAbo === data.TypeAbo);
-      if (abo) {
-        const transRes = await postTransaction({
-          TypeObjet: "abonnement",
-          IdObjet: abo.IdAbo,
-          NumGrimpeur: grimpeur.NumGrimpeur,
-          TypeAbo: abo.TypeAbo,
-          DureeAbo: abo.DureeAbo,
-          DateFinAbo: data.DateFinAbo,
-        });
-        if (!transRes.success) {
-          toast.error(transRes.message);
+      // 2️⃣ Enregistrement de la signature
+      const pad = padRef.current;
+      const canvas = canvasRef.current;
+      if (!pad || !canvas || pad.isEmpty()) return;
+      const signatureBase64 = canvasRef.current?.toDataURL("image/png");
+      if (!signatureBase64) return toast.warning("Veuillez signer avant d'enregistrer !");
+      setIsSubmitting(true);
+      try {
+        const res = await updateGrimpeurSignature(
+          grimpeur.NumGrimpeur,
+          signatureBase64,
+          data.AccordParental
+        );
+        if (!res.success) {
+          toast.error(res.message);
           return;
-        }
+          }
+      }catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        toast.error(message || "Erreur ...");
+      } finally {
+        setIsSubmitting(false);
       }
+
+      // 3️⃣ Création transaction si abonnement ou ticket choisi
+      if (data.TypeAbo) {
+        const abo = abonnements.find((a) => a.TypeAbo === data.TypeAbo);
+        if (abo) {
+          const transRes = await postTransaction({
+            TypeObjet: "abonnement",
+            IdObjet: abo.IdAbo,
+            NumGrimpeur: grimpeur.NumGrimpeur,
+            TypeAbo: abo.TypeAbo,
+            DureeAbo: abo.DureeAbo,
+            DateFinAbo: data.DateFinAbo,
+          });
+          if (!transRes.success) {
+            toast.error(transRes.message);
+            return;
+          }
+        }
     }
 
     if (data.TypeTicket) {
@@ -141,7 +215,7 @@ export function DraftForm() {
     // ✅ Succès
     setHasSucceeded(true);
     form.reset();
-    sigCanvas.current?.clear();
+    handleClearSignature();
 
   } catch (err) {
     const message = (err as Error)?.message ?? "Erreur lors de la création du client";
@@ -150,6 +224,21 @@ export function DraftForm() {
     setIsSubmitting(false);
   }
 });
+
+  const handleClearSignature = () => {
+    padRef.current?.clear();
+  };
+
+  const handleToggleCoti = (checked: boolean, onChange: (value: string | undefined) => void) => {
+    if (checked) {
+      const date = new Date();
+      date.setFullYear(date.getFullYear() + 1);
+      onChange(date.toISOString().split("T")[0]);
+    } else {
+      onChange(undefined);
+    }
+  };
+
 
   if (hasSucceeded) {
     return (
@@ -193,7 +282,7 @@ export function DraftForm() {
             variant="default"
             onClick={() => {
               form.reset();
-              sigCanvas.current?.clear();
+              handleClearSignature();
               setHasSucceeded(false);
               setCreatedGrimpeurId(null);
             }}
@@ -524,33 +613,50 @@ return (
 
         {/* --- Cotisation --- */}
         <section className="border border-gray-200 rounded-xl p-5 bg-gray-50 flex flex-col gap-4">
-          <h3 className="text-xl font-semibold mb-2 text-gray-700 border-b pb-2">Cotisation *</h3>
+          <h3 className="text-xl font-semibold mb-2 text-gray-700 border-b pb-2">
+            Cotisation *
+          </h3>
 
           <FormField
             control={form.control}
             name="DateFinCoti"
-            rules={{ required: "La cotisation est obligatoire" }}
-            render={({ field }) => (
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white rounded-xl shadow-sm">
-                <div className="flex w-full gap-1 items-center justify-between">
-                  <p className=" text-gray-700">Cotisation obligatoire</p>
+            render={({ field }) => {
+              const isChecked = Boolean(field.value);
 
-                  <Switch
-                    checked={!!field.value}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        const date = new Date();
-                        date.setFullYear(date.getFullYear() + 1);
-                        field.onChange(date.toISOString().split("T")[0]);
-                      } else field.onChange(undefined);
-                    }}
-                  />
+              const handleRowClick = () => {
+                handleToggleCoti(!isChecked, field.onChange);
+              };
+
+              const handleSwitchClick = (event: React.MouseEvent) => {
+                event.stopPropagation();
+              };
+
+              return (
+                <div
+                  className="
+                    flex flex-row items-center justify-between
+                    gap-4 p-4 bg-white rounded-xl shadow-sm
+                    cursor-pointer select-none
+                    hover:bg-gray-100 transition
+                  "
+                  onClick={handleRowClick}
+                >
+                  <p className="text-gray-700">Cotisation obligatoire</p>
+
+                  <div onClick={handleSwitchClick}>
+                    <Switch
+                      checked={isChecked}
+                      onCheckedChange={(checked) =>
+                        handleToggleCoti(checked, field.onChange)
+                      }
+                    />
+                  </div>
                 </div>
-
-              </div>
-            )}
+              );
+            }}
           />
         </section>
+
 
 
         {/* --- Signature --- */}
@@ -559,21 +665,18 @@ return (
           <FormField
             control={form.control}
             name="AccordReglement"
-            render={({ field }) => (
-              <FormItem>
-                <div className="flex flex-col items-center gap-3">
-                  <SignatureCanvas
-                    ref={sigCanvas}
-                    penColor="black"
-                    backgroundColor="white"
-                    canvasProps={{ className: "border w-full sm:w-96 h-40 bg-white rounded shadow-sm" }}
-                    onEnd={() => {
-                      const hasDrawing = !!(sigCanvas.current && !sigCanvas.current.isEmpty());
-                      field.onChange(hasDrawing);
-                    }}
+            render={() => (
+              <FormItem className="flex flex-col sm:flex-row gap-4 justify-center-safe">
+                <div className="flex flex-col">
+                  <canvas
+                    ref={canvasRef}
+                    className="border border-gray-200 w-full h-64 bg-white rounded"
+                    style={{ touchAction: "none" }}
                   />
-                  <div className="flex gap-2">
-                    <Button type="button" variant="secondary" size="sm" onClick={() => { sigCanvas.current?.clear(); field.onChange(false); }}>Effacer</Button>
+                  <div className="flex gap-2 justify-center">
+                    <Button type="button" variant="outline" onClick={handleClearSignature}>
+                      Effacer
+                    </Button>
                   </div>
                 </div>
               </FormItem>
@@ -581,21 +684,55 @@ return (
           />
 
           {/* Accord Parental */}
-          <FormField
-            control={form.control}
-            name="AccordParental"
-            render={({ field }) => (
-              <div className="flex items-center justify-between gap-2">
-                <FormLabel>Accord Parental</FormLabel>
-                <p className="text-sm text-gray-600">
-                  Votre signature ci-dessus vaut aussi pour l'autorisation parentale si elle est cochée.
-                </p>
-                <FormControl>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
-              </div>
-            )}
-          />
+          <div className="flex flex-col items-center w-full mt-6">
+            <FormField
+              control={form.control}
+              name="AccordParental"
+              render={({ field }) => (
+                <div className="flex flex-col items-center space-y-3 w-full">
+
+                  {/* Ligne cliquable */}
+                  <div
+                    className="
+                      flex justify-between items-center
+                      w-full max-w-[500px]
+                      cursor-pointer select-none
+                      px-2 py-2
+                      rounded-lg
+                      hover:bg-gray-100 transition
+                    "
+                    onClick={() => field.onChange(!field.value)}
+                  >
+                    <FormLabel className="cursor-pointer text-gray-800">
+                      Accord Parental
+                    </FormLabel>
+
+                    <FormControl>
+                      <div
+                        onClick={(e) => {
+                          // Empêche la ligne de capturer le clic du switch
+                          e.stopPropagation();
+                        }}
+                      >
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={(checked) => field.onChange(checked)}
+                        />
+                      </div>
+                    </FormControl>
+                  </div>
+
+                  {/* Texte explicatif sous la même largeur que le canvas */}
+                  <p className="text-sm text-gray-600 text-center max-w-[500px]">
+                    Votre signature ci-dessus vaut aussi pour l'autorisation parentale si elle est cochée.
+                  </p>
+                </div>
+              )}
+            />
+          </div>
+
+
+
         </section>
 
         {/* --- Note --- */}

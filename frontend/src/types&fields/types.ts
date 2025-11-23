@@ -127,6 +127,5 @@ export type Club = {
 export type responsePostClientSignature = {
   message: string,
   CheminSignature: string,
-  AccordReglement: boolean,
   AccordParental: boolean,
 }

@@ -23,11 +23,11 @@ import {
   SelectValue,
 } from "@/src/components/ui/select";
 import { toast } from "react-toastify";
-import SignatureCanvas from "react-signature-canvas";
-import { API_URL } from "@/src/services/real";
 import { Switch } from "../ui/switch";
 import { ConfirmButton } from "./buttonConfirm";
 import LoadingSpinner from "./LoadingSpinner";
+import SignaturePad from "signature_pad";
+import { API_URL } from "@/src/services/real";
 
 interface ClientEditProps {
   numClient: number;
@@ -46,11 +46,71 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
   const [newAboDate, setNewAboDate] = useState<string>("");
   const [newTicket, setNewTicket] = useState<string | null>(null);
   const [newTicketSeances, setNewTicketSeances] = useState<number>(0);
-  const sigCanvas = useRef<SignatureCanvas | null>(null);
-  const [isUpdatingSignature, setIsUpdatingSignature] = useState(false);
-  const [signatureDrawn, setSignatureDrawn] = useState(false);
   const [clientInfo, setClientInfo] = useState<Client | null>(null);
   const [formData, setFormData] = useState<Client | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const padRef = useRef<SignaturePad | null>(null);
+  const [isUpdatingSignature, setIsUpdatingSignature] = useState(false);
+
+  const initCanvasAndPad = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // ajuster la résolution pour écrans haute densité
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    const ctx = canvas.getContext("2d");
+    if (ctx) ctx.scale(ratio, ratio);
+
+    // crée le pad et stocke dans la ref
+    const pad = new SignaturePad(canvas, {
+      penColor: "black",
+      backgroundColor: "white",
+    });
+    padRef.current = pad;
+  };
+  // initialisation (montage)
+  useEffect(() => {
+    initCanvasAndPad();
+  }, [canvasRef.current]);
+
+  // gestion du redimensionnement : réinitialise le canvas proprement
+  useEffect(() => {
+    const handleResize = () => {
+      // clear existing pad first
+      padRef.current?.clear();
+      padRef.current = null;
+      initCanvasAndPad();
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // écouteurs pointer pour détecter début/fin de dessin
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const handlePointerDown = () => {
+      // dès qu'on appuie, on considère qu'il y a une signature (temporaire)
+    };
+
+    const handlePointerUp = () => {
+      // quand on relâche, on vérifie réellement si le pad a des tracés
+      //const pad = padRef.current;
+    };
+
+    // Utilisation de pointer events (couvre souris + tactile)
+    canvas.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("pointerup", handlePointerUp);
+
+    return () => {
+      canvas.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("pointerup", handlePointerUp);
+    };
+  }, []); // on attache une seule fois au montage
 
 
   useEffect(() => {
@@ -81,6 +141,7 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
     loadData();
   }, []);
 
+
   if (!clientInfo || !formData){
     return (
       <LoadingSpinner/>
@@ -108,14 +169,6 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
     if (newAboDate) return true;
     if (newTicketSeances && Number(newTicketSeances) !== (clientInfo.NbSeanceRest ?? 0)) return true;
 
-    // Unsaved signature on canvas (user drew something but didn't save)
-    try {
-      // rely on signatureDrawn state which updates on canvas onEnd
-      if (signatureDrawn) return true;
-    } catch {
-      // ignore errors
-    }
-
     return false;
   };
   const isDirty = computeIsDirty();
@@ -128,9 +181,13 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
       let updated = { ...formData }; // snapshot local
 
       // --- Signature ---
-      if (sigCanvas.current && !sigCanvas.current.isEmpty()) {
-        await handleSignatureSave();
-        updated = { ...formData, AccordReglement: true };
+      if (!padRef.current?.isEmpty()) {
+        const newPath = await handleSignatureSave();
+        updated = {
+          ...updated,
+          CheminSignature: String(newPath) ?? updated.CheminSignature,
+          AccordReglement: true,
+        };
       }
 
       // --- Nouvel abonnement ---
@@ -296,36 +353,47 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
     }
   };
 
+  const handleClearSignature = () => {
+    padRef.current?.clear();
+  };
+
   const handleSignatureSave = async () => {
-    if (!sigCanvas.current) return;
-    const signatureBase64 = sigCanvas.current
-      ?.getTrimmedCanvas()
-      .toDataURL("image/png");
+    const pad = padRef.current;
+    const canvas = canvasRef.current;
+
+    if (!pad || !canvas || pad.isEmpty()) return;
+
+    const signatureBase64 = canvasRef.current?.toDataURL("image/png");
+
     if (!signatureBase64) return toast.warning("Veuillez signer avant d'enregistrer !");
+
     setIsUpdatingSignature(true);
     try {
       const res = await updateGrimpeurSignature(
         formData.NumGrimpeur,
         signatureBase64,
-        formData.AccordReglement,
         formData.AccordParental
       );
       if (res.success) {
+        const newPath = res.data?.CheminSignature ?? null;
         toast.success("Signature mise à jour !");
         setFormData((prev) => {
           if (!prev) return prev; // prev est null → on ne change rien
           return {
             ...prev,
-            CheminSignature: res.data?.CheminSignature ?? prev.CheminSignature,
+            CheminSignature: newPath ?? prev.CheminSignature,
             AccordReglement: true,
           };
         });
-        sigCanvas.current?.clear();
-        setSignatureDrawn(false);
-      } else toast.error(res.message || "Erreur lors de la mise à jour");
+        handleClearSignature();
+        return newPath;
+      }
+      toast.error(res.message || "Erreur lors de la mise à jour");
+      return null;
     }catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       toast.error(message || "Erreur ...");
+      return null;
     } finally {
       setIsUpdatingSignature(false);
     }
@@ -532,7 +600,8 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
 
         {/* --- Signature --- */}
         <section className="border border-gray-200 rounded-xl p-5 bg-gray-50 flex flex-col gap-4">
-          <h3 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Signature du règlement</h3>
+          <h1 className="text-2xl font-bold mb-6">Test de Signature</h1>
+
           <div className="flex flex-col sm:flex-row gap-4">
             {formData.CheminSignature && (
               <div className="flex flex-col">
@@ -541,28 +610,22 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
               </div>
             )}
             <div className="flex flex-col">
-              <SignatureCanvas
-                ref={sigCanvas}
-                penColor="black"
-                backgroundColor="white"
-                canvasProps={{ className: "border w-full sm:w-96 h-40 bg-white rounded shadow-sm" }}
-                onEnd={() => {
-                  try {
-                    const drawn = !!(sigCanvas.current && !sigCanvas.current.isEmpty());
-                    setSignatureDrawn(drawn);
-                  } catch {
-                    setSignatureDrawn(true);
-                  }
-                }}
+              <canvas
+                ref={canvasRef}
+                className="border border-gray-200 w-full h-64 bg-white rounded"
+                style={{ touchAction: "none" }}
               />
               <div className="flex gap-2 mt-2">
-                <Button type="button" variant="secondary" size="sm" onClick={() => { sigCanvas.current?.clear(); setSignatureDrawn(false); }}>Effacer</Button>
-                <Button type="button" variant="default" size="sm" onClick={handleSignatureSave} disabled={isUpdatingSignature}>
+                <Button type="button" variant="outline" onClick={handleClearSignature}>
+                  Effacer
+                </Button>
+                <Button type="button" variant="default" onClick={handleSignatureSave} disabled={isUpdatingSignature}>
                   {isUpdatingSignature ? "Enregistrement..." : "Mettre à jour la signature"}
                 </Button>
               </div>
             </div>
           </div>
+
           <div>
             {formData.AccordReglement ? <p className="text-green-600 font-semibold">Règlement signé ✅</p> : <p className="text-red-500 font-semibold">Règlement non signé ❌</p>}
           </div>

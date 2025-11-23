@@ -1,7 +1,6 @@
-from flask import Flask, jsonify, request
+from flask import Flask
 from flask_cors import CORS
-from flask_restful import Resource, Api
-from models import Clients
+from flask_restful import Api
 from db import create_engine, get_session, test_connection
 
 from controllers.grimpeur import *

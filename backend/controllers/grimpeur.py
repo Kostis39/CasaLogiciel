@@ -191,7 +191,7 @@ class GrimpeurAccords(Resource):
             accord_parental = request.args.get("AccordParental")
 
             grimpeur.AccordReglement = True
-            print("---------------Last AccordParental to", grimpeur.AccordReglement)
+
             if accord_parental is not None:
                 grimpeur.AccordParental = True
 
