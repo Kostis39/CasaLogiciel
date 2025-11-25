@@ -132,6 +132,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
       const updatedClient: Client = {
         ...clientInfo,
         NbSeanceRest: (clientInfo.NbSeanceRest ?? 0) + 1,
+        TicketId: 1,
       };
 
       const updateResult = await updateClientData(updatedClient);

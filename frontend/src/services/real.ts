@@ -1,6 +1,6 @@
 import { getTodayPlusOneYear, isDateValid } from "./api";
 import { Client, ApiResponse, TransactionForm, ClientForm, Transaction, ClubForm, Abonnement, Ticket, Club, responsePostClientSignature } from "../types&fields/types";
-export const API_URL = "http://localhost:5000";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const realService = {
     // Récupère un ticket par son id
@@ -301,9 +301,9 @@ export const realService = {
       const date = now.toISOString().split("T")[0];
       const heure = now.toTimeString().split(" ")[0];
 
-      let note = data.Note;
+      let note = data.Note? data.Note : "";
 
-      if (!note && data.TypeObjet === "abonnement" && data.DureeAbo) {
+      if (data.TypeObjet === "abonnement" && data.DureeAbo) {
         const today = new Date();
         const baseFin = new Date(today);
         baseFin.setDate(today.getDate() + data.DureeAbo);
@@ -314,9 +314,9 @@ export const realService = {
         );
 
         if (diffDays > 0) {
-          note = `Abonnement : ${data.TypeAbo} — +${diffDays} jours ajoutés (${data.DureeAbo + diffDays}j au lieu de ${data.DureeAbo}j)`;
+          note += `Abonnement : ${data.TypeAbo} — +${diffDays} jours ajoutés (${data.DureeAbo + diffDays}j au lieu de ${data.DureeAbo}j)`;
         } else if (diffDays < 0) {
-          note = `Abonnement : ${data.TypeAbo} — ${diffDays} jours retirés (${data.DureeAbo + diffDays}j au lieu de ${data.DureeAbo}j)`;
+          note += `Abonnement : ${data.TypeAbo} — ${diffDays} jours retirés (${data.DureeAbo + diffDays}j au lieu de ${data.DureeAbo}j)`;
         }
       }
 
@@ -324,9 +324,9 @@ export const realService = {
         const diff = (data.NbSeanceRest ?? data.NbSeanceTicket) - data.NbSeanceTicket;
 
         if (diff > 0) {
-          note = `Ticket : ${data.TypeTicket} — +${diff} séances ajoutées (${data.NbSeanceTicket + diff} au lieu de ${data.NbSeanceTicket})`;
+          note += `Ticket : ${data.TypeTicket} — +${diff} séances ajoutées (${data.NbSeanceTicket + diff} au lieu de ${data.NbSeanceTicket})`;
         } else if (diff < 0) {
-          note = `Ticket : ${data.TypeTicket} — ${diff} séances retirées (${data.NbSeanceTicket + diff} au lieu de ${data.NbSeanceTicket})`;
+          note += `Ticket : ${data.TypeTicket} — ${diff} séances retirées (${data.NbSeanceTicket + diff} au lieu de ${data.NbSeanceTicket})`;
         }
       }
 

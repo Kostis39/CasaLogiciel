@@ -27,7 +27,7 @@ const SearchClient = () => {
         <Label htmlFor="search" className="sr-only"></Label>
         <SidebarInput
             className="pl-8"
-            placeholder="Num, nom, prenom"
+            placeholder="Num, nom, prenom, club"
             defaultValue={searchParams.get('query')?.toString()}
             onChange={(e) => {
                 handleSearch(e.target.value);

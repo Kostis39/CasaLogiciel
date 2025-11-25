@@ -17,7 +17,7 @@ class Seances(Resource):
         offset = request.args.get("offset", 0, type=int)
 
         with sesh() as session:
-            query = session.query(Clients.Seance)
+            query = session.query(Clients.Seance).order_by(Clients.Seance.IdSeance.desc())
             total = query.count()
             seances = query.offset(offset).limit(limit).all()
 
@@ -85,7 +85,7 @@ class SeancesById(Resource):
         offset = request.args.get("offset", 0, type=int)
 
         with sesh() as session:
-            query = session.query(Clients.Seance).filter_by(IdSeance=id_seance)
+            query = session.query(Clients.Seance).filter_by(IdSeance=id_seance).order_by(Clients.Seance.IdSeance.desc())
             total = query.count()
             seances = query.offset(offset).limit(limit).all()
 
@@ -112,7 +112,7 @@ class SeancesByGrimpeur(Resource):
         offset = request.args.get("offset", 0, type=int)
 
         with sesh() as session:
-            query = session.query(Clients.Seance).filter_by(NumGrimpeur=num_grimpeur)
+            query = session.query(Clients.Seance).filter_by(NumGrimpeur=num_grimpeur).order_by(Clients.Seance.NumGrimpeur.desc())
             total = query.count()
             seances = query.offset(offset).limit(limit).all()
 
@@ -153,7 +153,7 @@ class SeancesByDate(Resource):
         offset = request.args.get("offset", 0, type=int)
 
         with sesh() as session:
-            query = session.query(Clients.Seance).filter_by(DateSeance=date_str)
+            query = session.query(Clients.Seance).filter_by(DateSeance=date_str).order_by(Clients.Seance.IdSeance.desc())
             total = query.count()
             seances = query.offset(offset).limit(limit).all()
 

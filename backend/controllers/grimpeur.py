@@ -58,7 +58,7 @@ class GrimpeursListe(Resource):
         limit = request.args.get("limit", 20, type=int)
         offset = request.args.get("offset", 0, type=int)
         with sesh() as session:
-            query = session.query(Clients.Grimpeur)
+            query = session.query(Clients.Grimpeur).order_by(Clients.Grimpeur.NumGrimpeur.desc())
             total = query.count()
             grimpeurs = query.offset(offset).limit(limit).all()
             return {"data": [g.to_dict() for g in grimpeurs], "total": total}, 200
@@ -224,7 +224,8 @@ class GrimpeurSearch(Resource):
             for token in tokens:
                 subconds = [
                     Clients.Grimpeur.NomGrimpeur.ilike(f"%{token}%"),
-                    Clients.Grimpeur.PrenomGrimpeur.ilike(f"%{token}%")
+                    Clients.Grimpeur.PrenomGrimpeur.ilike(f"%{token}%"),
+                    Groupes.Club.NomClub.ilike(f"%{token}%"),
                 ]
 
                 # Si c’est un nombre, on cherche aussi par NumGrimpeur
@@ -237,7 +238,7 @@ class GrimpeurSearch(Resource):
                 conditions.append(or_(*subconds))
 
             # Tous les tokens doivent matcher (AND entre eux)
-            grimpeurs = session.query(Clients.Grimpeur).filter(and_(*conditions))
+            grimpeurs = session.query(Clients.Grimpeur).join(Groupes.Club, Clients.Grimpeur.ClubId == Groupes.Club.IdClub).filter(and_(*conditions)).order_by(Clients.Grimpeur.NumGrimpeur.desc())
 
             total = grimpeurs.count()
             grimpeurs = grimpeurs.offset(offset).limit(limit).all()

@@ -33,13 +33,11 @@ def validate_club_data(data):
 
 class ClubsListe(Resource):
     def get(self):
-        limit = request.args.get("limit", 20, type=int)
-        offset = request.args.get("offset", 0, type=int)
 
         with sesh() as session:
             query = session.query(Groupes.Club)
             total = query.count()
-            clubs = query.offset(offset).limit(limit).all()
+            clubs = query.all()
             return {"data": [c.to_dict() for c in clubs], "total": total}, 200
 
     def post(self):
@@ -51,19 +49,30 @@ class ClubsListe(Resource):
         if errors:
             return {"message": errors, "errors": errors}, 400
 
-        new_club = Groupes.Club()
-        for key, value in json_data.items():
-            if key in ALLOWED_FIELDS and value is not None:
-                setattr(new_club, key, value)
-
         with sesh() as session:
+
+            # 🔍 Vérifie si un club avec ce nom existe déjà
+            if "NomClub" in json_data:
+                nom = json_data["NomClub"].strip()
+                existe = session.query(Groupes.Club).filter_by(NomClub=nom).first()
+                if existe:
+                    return {"message": "Un club avec ce nom existe déjà"}, 400
+
+            # Création du club
+            new_club = Groupes.Club()
+            for key, value in json_data.items():
+                if key in ALLOWED_FIELDS and value is not None:
+                    setattr(new_club, key, value)
+
             session.add(new_club)
             session.commit()
             session.refresh(new_club)
+
             return {
                 "message": "Club créé avec succès",
                 "club": new_club.to_dict()
             }, 201
+
 
 
 class ClubResource(Resource):
@@ -87,7 +96,16 @@ class ClubResource(Resource):
             for key, value in json_data.items():
                 if key in ALLOWED_FIELDS:
                     setattr(club, key, value)
-
+            if "NomClub" in json_data:
+                nouveau_nom = json_data["NomClub"].strip()
+                # Vérifie si un autre club a déjà ce nom
+                existe = (
+                    session.query(Groupes.Club)
+                    .filter(Groupes.Club.NomClub == nouveau_nom, Groupes.Club.IdClub != id)
+                    .first()
+                )
+                if existe:
+                    return {"message": "Un club avec ce nom existe déjà"}, 400
             session.commit()
             return club.to_dict(), 200
 

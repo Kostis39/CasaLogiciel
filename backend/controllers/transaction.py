@@ -14,7 +14,7 @@ class Transactions(Resource):
         offset = request.args.get("offset", 0, type=int)
 
         with sesh() as session:
-            query = session.query(Clients.Transaction)
+            query = session.query(Clients.Transaction).order_by(Clients.Transaction.IdTransac.desc())
             total = query.count()
             transactions = query.offset(offset).limit(limit).all()
 
@@ -80,7 +80,7 @@ class TransactionById(Resource):
         offset = request.args.get("offset", 0, type=int)
 
         with sesh() as session:
-            query = session.query(Clients.Transaction).filter_by(IdTransac=id_transac)
+            query = session.query(Clients.Transaction).filter_by(IdTransac=id_transac).order_by(Clients.Transaction.IdTransac.desc())
             total = query.count()
             transactions = query.offset(offset).limit(limit).all()
 
@@ -110,7 +110,7 @@ class TransactionsByGrimpeur(Resource):
         offset = request.args.get("offset", 0, type=int)
 
         with sesh() as session:
-            query = session.query(Clients.Transaction).filter_by(NumGrimpeur=num_grimpeur)
+            query = session.query(Clients.Transaction).filter_by(NumGrimpeur=num_grimpeur).order_by(Clients.Transaction.NumGrimpeur.desc())
             total = query.count()
             transactions = query.offset(offset).limit(limit).all()
 
@@ -130,7 +130,7 @@ class TransactionsByDate(Resource):
         offset = request.args.get("offset", 0, type=int)
 
         with sesh() as session:
-            query = session.query(Clients.Transaction).filter_by(DateTransac=date_str)
+            query = session.query(Clients.Transaction).filter_by(DateTransac=date_str).order_by(Clients.Transaction.IdTransac.desc())
             total = query.count()
             transactions = query.offset(offset).limit(limit).all()
 
