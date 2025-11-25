@@ -38,7 +38,7 @@ python extract_data.py
 1. Lancer l'API:
 ```bash
 cd backend
-python api.py
+gunicorn -w 4 -b 0.0.0.0:5000 api:app
 ```
 2. Lancer le frontend:
 ```bash
@@ -46,7 +46,7 @@ cd frontend
 npm run build 
 npm run start
 ```
-C'est normal si il ya 2 Warning lors du build.
+C'est normal si il ya 3 Warning lors du build.
 
 ## Fichiers de config
 #### Extraction base de donnees
@@ -59,5 +59,5 @@ Le fichier `backend/db.python` contient tout le protocle pour ce connecter à la
 
 #### Frontend
 
-Le fichier `frontend/.env.local` le path de l'API (changeable même après le build du frontend).
+Le fichier `frontend/.env.local` le path de l'API (il faut rebuild pour que ça marche).
 
