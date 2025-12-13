@@ -4,7 +4,8 @@
 
 - Python 3.11
 - Installer les package nécessaire:
-```python 
+```bash
+cd backend
 pip install - r pyreqs.txt
 ```
 - npm : Next.js 15.3.2 + tailwind
