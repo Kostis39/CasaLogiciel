@@ -76,7 +76,7 @@ class Transaction(Casabase, SerializerMixin):
         ForeignKey("Grimpeur.NumGrimpeur"), nullable=True
     )
 
-
+"""
 class Reduction(Casabase, SerializerMixin):
     __tablename__ = "Reduction"
 
@@ -98,3 +98,4 @@ class Produit(Casabase, SerializerMixin):
     IdReduc: Mapped[int] = mapped_column(ForeignKey("Reduction.IdReduc"), nullable=True)
     Visibilite: Mapped[bool] = mapped_column(default=True)
     PrixProduit: Mapped[float] = mapped_column(nullable=True)
+"""

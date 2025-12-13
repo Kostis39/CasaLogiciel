@@ -1,22 +1,11 @@
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String
 from sqlalchemy_serializer import SerializerMixin
-from datetime import date, time
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from .Base import Casabase
 
 
 # Ce fichier contient tous les modèles ORM en relation avec les groupes club et scolaires
-class Creneau(Casabase, SerializerMixin):
-    __tablename__ = "Creneau"
-
-    IdCreneau: Mapped[int] = mapped_column(primary_key=True)
-    DateCreneau: Mapped[date] = mapped_column()
-    HeureDeb: Mapped[time] = mapped_column()
-    HeureFin: Mapped[time] = mapped_column()
-    TypeCreneau: Mapped[str] = mapped_column(String(50))
-    NbPersonnes: Mapped[int] = mapped_column()
-
 
 # En lien avec les clubs
 class Club(Casabase, SerializerMixin):
@@ -31,6 +20,16 @@ class Club(Casabase, SerializerMixin):
     AdresseClub: Mapped[str] = mapped_column(String(90), nullable=True)
     SiteInternet: Mapped[str] = mapped_column(String(150), nullable=True)
 
+"""
+class Creneau(Casabase, SerializerMixin):
+    __tablename__ = "Creneau"
+
+    IdCreneau: Mapped[int] = mapped_column(primary_key=True)
+    DateCreneau: Mapped[date] = mapped_column()
+    HeureDeb: Mapped[time] = mapped_column()
+    HeureFin: Mapped[time] = mapped_column()
+    TypeCreneau: Mapped[str] = mapped_column(String(50))
+    NbPersonnes: Mapped[int] = mapped_column()
 
 class GrimpeurClub(Casabase, SerializerMixin):
     __tablename__ = "GrimpeurClub"
@@ -79,3 +78,4 @@ class CreneauEtab(Casabase, SerializerMixin):
     IdEtab: Mapped[int] = mapped_column(
         ForeignKey("Etablissement.IdEtab"), primary_key=True
     )
+"""
