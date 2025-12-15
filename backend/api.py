@@ -1,27 +1,47 @@
-from flask import Flask
+from flask import Flask, g
 from flask_cors import CORS
 from flask_restful import Api
 from db import create_engine, get_session, test_connection
 
 from controllers.grimpeur import *
-from controllers.produits import *
 from controllers.abonnement import *
 from controllers.ticket import *
 from controllers.seance import *
 from controllers.transaction import *
 from controllers.club import *
+from middleware import setup_logging
+
 
 # Flask Setup
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
 
-# Init Base
+# Init Database
 engine = create_engine()
-sesh = get_session(engine)
-
-# Test connection
 test_connection(engine)
+
+setup_logging(app)
+
+# Database session management
+@app.before_request
+def before_request():
+    """Create a new database session for each request"""
+    g.db_session = get_session(engine)()
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    """Close database session at end of request"""
+    db_session = g.pop('db_session', None)
+    if db_session is not None:
+        db_session.close()
+
+@app.errorhandler(Exception)
+def handle_error(error):
+    """Catch any unhandled errors"""
+    print(f"✗ Error: {error}")
+    return {"error": str(error)}, 500
+
 
 
 # Vraies classes
@@ -36,10 +56,6 @@ api.add_resource(SeancesById, "/seances/id/<int:id_seance>")
 api.add_resource(SeancesByGrimpeur, "/seances/grimpeur/<int:num_grimpeur>")
 api.add_resource(SeancesByDate, "/seances/date/<string:date_str>")
 api.add_resource(SeanceExistante, '/seances/grimpeur/<int:num_grimpeur>/aujourdhui')
-api.add_resource(Produit, "/produit/<int:id>")
-api.add_resource(SousProduit, "/sousproduits/<int:idParent>")
-api.add_resource(RacineProduits, "/racineproduits")
-api.add_resource(Produits, "/produits")
 api.add_resource(Tickets, "/tickets")
 api.add_resource(Ticket, "/ticket/<int:id>")
 api.add_resource(Abonnements, "/abonnements")
@@ -53,7 +69,6 @@ api.add_resource(ClubsListe, "/clubs")                              # GET all, P
 api.add_resource(ClubResource, "/clubs/<int:id>")                   # GET, PUT, DELETE by id
 api.add_resource(ClubGrimpeurs, "/clubs/<int:id>/grimpeurs")        # GET tous les grimpeurs d’un club
 
-"""
+
 if __name__ == "__main__":
     app.run(debug=True)
-"""

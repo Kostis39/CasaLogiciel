@@ -1,49 +1,76 @@
-from flask import request
+from flask import request, g
 from flask_restful import Resource
 from models import Clients
-from db import create_engine, get_session
+import logging
 
-engine = create_engine()
-sesh = get_session(engine)
+logger = logging.getLogger(__name__)
 
 class Tickets(Resource):
     def get(self):
-        with sesh() as session:
-            tickets = session.query(Clients.Ticket).all()
-            return [ticket.to_dict() for ticket in tickets], 200
+        """Get all tickets"""
+        try:
+            limit = request.args.get("limit", 20, type=int)
+            offset = request.args.get("offset", 0, type=int)
+            
+            limit = min(limit, 100)
+            offset = max(offset, 0)
+            
+            query = g.db_session.query(Clients.Ticket).order_by(
+                Clients.Ticket.IdTicket.desc()
+            )
+            total = query.count()
+            tickets = query.offset(offset).limit(limit).all()
+            
+            return {
+                "data": [ticket.to_dict() for ticket in tickets],
+                "total": total
+            }, 200
+        except Exception as e:
+            logger.error(f"Error fetching tickets: {e}")
+            return {"message": "Erreur lors de la récupération"}, 500
 
     def post(self):
-        json = request.get_json()
-        if json is None:
-            return {"message": "No JSON data provided"}, 400
+        """Create a new ticket"""
+        try:
+            json = request.get_json()
+            if json is None:
+                return {"message": "No JSON data provided"}, 400
 
-        nouveau_ticket = Clients.Ticket()
-        for key, value in json.items():
-            setattr(nouveau_ticket, key, value)
+            nouveau_ticket = Clients.Ticket()
+            for key, value in json.items():
+                if value is not None and hasattr(nouveau_ticket, key):
+                    setattr(nouveau_ticket, key, value)
 
-        with sesh() as session:
-            session.add(nouveau_ticket)
-            session.commit()
-            session.refresh(nouveau_ticket)
+            g.db_session.add(nouveau_ticket)
+            g.db_session.commit()
+            g.db_session.refresh(nouveau_ticket)
             return nouveau_ticket.to_dict(), 201
+        except Exception as e:
+            logger.error(f"Error creating ticket: {e}")
+            g.db_session.rollback()
+            return {"message": "Erreur lors de la création"}, 500
 
 
 class Ticket(Resource):
     def get(self, id):
-        with sesh() as session:
-            ticket = session.query(Clients.Ticket).filter_by(IdTicket=id).first()
-            if ticket:
-                return ticket.to_dict(), 200
-            else:
+        """Get a single ticket by ID"""
+        try:
+            ticket = g.db_session.query(Clients.Ticket).filter_by(IdTicket=id).first()
+            if not ticket:
                 return {"message": "Ticket not found"}, 404
+            return ticket.to_dict(), 200
+        except Exception as e:
+            logger.error(f"Error fetching ticket {id}: {e}")
+            return {"message": "Erreur lors de la récupération"}, 500
 
     def put(self, id):
-        json_data = request.get_json()
-        if not json_data:
-            return {"message": "No input data provided"}, 400
+        """Update a ticket"""
+        try:
+            json_data = request.get_json()
+            if not json_data:
+                return {"message": "No input data provided"}, 400
 
-        with sesh() as session:
-            ticket = session.query(Clients.Ticket).filter_by(IdTicket=id).first()
+            ticket = g.db_session.query(Clients.Ticket).filter_by(IdTicket=id).first()
             if not ticket:
                 return {"message": "Ticket not found"}, 404
 
@@ -51,79 +78,56 @@ class Ticket(Resource):
                 if hasattr(ticket, key):
                     setattr(ticket, key, value)
 
-            session.commit()
+            g.db_session.commit()
             return ticket.to_dict(), 200
+        except Exception as e:
+            logger.error(f"Error updating ticket {id}: {e}")
+            g.db_session.rollback()
+            return {"message": "Erreur lors de la mise à jour"}, 500
 
     def delete(self, id):
-        with sesh() as session:
-            # Recherche du ticket
-            ticket = session.query(Clients.Ticket).filter_by(IdTicket=id).first()
+        """Delete a ticket (with integrity checks)"""
+        try:
+            ticket = g.db_session.query(Clients.Ticket).filter_by(IdTicket=id).first()
             if not ticket:
                 return {"message": "Ticket not found"}, 404
 
-            # Vérifie si le ticket est utilisé dans une transaction
-            transaction_first = (
-                session.query(Clients.Transaction)
-                .filter_by(TypeObjet="ticket", IdObjet=id)
-                .first()
-            )
-            transaction_count = (
-                session.query(Clients.Transaction)
-                .filter_by(TypeObjet="ticket", IdObjet=id)
-                .count()
-            )
-
-            # Vérifie si le ticket est attribué à un grimpeur
-            grimpeur_first = (
-                session.query(Clients.Grimpeur)
-                .filter_by(TicketId=id)
-                .first()
-            )
-            grimpeur_count = (
-                session.query(Clients.Grimpeur)
-                .filter_by(TicketId=id)
-                .count()
-            )
-
-            # Vérifie si le ticket est utilisé dans une séance
-            seance_first = (
-                session.query(Clients.Seance)
-                .filter_by(TicketId=id)
-                .first()
-            )
-            seance_count = (
-                session.query(Clients.Seance)
-                .filter_by(TicketId=id)
-                .count()
-            )
+            # Check if used in transactions
+            transaction_first = g.db_session.query(Clients.Transaction).filter_by(
+                TypeObjet="ticket", IdObjet=id
+            ).first()
+            transaction_count = g.db_session.query(Clients.Transaction).filter_by(
+                TypeObjet="ticket", IdObjet=id
+            ).count()
 
             if transaction_first:
                 return {
-                    "message": (
-                        f"Impossible de supprimer le ticket ({id}) : il a déjà été utilisé "
-                        f"dans {transaction_count} transaction(s), première transaction ID = {transaction_first.IdTransac}."
-                    )
+                    "message": f"Impossible de supprimer le ticket ({id}) : utilisé dans {transaction_count} transaction(s)"
                 }, 400
+
+            # Check if assigned to grimpeurs
+            grimpeur_first = g.db_session.query(Clients.Grimpeur).filter_by(TicketId=id).first()
+            grimpeur_count = g.db_session.query(Clients.Grimpeur).filter_by(TicketId=id).count()
 
             if grimpeur_first:
                 return {
-                    "message": (
-                        f"Impossible de supprimer le ticket ({id}) : il est attribué à "
-                        f"{grimpeur_count} grimpeur(s), premier grimpeur NumGrimpeur = {grimpeur_first.NumGrimpeur}."
-                    )
+                    "message": f"Impossible de supprimer le ticket ({id}) : assigné à {grimpeur_count} grimpeur(s)"
                 }, 400
+
+            # Check if used in seances
+            seance_first = g.db_session.query(Clients.Seance).filter_by(TicketId=id).first()
+            seance_count = g.db_session.query(Clients.Seance).filter_by(TicketId=id).count()
 
             if seance_first:
                 return {
-                    "message": (
-                        f"Impossible de supprimer le ticket ({id}) : il est utilisé dans "
-                        f"{seance_count} séance(s), première séance ID = {seance_first.IdSeance}."
-                    )
+                    "message": f"Impossible de supprimer le ticket ({id}) : utilisé dans {seance_count} séance(s)"
                 }, 400
 
-
-            # Si non utilisé → suppression autorisée
-            session.delete(ticket)
-            session.commit()
+            g.db_session.delete(ticket)
+            g.db_session.commit()
             return {"message": "Ticket supprimé avec succès."}, 200
+        except Exception as e:
+            logger.error(f"Error deleting ticket {id}: {e}")
+            g.db_session.rollback()
+            return {"message": "Erreur lors de la suppression"}, 500
 

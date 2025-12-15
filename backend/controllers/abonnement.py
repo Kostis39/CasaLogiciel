@@ -1,49 +1,77 @@
-from flask import request
+from flask import request, g
 from flask_restful import Resource
 from models import Clients
-from db import create_engine, get_session
+import logging
 
-engine = create_engine()
-sesh = get_session(engine)
+logger = logging.getLogger(__name__)
 
 class Abonnements(Resource):
     def get(self):
-        with sesh() as session:
-            abos = session.query(Clients.Abonnement).all()
-            return [abo.to_dict() for abo in abos], 200
+        """Get all abonnements"""
+        try:
+            limit = request.args.get("limit", 20, type=int)
+            offset = request.args.get("offset", 0, type=int)
+            
+            limit = min(limit, 100)
+            offset = max(offset, 0)
+            
+            query = g.db_session.query(Clients.Abonnement).order_by(
+                Clients.Abonnement.IdAbo.desc()
+            )
+            total = query.count()
+            abos = query.offset(offset).limit(limit).all()
+            
+            return {
+                "data": [abo.to_dict() for abo in abos],
+                "total": total
+            }, 200
+        except Exception as e:
+            logger.error(f"Error fetching abonnements: {e}")
+            return {"message": "Erreur lors de la récupération"}, 500
 
     def post(self):
-        json = request.get_json()
-        if json is None:
-            return {"message": "No JSON data provided"}, 400
+        """Create a new abonnement"""
+        try:
+            json = request.get_json()
+            if json is None:
+                return {"message": "No JSON data provided"}, 400
 
-        nouvel_abo = Clients.Abonnement()
-        for key, value in json.items():
-            setattr(nouvel_abo, key, value)
+            nouvel_abo = Clients.Abonnement()
+            for key, value in json.items():
+                if value is not None and hasattr(nouvel_abo, key):
+                    setattr(nouvel_abo, key, value)
 
-        with sesh() as session:
-            session.add(nouvel_abo)
-            session.commit()
-            session.refresh(nouvel_abo)
+            g.db_session.add(nouvel_abo)
+            g.db_session.commit()
+            g.db_session.refresh(nouvel_abo)
+            
             return nouvel_abo.to_dict(), 201
+        except Exception as e:
+            logger.error(f"Error creating abonnement: {e}")
+            g.db_session.rollback()
+            return {"message": "Erreur lors de la création"}, 500
 
 
 class Abonnement(Resource):
     def get(self, id):
-        with sesh() as session:
-            abo = session.query(Clients.Abonnement).filter_by(IdAbo=id).first()
-            if abo:
-                return abo.to_dict(), 200
-            else:
+        """Get a single abonnement by ID"""
+        try:
+            abo = g.db_session.query(Clients.Abonnement).filter_by(IdAbo=id).first()
+            if not abo:
                 return {"message": "Abonnement not found"}, 404
+            return abo.to_dict(), 200
+        except Exception as e:
+            logger.error(f"Error fetching abonnement {id}: {e}")
+            return {"message": "Erreur lors de la récupération"}, 500
 
     def put(self, id):
-        json_data = request.get_json()
-        if not json_data:
-            return {"message": "No input data provided"}, 400
+        """Update an abonnement"""
+        try:
+            json_data = request.get_json()
+            if not json_data:
+                return {"message": "No input data provided"}, 400
 
-        with sesh() as session:
-            abo = session.query(Clients.Abonnement).filter_by(IdAbo=id).first()
+            abo = g.db_session.query(Clients.Abonnement).filter_by(IdAbo=id).first()
             if not abo:
                 return {"message": "Abonnement not found"}, 404
 
@@ -51,78 +79,56 @@ class Abonnement(Resource):
                 if hasattr(abo, key):
                     setattr(abo, key, value)
 
-            session.commit()
+            g.db_session.commit()
             return abo.to_dict(), 200
+        except Exception as e:
+            logger.error(f"Error updating abonnement {id}: {e}")
+            g.db_session.rollback()
+            return {"message": "Erreur lors de la mise à jour"}, 500
 
     def delete(self, id):
-            with sesh() as session:
-                # On cherche l'abonnement
-                abo = session.query(Clients.Abonnement).filter_by(IdAbo=id).first()
-                if not abo:
-                    return {"message": "Abonnement not found"}, 404
+        """Delete an abonnement (with integrity checks)"""
+        try:
+            abo = g.db_session.query(Clients.Abonnement).filter_by(IdAbo=id).first()
+            if not abo:
+                return {"message": "Abonnement not found"}, 404
 
-                # Vérifie si l'abonnement est utilisé dans une transaction
-                transaction_first = (
-                    session.query(Clients.Transaction)
-                    .filter_by(TypeObjet="abonnement", IdObjet=id)
-                    .first()
-                )
-                transaction_count = (
-                    session.query(Clients.Transaction)
-                    .filter_by(TypeObjet="abonnement", IdObjet=id)
-                    .count()
-                )
+            # Check if used in transactions
+            transaction_first = g.db_session.query(Clients.Transaction).filter_by(
+                TypeObjet="abonnement", IdObjet=id
+            ).first()
+            transaction_count = g.db_session.query(Clients.Transaction).filter_by(
+                TypeObjet="abonnement", IdObjet=id
+            ).count()
 
-                # Vérifie si l'abonnement est attribué à un grimpeur
-                grimpeur_first = (
-                    session.query(Clients.Grimpeur)
-                    .filter_by(AboId=id)
-                    .first()
-                )
-                grimpeur_count = (
-                    session.query(Clients.Grimpeur)
-                    .filter_by(AboId=id)
-                    .count()
-                )
+            if transaction_first:
+                return {
+                    "message": f"Impossible de supprimer l'abonnement ({id}) : utilisé dans {transaction_count} transaction(s)"
+                }, 400
 
-                # Vérifie si l'abonnement est utilisé dans une séance
-                seance_first = (
-                    session.query(Clients.Seance)
-                    .filter_by(AboId=id)
-                    .first()
-                )
-                seance_count = (
-                    session.query(Clients.Seance)
-                    .filter_by(AboId=id)
-                    .count()
-                )
+            # Check if assigned to grimpeurs
+            grimpeur_first = g.db_session.query(Clients.Grimpeur).filter_by(AboId=id).first()
+            grimpeur_count = g.db_session.query(Clients.Grimpeur).filter_by(AboId=id).count()
 
-                if transaction_first:
-                    return {
-                        "message": (
-                            f"Impossible de supprimer l'abonnement ({id}) : il a déjà été utilisé "
-                            f"dans {transaction_count} transaction(s), première transaction ID = {transaction_first.IdTransac}."
-                        )
-                    }, 400
+            if grimpeur_first:
+                return {
+                    "message": f"Impossible de supprimer l'abonnement ({id}) : assigné à {grimpeur_count} grimpeur(s)"
+                }, 400
 
-                if grimpeur_first:
-                    return {
-                        "message": (
-                            f"Impossible de supprimer l'abonnement ({id}) : il est attribué à "
-                            f"{grimpeur_count} grimpeur(s), premier grimpeur NumGrimpeur = {grimpeur_first.NumGrimpeur}."
-                        )
-                    }, 400
+            # Check if used in seances
+            seance_first = g.db_session.query(Clients.Seance).filter_by(AboId=id).first()
+            seance_count = g.db_session.query(Clients.Seance).filter_by(AboId=id).count()
 
-                if seance_first:
-                    return {
-                        "message": (
-                            f"Impossible de supprimer l'abonnement ({id}) : il est utilisé dans "
-                            f"{seance_count} séance(s), première séance ID = {seance_first.IdSeance}."
-                        )
-                    }, 400
+            if seance_first:
+                return {
+                    "message": f"Impossible de supprimer l'abonnement ({id}) : utilisé dans {seance_count} séance(s)"
+                }, 400
 
+            g.db_session.delete(abo)
+            g.db_session.commit()
+            return {"message": "Abonnement supprimé avec succès."}, 200
+        except Exception as e:
+            logger.error(f"Error deleting abonnement {id}: {e}")
+            g.db_session.rollback()
+            return {"message": "Erreur lors de la suppression"}, 500
 
-                # Si non utilisé → suppression autorisée
-                session.delete(abo)
-                session.commit()
-                return {"message": "Abonnement supprimé avec succès."}, 200
