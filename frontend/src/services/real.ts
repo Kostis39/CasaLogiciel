@@ -13,7 +13,7 @@ export const realService = {
             }
             return { success: true, message: "Ticket récupéré", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -27,7 +27,7 @@ export const realService = {
             }
             return { success: true, message: "Abonnement récupéré", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -101,7 +101,7 @@ export const realService = {
 
             return { success: true, message: "Abonnements récupérés", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -116,7 +116,7 @@ export const realService = {
 
             return { success: true, message: "Tickets récupérés", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
     
@@ -182,7 +182,7 @@ export const realService = {
             }
             return {success: true, message: data.message || "Séance créée"};
         } catch {
-            return {success: false, message: "Impossible de contacter le serveur"};
+            return {success: false, message: `Impossible de contacter le serveur ${API_URL}`};
         }
     },
 
@@ -206,7 +206,7 @@ export const realService = {
 
             return { success: true, message: "Abonnement créé", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -230,7 +230,7 @@ export const realService = {
 
             return { success: true, message: "Ticket créé", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -255,7 +255,7 @@ export const realService = {
 
             return { success: true, message: "Produit créé", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -379,7 +379,7 @@ export const realService = {
 
             return { success: true, message: "Abonnement mis à jour", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -403,7 +403,7 @@ export const realService = {
 
             return { success: true, message: "Ticket mis à jour", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -426,7 +426,7 @@ export const realService = {
 
             return { success: true, message: "Produit mis à jour", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -453,7 +453,7 @@ export const realService = {
 
             return { success: true, message: "Cotisation mise à jour", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -550,7 +550,7 @@ export const realService = {
 
             return { success: true, message: "Abonnement supprimé", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -568,7 +568,7 @@ export const realService = {
 
             return { success: true, message: "Ticket supprimé", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -586,7 +586,7 @@ export const realService = {
 
             return { success: true, message: "Produit supprimé", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -604,7 +604,7 @@ export const realService = {
 
             return { success: true, message: data.message || "Séance supprimée avec succès" };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -636,7 +636,7 @@ export const realService = {
 
             return { success: true, message: "Clubs récupérés", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -656,7 +656,7 @@ export const realService = {
 
             return { success: true, message: "Club créé", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -676,7 +676,7 @@ export const realService = {
 
             return { success: true, message: "Club mis à jour", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -694,7 +694,7 @@ export const realService = {
 
             return { success: true, message: "Club supprimé", data };
         } catch {
-            return { success: false, message: "Impossible de contacter le serveur" };
+            return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
         }
     },
 
@@ -707,7 +707,7 @@ export const realService = {
         }
         return { success: true, message: "Club du grimpeur récupéré", data };
     } catch {
-        return { success: false, message: "Impossible de contacter le serveur" };
+        return { success: false, message: `Impossible de contacter le serveur ${API_URL}` };
     }
     },
 
