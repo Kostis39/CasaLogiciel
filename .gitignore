@@ -12,3 +12,4 @@ backend/static/*
 *.db
 *.sql
 *.csv
+Dockerfile
