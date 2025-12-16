@@ -116,45 +116,13 @@ export const mockService = {
         };
     },
 
-    fetchClientSearch: async (query: string, limit = 20, offset = 0) => {
-    // Simule un délai réseau
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    // Création d'une "base de données" fictive
-    const allClients = Array.from({ length: 50 }, (_, i) => ({
-        NumGrimpeur: i + 1,
-        NumLicenceGrimpeur: 12345678 + i,
-        EmailGrimpeur: `client${i + 1}@example.com`,
-        PrenomGrimpeur: `Prénom${i + 1}`,
-        TelGrimpeur: 600000000 + i,
-        AccordReglement: true,
-        NomGrimpeur: `Nom${i + 1}`,
-        TypeTicket: null,
-        Solde: 50 + i,
-        DateNaissGrimpeur: "1990-01-01",
-        SignaReglement: `S${i + 1}`,
-        NbSeanceRest: 10,
-        DateInscrGrimpeur: "2025-01-01",
-        DateFinAbo: "2025-12-31",
-        DateFinCoti: "2025-12-31",
-        TypeAbo: null,
-        DateFincCotisation: "2026-12-31",
-    }));
-
-    // Filtrage par query sur le prénom ou le nom
-    const filtered = allClients.filter(
-        (c) =>
-        c.PrenomGrimpeur.toLowerCase().includes(query.toLowerCase()) ||
-        c.NomGrimpeur.toLowerCase().includes(query.toLowerCase())
-    );
-
-    // Pagination
-    const paginated = filtered.slice(offset, offset + limit);
-
-    return {
-        data: paginated,
-        total: filtered.length,
-    };
+    fetchClientSearch: async (
+    query: string,
+    limit = 20,
+    offset = 0
+    ) => {
+    console.log(query, limit, offset);
+    return { data: [], total: 0 };
     },
 
 

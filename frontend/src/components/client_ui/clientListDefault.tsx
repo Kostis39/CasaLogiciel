@@ -43,6 +43,8 @@ const fetchGrimpeurs = useCallback(
 
       // ✅ Récupérer la réponse complète
       let response;
+      let data: Client[] = [];
+      let total = 0;
       if (query && query.trim() !== "") {
         response = await fetchClientSearch(query, limit, newOffset);
       } else {
@@ -57,11 +59,11 @@ const fetchGrimpeurs = useCallback(
       }
 
       // ✅ Extraire les données et le total
-      const data = response.data;
-      const total = response.total || 0;
+      data = response.data;
+      total = response.total || 0;
 
       setGrimpeurs((prev) => {
-        let combined: any[] = [];
+        let combined: Client[] = [];
 
         if (reset) {
           combined = data;

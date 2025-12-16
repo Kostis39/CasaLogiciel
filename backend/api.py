@@ -39,7 +39,7 @@ def shutdown_session(exception=None):
 @app.errorhandler(Exception)
 def handle_error(error):
     """Catch any unhandled errors"""
-    print(f"✗ Error: {error}")
+    print(f"Error: {error}")
     return {"error": str(error)}, 500
 
 

@@ -18,14 +18,12 @@ export const {
   postSeanceClient,
   postAbonnement,
   postTicket,
-  postProduit,
   postClientData,
   postTransaction,
 
 //------- Putters -------
   updateAbonnement,
   updateTicket,
-  updateProduit,
   updateCotisationClient,
   updateGrimpeurSignature,
   updateClientData,
@@ -34,7 +32,6 @@ export const {
 //------- Deleters -------
   deleteAbonnement,
   deleteTicket,
-  deleteProduit,
   deleteSeance,
 
   

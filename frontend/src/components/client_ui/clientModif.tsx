@@ -129,6 +129,7 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
         setClientInfo(clone);
         setFormData(JSON.parse(JSON.stringify(response.data)));
       } catch (error) {
+        console.error("Erreur loadClient:", error);
         toast.error("Erreur de chargement client");
       }
     };
