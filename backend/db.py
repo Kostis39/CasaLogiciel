@@ -9,6 +9,7 @@ PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
 
 def create_engine():
     if PASSWORD is None:
@@ -16,7 +17,7 @@ def create_engine():
         exit(1)
 
     engine = sqlalchemy.create_engine(
-        f"mariadb+mariadbconnector://root:{PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}",
+        f"mariadb+mariadbconnector://{DB_USER}:{PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}",
         poolclass=QueuePool,
         pool_size=10,           # Number of connections to keep in pool
         max_overflow=20,        # Additional connections allowed

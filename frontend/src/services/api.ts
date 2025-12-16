@@ -13,9 +13,6 @@ export const {
   fetchClients,
   fetchAbonnements,
   fetchTickets,
-  fetchProduits,
-  fetchRacineProduits,
-  fetchSousProduits,
 
 //------- Posters -------
   postSeanceClient,

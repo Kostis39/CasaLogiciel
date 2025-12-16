@@ -30,77 +30,89 @@ export const mockService = {
         };
     },
 
-    fetchClientById: async (id: number) : Promise<Client | null> => {
+    fetchClientById: async (id: number): Promise<ApiResponse<Client>> => {
         await new Promise((resolve) => setTimeout(resolve, 100));
-        const one = {
-        "CodePostGrimpeur": 38000,
-        "NumGrimpeur": 1,
-        "NumLicenceGrimpeur": "12345678",
-        "EmailGrimpeur": "alice.dupont@example.com",
-        "PrenomGrimpeur": "Alice",
-        "TelGrimpeur": "612345678",
-        "AccordReglement": true,
-        "NomGrimpeur": "Dupont",
-        "TypeTicket": null,
-        "Solde": 50,
-        "DateNaissGrimpeur": "1990-05-12",
-        "NbSeanceRest": 10,
-        "AdresseGrimpeur": "12 Rue de la Montagne",
-        "DateInscrGrimpeur": "2025-04-30",
-        "VilleGrimpeur": "Grenoble",
-        "DateFinAbo": "2025-10-30",
-        "DateFinCoti": "2025-10-30",
-        "TypeAbo": null,
-        "StatutVoie": 1,
-        } as Client;
-        const two = {
-            "CodePostGrimpeur": 75015,
-            "NumGrimpeur": 2,
-            "NumLicenceGrimpeur": "87654321",
-            "EmailGrimpeur": "benjamin.martin@example.com",
-            "PrenomGrimpeur": "Benjamin",
-            "TelGrimpeur": "698765432",
-            "AccordReglement": true,
-            "NomGrimpeur": "Martin",
-            "TypeTicket": null,
-            "Solde": 75,
-            "DateNaissGrimpeur": "1985-11-20",
-            "NbSeanceRest": 5,
-            "AdresseGrimpeur": "45 Avenue des Champs",
-            "DateInscrGrimpeur": "2025-05-05",
-            "VilleGrimpeur": "Paris",
-            "DateFinAbo": "2025-11-05",
-            "DateFinCoti": "2025-11-05",
-            "TypeAbo": null,
-            "StatutVoie": 2,
-        } as Client;
-        const three = {
-            "CodePostGrimpeur": 69007,
-            "NumGrimpeur": 3,
-            "NumLicenceGrimpeur": "34567890",
-            "EmailGrimpeur": "charlotte.lefevre@example.com",
-            "PrenomGrimpeur": "Charlotte",
-            "TelGrimpeur": "677889900",
-            "AccordReglement": false,
-            "NomGrimpeur": "Lefevre",
-            "TypeTicket": "Entrée",
-            "Solde": 32,
-            "DateNaissGrimpeur": "1995-08-15",
-            "NbSeanceRest": 3,
-            "AdresseGrimpeur": "7 Rue des Fleurs",
-            "DateInscrGrimpeur": "2025-06-12",
-            "VilleGrimpeur": "Lyon",
-            "DateFinAbo": "2025-12-12",
-            "DateFinCoti": "2025-12-12",
-            "TypeAbo": "Mensuel",
-            "StatutVoie": 3,
-        } as Client;
         
-        switch(id) {
-            case 1: return one;
-            case 2: return two;
-            case 3: return three;
-            default: return one;
+        const clients: Record<number, Client> = {
+            1: {
+                CodePostGrimpeur: 38000,
+                NumGrimpeur: 1,
+                NumLicenceGrimpeur: "12345678",
+                EmailGrimpeur: "alice.dupont@example.com",
+                PrenomGrimpeur: "Alice",
+                TelGrimpeur: "612345678",
+                AccordReglement: true,
+                NomGrimpeur: "Dupont",
+                TypeTicket: null,
+                Solde: 50,
+                DateNaissGrimpeur: "1990-05-12",
+                NbSeanceRest: 10,
+                AdresseGrimpeur: "12 Rue de la Montagne",
+                DateInscrGrimpeur: "2025-04-30",
+                VilleGrimpeur: "Grenoble",
+                DateFinAbo: "2025-10-30",
+                DateFinCoti: "2025-10-30",
+                TypeAbo: null,
+                StatutVoie: 1,
+            } as Client,
+            2: {
+                CodePostGrimpeur: 75015,
+                NumGrimpeur: 2,
+                NumLicenceGrimpeur: "87654321",
+                EmailGrimpeur: "benjamin.martin@example.com",
+                PrenomGrimpeur: "Benjamin",
+                TelGrimpeur: "698765432",
+                AccordReglement: true,
+                NomGrimpeur: "Martin",
+                TypeTicket: null,
+                Solde: 75,
+                DateNaissGrimpeur: "1985-11-20",
+                NbSeanceRest: 5,
+                AdresseGrimpeur: "45 Avenue des Champs",
+                DateInscrGrimpeur: "2025-05-05",
+                VilleGrimpeur: "Paris",
+                DateFinAbo: "2025-11-05",
+                DateFinCoti: "2025-11-05",
+                TypeAbo: null,
+                StatutVoie: 2,
+            } as Client,
+            3: {
+                CodePostGrimpeur: 69007,
+                NumGrimpeur: 3,
+                NumLicenceGrimpeur: "34567890",
+                EmailGrimpeur: "charlotte.lefevre@example.com",
+                PrenomGrimpeur: "Charlotte",
+                TelGrimpeur: "677889900",
+                AccordReglement: false,
+                NomGrimpeur: "Lefevre",
+                TypeTicket: "Entrée",
+                Solde: 32,
+                DateNaissGrimpeur: "1995-08-15",
+                NbSeanceRest: 3,
+                AdresseGrimpeur: "7 Rue des Fleurs",
+                DateInscrGrimpeur: "2025-06-12",
+                VilleGrimpeur: "Lyon",
+                DateFinAbo: "2025-12-12",
+                DateFinCoti: "2025-12-12",
+                TypeAbo: "Mensuel",
+                StatutVoie: 3,
+            } as Client,
+        };
+
+        const client = clients[id];
+        
+        if (client) {
+            return {
+                success: true,
+                message: "Mock client trouvé",
+                data: client
+            };
+        }
+
+        return {
+            success: false,
+            message: "Client non trouvé",
+            data: null as unknown as Client
         };
     },
 
@@ -203,94 +215,6 @@ export const mockService = {
                 "TypeTicket": "Carte de 10"
             }
         ]}
-    },
-
-    fetchProduits: async () => {
-        return [
-            {
-                "IdReduc": null,
-                "IdProduitParent": 1,
-                "PrixProduit": 2.0,
-                "Visibilite": true,
-                "NomProduit": "Chausson d'escalade",
-                "IdProduit": 2
-            },
-            {
-                "IdReduc": null,
-                "IdProduitParent": 1,
-                "PrixProduit": 2.0,
-                "Visibilite": true,
-                "NomProduit": "Baudrier + Descendeur",
-                "IdProduit": 3
-            },
-        ];
-    },
-
-    fetchRacineProduits: async () => {
-        return [
-    {
-        "IdReduc": null,
-        "Visibilite": true,
-        "PrixProduit": null,
-        "NomProduit": "\u00c9quipement d'escalade",
-        "IdProduitParent": null,
-        "IdProduit": 1
-    },
-    {
-        "IdReduc": null,
-        "Visibilite": true,
-        "PrixProduit": null,
-        "NomProduit": "Boisson",
-        "IdProduitParent": null,
-        "IdProduit": 6
-    },
-    {
-        "IdReduc": null,
-        "Visibilite": true,
-        "PrixProduit": null,
-        "NomProduit": "Friandises",
-        "IdProduitParent": null,
-        "IdProduit": 19
-    }
-]
-    },
-
-    fetchSousProduits: async (idParent: number) => {
-        if (!idParent){return;}
-        return [
-    {
-        "IdReduc": null,
-        "Visibilite": true,
-        "PrixProduit": 2.0,
-        "NomProduit": "Chausson d'escalade",
-        "IdProduitParent": 1,
-        "IdProduit": 2
-    },
-    {
-        "IdReduc": null,
-        "Visibilite": true,
-        "PrixProduit": 2.0,
-        "NomProduit": "Baudrier + Descendeur",
-        "IdProduitParent": 1,
-        "IdProduit": 3
-    },
-    {
-        "IdReduc": null,
-        "Visibilite": true,
-        "PrixProduit": 10.9,
-        "NomProduit": "Magn\u00e9sie liquide 150ml",
-        "IdProduitParent": 1,
-        "IdProduit": 4
-    },
-    {
-        "IdReduc": null,
-        "Visibilite": true,
-        "PrixProduit": 15.9,
-        "NomProduit": "Magn\u00e9sie liquide 250ml",
-        "IdProduitParent": 1,
-        "IdProduit": 5
-    }
-]
     },
 
 //----------------------------------- Posters -----------------------------------
@@ -443,8 +367,8 @@ export const mockService = {
 
 //----------------------------------- Others -----------------------------------
     isAlreadyEntered: async (id: number) => {
-        if (!id){return false;}
-        return true;
+        if (!id){return { success: false, message: "ID invalide", data: false };}
+        return { success: true, message: "Mock: Vérification effectuée", data: id % 2 === 0 };
     },
     //----------------------------------- Clubs -----------------------------------
     fetchClubs: async (): Promise<ApiResponse<Club[]>> => {

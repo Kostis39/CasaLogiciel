@@ -24,70 +24,81 @@ export const ClientListClientComponent = ({ query }: { query: string }) => {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const fetchGrimpeurs = useCallback(
-    async (direction: "next" | "prev", reset = false) => {
-      if (loading) return;
-      setLoading(true);
+const fetchGrimpeurs = useCallback(
+  async (direction: "next" | "prev", reset = false) => {
+    if (loading) return;
+    setLoading(true);
 
-      try {
-        let newOffset = offset;
+    try {
+      let newOffset = offset;
+
+      if (reset) {
+        newOffset = 0;
+      } else {
+        newOffset =
+          direction === "next"
+            ? offset + limit
+            : Math.max(offset - limit, 0);
+      }
+
+      // ✅ Récupérer la réponse complète
+      let response;
+      if (query && query.trim() !== "") {
+        response = await fetchClientSearch(query, limit, newOffset);
+      } else {
+        response = await fetchClients(limit, newOffset);
+      }
+
+      // ✅ Vérifier si l'appel a réussi
+      if (!response.data) {
+        setError("Erreur lors du chargement");
+        setLoading(false);
+        return;
+      }
+
+      // ✅ Extraire les données et le total
+      const data = response.data;
+      const total = response.total || 0;
+
+      setGrimpeurs((prev) => {
+        let combined: any[] = [];
 
         if (reset) {
-          newOffset = 0;
+          combined = data;
+        } else if (direction === "next") {
+          combined = [...prev, ...data];
         } else {
-          newOffset =
-            direction === "next"
-              ? offset + limit
-              : Math.max(offset - limit, 0);
+          combined = [...data, ...prev];
         }
 
-        let data: Client[] = [];
-        let total = 0;
+        const unique = combined.filter(
+          (g, i, self) =>
+            i === self.findIndex((x) => x.NumGrimpeur === g.NumGrimpeur)
+        );
 
-        if (query && query.trim() !== "") {
-          ({ data, total } = await fetchClientSearch(query, limit, newOffset));
-        } else {
-          ({ data, total } = await fetchClients(limit, newOffset));
+        if (unique.length > BUFFER_SIZE) {
+          return direction === "next"
+            ? unique.slice(unique.length - BUFFER_SIZE)
+            : unique.slice(0, BUFFER_SIZE);
         }
 
-        setGrimpeurs((prev) => {
-          let combined: Client[] = [];
+        return unique;
+      });
 
-          if (reset) {
-            combined = data;
-          } else if (direction === "next") {
-            combined = [...prev, ...data];
-          } else {
-            combined = [...data, ...prev];
-          }
-
-          const unique = combined.filter(
-            (g, i, self) =>
-              i === self.findIndex((x) => x.NumGrimpeur === g.NumGrimpeur)
-          );
-
-          if (unique.length > BUFFER_SIZE) {
-            return direction === "next"
-              ? unique.slice(unique.length - BUFFER_SIZE)
-              : unique.slice(0, BUFFER_SIZE);
-          }
-
-          return unique;
-        });
-
-        setOffset(newOffset);
-        setHasPrev(newOffset > 0);
-        setHasNext(newOffset + limit < total);
-        setError(null);
-      } catch (err) {
-        console.error("Erreur fetchGrimpeurs:", err);
-        setError("Une erreur est survenue lors du chargement.");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [offset, loading, query]
-  );
+      setOffset(newOffset);
+      setHasPrev(newOffset > 0);
+      // ✅ Utiliser le total retourné par l'API
+      setHasNext(newOffset + limit < total);
+      setError(null);
+    } catch (err) {
+      console.error("Erreur fetchGrimpeurs:", err);
+      setError("Une erreur est survenue lors du chargement.");
+    } finally {
+      setLoading(false);
+    }
+  },
+  [offset, loading, query]
+);
 
   // --- Reset quand la recherche change ---
   useEffect(() => {

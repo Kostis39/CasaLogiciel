@@ -40,8 +40,15 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
   const reloadClientInfo = useCallback(async () => {
     if (!numClient) return;
     try {
-      const updatedData = await fetchClientById(numClient);
-      setClientInfo(updatedData);
+      const response = await fetchClientById(numClient);
+      
+      // ✅ Vérifier le succès ET extraire les données
+      if (!response.success || !response.data) {
+        toast.error(response.message || "Erreur lors du rechargement du client");
+        return;
+      }
+      
+      setClientInfo(response.data);
     } catch (error) {
       console.error(error);
       toast.error("Erreur lors du rechargement du client");
@@ -66,9 +73,9 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
 
       try {
         const status = await isAlreadyEntered(numClient);
-        setInCasa(status);
+        setInCasa(status.success && status.data ? true : false);
 
-        if (!status && createSeance) {
+        if (!status.data && createSeance) {
           const result = await postSeanceClient(numClient);
           if (!result.success) {
             toast.warning(result.message);
@@ -82,7 +89,6 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
       } catch {
         toast.warning("Erreur lors de la vérification du statut d'entrée");
         setInCasa(false);
-        setLoadingEntree(false);
       } finally {
         setLoadingEntree(false);
       }
@@ -92,7 +98,16 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
     const loadClient = async () => {
       setLoading(true);
       try {
-        const data = await fetchClientById(numClient);
+        const response = await fetchClientById(numClient);
+        
+        // ✅ Vérifier le succès ET extraire les données
+        if (!response.success || !response.data) {
+          toast.error(response.message || "Erreur de chargement client");
+          setLoading(false);
+          return;
+        }
+        
+        const data = response.data;
         setClientInfo(data);
 
         if (data?.ClubId) {
@@ -113,6 +128,8 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
         toast.error("Erreur de chargement client");
         setLoading(false);
         return;
+      } finally {
+        setLoading(false);
       }
     };
 

@@ -115,17 +115,23 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
 
   useEffect(() => {
     const loadClient = async () => {
-      try{
-        const data = await fetchClientById(numClient);
+      try {
+        const response = await fetchClientById(numClient);
+        
+        // ✅ Vérifier le succès ET extraire les données
+        if (!response.success || !response.data) {
+          toast.error(response.message || "Erreur de chargement client");
+          return;
+        }
+        
         // clone to avoid shared references between clientInfo and formData
-        const clone = JSON.parse(JSON.stringify(data));
+        const clone = JSON.parse(JSON.stringify(response.data));
         setClientInfo(clone);
-        setFormData(JSON.parse(JSON.stringify(data)));
+        setFormData(JSON.parse(JSON.stringify(response.data)));
       } catch (error) {
-        console.error(error);
         toast.error("Erreur de chargement client");
       }
-    }
+    };
     loadClient();
   }, [numClient]);
 
