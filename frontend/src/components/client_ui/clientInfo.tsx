@@ -204,6 +204,9 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
   const handleEntreeSimple = async () => {
     setLoadingEntree(true);
     try {
+        if (inCasa) {
+          toast.warning("Le grimpeur est déjà en salle");
+        }
         const result = await postSeanceClient(numClient);
         if (!result.success) {
           toast.warning(result.message);
@@ -212,10 +215,6 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
           toast.success(result.message);
           setInCasa(true);
           await reloadClientInfo(); // ✅ refresh ici aussi
-        }
-        if (inCasa) {
-          toast.warning("Le grimpeur est déjà en salle");
-          toast.success("Malgré ça séance créée !");
         }
     } catch {
       toast.error("Erreur lors de la création de la séance");
