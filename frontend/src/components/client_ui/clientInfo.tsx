@@ -142,7 +142,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
   // -------------------------------------------------------------
   // Boutons d’action
   // -------------------------------------------------------------
-  const handleEntreeUnique = async () => {
+  const handleTicketUnique = async () => {
     if (!clientInfo) return;
     setLoadingEntree(true);
     try {
@@ -335,7 +335,9 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
           <div className="flex justify-center">
             <Button
               onClick={handleEntreeSimple}
-              disabled={isLoadingEntree}
+              disabled={isLoadingEntree || 
+                inCasa || 
+                NotAllowToEntrance(clientInfo)}
               variant="default"
               className="w-3/4 h-3/4 text-lg cursor-pointer"
             >
@@ -349,8 +351,11 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
 
           <div className="flex justify-center">
             <Button
-              onClick={handleEntreeUnique}
-              disabled={isLoadingEntree || inCasa}
+              onClick={handleTicketUnique}
+              disabled={isLoadingEntree || 
+                inCasa || 
+                NotAllowToEntrance(clientInfo)
+              }
               variant="default"
               className="w-3/4 h-3/4 text-lg cursor-pointer"
             >
@@ -489,8 +494,6 @@ function EntreeInfo(client: Client){
   );
 }
 
-
-
 function AccesSalleInfo(client: Client){
   let content;
   if (client.StatutVoie === 3) {
@@ -507,4 +510,12 @@ function AccesSalleInfo(client: Client){
       {content}
     </div>
   );
+}
+
+function NotAllowToEntrance(client: Client){
+  return (!isDateValid(client.DateFinAbo) && 
+                (!client.NbSeanceRest || client.NbSeanceRest <= 0 )
+              )||
+                !client.AccordReglement ||
+                !isDateValid(client.DateFinCoti);
 }

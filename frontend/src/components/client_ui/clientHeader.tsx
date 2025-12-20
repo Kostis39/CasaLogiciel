@@ -6,11 +6,10 @@ import { buttonVariants } from "../ui/button";
 export function ClientHeader(){
     return (
         <div className="flex flex-col">
-
-            <LinkClient src="/menu.svg" alt="Menu" href="/" name="Menu"/>
             <LinkClient src="/ordinateur.svg" alt="Ordinateur" href="/client" name="Saisies"/>
             <LinkClient src="/inscription.svg" alt="Inscription" href="/client/inscription" name="Inscription"/>
             <LinkClient src="/history.svg" alt="Historique" href="/client/history" name="Historique"/>
+            <LinkClient src="/menu.svg" alt="Menu" href="/" name="Menu"/>
         </div>
 
     );
