@@ -1,6 +1,7 @@
 import { ToastContainer, Zoom } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
+import ProtectedRoute from "@/src/components/ProtectionRoute";
 
 export default function RootLayout({
   children,
@@ -11,9 +12,11 @@ export default function RootLayout({
     <html lang="fr" className="h-full overflow-hidden">
       <body className="font-sans antialiased h-full">
         {/* Ajoutez h-full au body */}
-        <div className="h-full">
-          {children}
-        </div>
+        <ProtectedRoute>
+          <div className="h-full">
+            {children}
+          </div>
+        </ProtectedRoute>
         <ToastContainer
           position="top-right"
           autoClose={2000}

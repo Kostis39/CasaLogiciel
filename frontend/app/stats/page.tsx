@@ -1,5 +1,8 @@
 export default function Stats() {
     return (
-        <p>Stats</p>
+        <>
+            <h1>Work In Progress</h1>
+            <p>Stats</p>
+        </>
     );
 }

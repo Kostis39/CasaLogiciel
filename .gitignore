@@ -9,6 +9,7 @@ BDD/Mcd.lo1
 CasaCentral.code-workspace
 backend/static/*
 .env
+.env.local
 *.db
 *.sql
 *.csv
