@@ -120,13 +120,13 @@ export const mockService = {
     query: string,
     limit = 20,
     offset = 0
-    ) => {
+    ): Promise<ApiResponse<Client[]>> => {
     console.log(query, limit, offset);
-    return { data: [], total: 0 };
+    return { success: true, message: "Mock search", data: [], total: 0 };
     },
 
 
-    fetchClients: async (limit: number, offset: number) => {
+    fetchClients: async (limit: number, offset: number): Promise<ApiResponse<Client[]>> => {
         await new Promise((resolve) => setTimeout(resolve, 150)); // simule délai
         const TOTAL = 100; // total fictif
         const generated: Client[] = [];
@@ -154,7 +154,7 @@ export const mockService = {
 
         const data = generated.slice(offset, offset + limit);
 
-        return { data, total: TOTAL };
+        return { success: true, message: "Mock clients", data, total: TOTAL };
     },
 
     fetchAbonnements: async (): Promise<ApiResponse<Abonnement[]>> => {

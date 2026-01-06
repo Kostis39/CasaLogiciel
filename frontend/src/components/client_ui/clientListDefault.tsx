@@ -4,9 +4,10 @@ import { fetchClients, fetchClientSearch } from "@/src/services/api";
 import { ClientCard } from "./clientCard";
 import { useSearchParams, useRouter } from "next/navigation";
 import LoadingSpinner from "./LoadingSpinner";
-import { Client } from "@/src/types&fields/types";
+import { ApiResponse, Client } from "@/src/types&fields/types";
+import { toast } from "react-toastify";
 
-export const ClientListClientComponent = ({ query }: { query: string }) => {
+export const ClientListClientComponent = ({ query, refreshKey }: { query: string, refreshKey?: number; }) => {
   const [grimpeurs, setGrimpeurs] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +43,7 @@ const fetchGrimpeurs = useCallback(
       }
 
       // ✅ Récupérer la réponse complète
-      let response;
+      let response: ApiResponse<Client[]>;
       let data: Client[] = [];
       let total = 0;
       if (query && query.trim() !== "") {
@@ -53,6 +54,7 @@ const fetchGrimpeurs = useCallback(
 
       // ✅ Vérifier si l'appel a réussi
       if (!response.data) {
+        toast.error(response.message || "Erreur lors du chargement des clients.");
         setError("Erreur lors du chargement");
         setLoading(false);
         return;
@@ -110,7 +112,7 @@ const fetchGrimpeurs = useCallback(
     setHasPrev(false);
     fetchGrimpeurs("next", true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
+  }, [query, refreshKey]);
 
   // --- Observer bas (scroll vers le bas) ---
   useEffect(() => {

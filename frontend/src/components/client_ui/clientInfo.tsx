@@ -2,7 +2,6 @@
 "use client";
 import { 
   deleteSeance, fetchClientById, fetchClubById, 
-  getStatutVoieBg, 
   isAlreadyEntered, isDateValid, postSeanceClient, 
   postTransaction, updateClientData 
 } from "@/src/services/api";
@@ -20,11 +19,12 @@ import LoadingSpinner from "@/src/components/client_ui/LoadingSpinner";
 
 interface ClientGridProps {
   numClient: number;
-  onEdit?: () => void;
+  onEdit: () => void;
   createSeance?: boolean;
+  onSeanceCanceled?: () => void;
 }
 
-export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGridProps) {
+export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCanceled }: ClientGridProps) {
   const [inCasa, setInCasa] = useState(false);
   const [isLoading, setLoading] = useState(true);
   const [clientInfo, setClientInfo] = useState<Client | null>(null);
@@ -32,6 +32,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
   const [clubName, setClubName] = useState<string>("");
   const lastNumRef = useRef<number | null>(null);
   const [isLoadingEntree, setLoadingEntree] = useState(false);
+  const seanceProcessedRef = useRef(false);
 
 
   // -------------------------------------------------------------
@@ -61,39 +62,6 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
   useEffect(() => {
     if (lastNumRef.current === numClient) return;
     lastNumRef.current = numClient;
-
-    const fetchEnteredStatus = async () => {
-      setLoadingEntree(true);
-
-      if (numClient == null) {
-        setInCasa(false);
-        setLoadingEntree(false);
-        return;
-      }
-
-      try {
-        const status = await isAlreadyEntered(numClient);
-        setInCasa(status.success && status.data ? true : false);
-
-        if (!status.data && createSeance) {
-          const result = await postSeanceClient(numClient);
-          if (!result.success) {
-            toast.warning(result.message);
-            setInCasa(false);
-          } else {
-            toast.success(result.message);
-            setInCasa(true);
-            await reloadClientInfo();
-          }
-        }
-      } catch {
-        toast.warning("Erreur lors de la vérification du statut d'entrée");
-        setInCasa(false);
-      } finally {
-        setLoadingEntree(false);
-      }
-    };
-
 
     const loadClient = async () => {
       setLoading(true);
@@ -133,11 +101,67 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
       }
     };
 
-    loadClient();
-    setLoading(false);
-    fetchEnteredStatus();
+    if (numClient != null) {
+      loadClient();
+    } else {
+      setInCasa(false);
+    }
     setCacheBuster(Date.now());
-  }, [numClient, createSeance, reloadClientInfo]);
+  }, [numClient]);
+
+// Dans votre composant ClientGrid
+useEffect(() => {
+  const fetchEnteredStatus = async () => {
+    setLoadingEntree(true);
+    if (numClient == null || !clientInfo) {
+      setInCasa(false);
+      setLoadingEntree(false);
+      return;
+    }
+
+    try {
+      const status = await isAlreadyEntered(numClient);
+      setInCasa(status.success && status.data ? true : false);
+
+      // ✅ Vérifier si on n'a pas déjà traité cette création
+      if (!status.data && createSeance && !seanceProcessedRef.current) {
+        seanceProcessedRef.current = true; // Marquer comme traité
+        
+        if (inCasa) {
+          toast.warning("Le grimpeur est déjà en salle");
+          setLoadingEntree(false);
+          return;
+        }
+        if (isNotAllowedForEntrance(clientInfo)) {
+          toast.warning("Le grimpeur n'est pas autorisé à entrer en salle.");
+          setInCasa(false);
+          setLoadingEntree(false);
+          return;
+        }
+        const result = await postSeanceClient(numClient);
+        if (!result.success) {
+          toast.warning(result.message);
+          setInCasa(false);
+        } else {
+          toast.success(result.message);
+          setInCasa(true);
+          await reloadClientInfo();
+        }
+      }
+      // ✅ Si createSeance = false, réinitialiser le ref
+      if (!createSeance) {
+        seanceProcessedRef.current = false;
+      }
+    } catch {
+      toast.warning("Erreur lors de la vérification du statut d'entrée");
+      setInCasa(false);
+    } finally {
+      setLoadingEntree(false);
+    }
+  };
+
+  fetchEnteredStatus();
+}, [numClient, clientInfo, createSeance, reloadClientInfo]);
 
   // -------------------------------------------------------------
   // Boutons d’action
@@ -195,7 +219,10 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
     if (response.success) {
       toast.success(response.message);
       setInCasa(false);
-      await reloadClientInfo(); // ✅ refresh aussi ici
+      await reloadClientInfo();
+      
+      // ✅ Appeler la fonction pour nettoyer l'URL
+      onSeanceCanceled?.();
     } else {
       toast.error(response.message);
     }
@@ -242,7 +269,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
 
   return (
     
-    <div className={`flex flex-col h-full ${getStatutVoieBg(clientInfo.StatutVoie)} rounded-md relative`}>
+    <div className={`flex flex-col h-full rounded-md relative`}>
       
       {onEdit && (
         <Button
@@ -337,7 +364,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
               onClick={handleEntreeSimple}
               disabled={isLoadingEntree || 
                 inCasa || 
-                NotAllowToEntrance(clientInfo)}
+                isNotAllowedForEntrance(clientInfo)}
               variant="default"
               className="w-3/4 h-3/4 text-lg cursor-pointer"
             >
@@ -354,7 +381,8 @@ export function ClientGrid({ numClient, onEdit, createSeance = false }: ClientGr
               onClick={handleTicketUnique}
               disabled={isLoadingEntree || 
                 inCasa || 
-                NotAllowToEntrance(clientInfo)
+                isNotAllowedForEntrance(clientInfo) ||
+                isDateValid(clientInfo.DateFinAbo)
               }
               variant="default"
               className="w-3/4 h-3/4 text-lg cursor-pointer"
@@ -438,7 +466,15 @@ function CotisationInfo(client: Client){
       )}
       </>
     );
-    } else {
+    }
+    if (client.NumLicenceGrimpeur) {
+      content = (
+        <>
+          <p className="text-green-500 font-bold">Licence en cours</p>
+        </>
+      );
+    }
+    else {
       content = <p className="text-red-500 font-bold">Pas de cotisation</p>;
     }
     return (
@@ -512,10 +548,16 @@ function AccesSalleInfo(client: Client){
   );
 }
 
-function NotAllowToEntrance(client: Client){
-  return (!isDateValid(client.DateFinAbo) && 
-                (!client.NbSeanceRest || client.NbSeanceRest <= 0 )
-              )||
-                !client.AccordReglement ||
-                !isDateValid(client.DateFinCoti);
+function isNotAllowedForEntrance(client: Client): boolean {
+  const hasValidSubscription = 
+    isDateValid(client.DateFinAbo) || 
+    (client.NbSeanceRest && client.NbSeanceRest > 0);
+  
+  const hasSignature = !!client.AccordReglement;
+  
+  const hasMembership = 
+    isDateValid(client.DateFinCoti) || 
+    !!client.NumLicenceGrimpeur;
+  
+  return !(hasValidSubscription && hasSignature && hasMembership);
 }

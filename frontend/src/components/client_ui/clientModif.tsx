@@ -32,10 +32,11 @@ import { API_URL } from "@/src/services/real";
 interface ClientEditProps {
   numClient: number;
   onCancel?: () => void;
+  onClientUpdated?: () => void;
 }
 
 
-export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
+export default function ClientEdit({ numClient, onCancel, onClientUpdated }: ClientEditProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isAddingAbo, setIsAddingAbo] = useState(false);
   const [isAddingTicket, setIsAddingTicket] = useState(false);
@@ -260,6 +261,7 @@ export default function ClientEdit({ numClient, onCancel }: ClientEditProps) {
 
       setFormData(updated); // on met à jour le state local pour affichage
       toast.success("Client mis à jour avec succès !");
+      onClientUpdated?.();
       onCancel?.();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
