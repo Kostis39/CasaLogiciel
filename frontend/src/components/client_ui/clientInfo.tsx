@@ -463,35 +463,35 @@ function SignatureClient({
 }
 
 
-function CotisationInfo(client: Client){
-  let content;
-  if (client.DateFinCoti !== null && client.DateFinCoti !== undefined) {
-    content = (
-      <>
-      {isDateValid(client.DateFinCoti) ? (
+  function CotisationInfo(client: Client){
+    let content;
+    
+    if (client.DateFinCoti !== null && client.DateFinCoti !== undefined) {
+      content = (
         <>
-          <p className="text-green-500 font-bold">Cotisation Active</p>
-          <p>Fin le {client.DateFinCoti}</p>
+          {isDateValid(client.DateFinCoti) ? (
+            <>
+              <p className="text-green-500 font-bold">Cotisation Active</p>
+              <p>Fin le {client.DateFinCoti}</p>
+            </>
+          ) : (
+            <>
+              <p className="text-red-500 font-bold">Cotisation Expirée</p>
+              <p>Fin le {client.DateFinCoti}</p>
+            </>
+          )}
         </>
-      ) : (
-        <>
-          <p className="text-red-500 font-bold">Cotisation Expirée</p>
-          <p>Fin le {client.DateFinCoti}</p>
-        </>
-      )}
-      </>
-    );
-    }
-    if (client.NumLicenceGrimpeur) {
+      );
+    } else if (client.NumLicenceGrimpeur) {
       content = (
         <>
           <p className="text-green-500 font-bold">Licence en cours</p>
         </>
       );
-    }
-    else {
+    } else {
       content = <p className="text-red-500 font-bold">Pas de cotisation</p>;
     }
+    
     return (
       <div className="flex flex-col items-center justify-center">
         {content}
