@@ -33,7 +33,12 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
   const lastNumRef = useRef<number | null>(null);
   const [isLoadingEntree, setLoadingEntree] = useState(false);
   const seanceProcessedRef = useRef(false);
+  const createSeanceRef = useRef(createSeance);
 
+  // ✅ Mettre à jour le ref quand createSeance change
+  useEffect(() => {
+    createSeanceRef.current = createSeance;
+  }, [createSeance]);
 
   // -------------------------------------------------------------
   // ✅ Fonction factorisée pour recharger les infos du client
@@ -109,35 +114,50 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
     setCacheBuster(Date.now());
   }, [numClient]);
 
-// Dans votre composant ClientGrid
-useEffect(() => {
-  const fetchEnteredStatus = async () => {
-    setLoadingEntree(true);
-    if (numClient == null || !clientInfo) {
-      setInCasa(false);
-      setLoadingEntree(false);
+  // ✅ SÉPARATION : Un useEffect pour vérifier le statut d'entrée
+  useEffect(() => {
+    const fetchEnteredStatus = async () => {
+      setLoadingEntree(true);
+      if (numClient == null || !clientInfo) {
+        setInCasa(false);
+        setLoadingEntree(false);
+        return;
+      }
+
+      try {
+        const status = await isAlreadyEntered(numClient);
+        setInCasa(status.success && status.data ? true : false);
+      } catch {
+        toast.warning("Erreur lors de la vérification du statut d'entrée");
+        setInCasa(false);
+      } finally {
+        setLoadingEntree(false);
+      }
+    };
+
+    fetchEnteredStatus();
+  }, [numClient, clientInfo]);
+
+  useEffect(() => {
+    if (!createSeanceRef.current) {
+      seanceProcessedRef.current = false;
       return;
     }
 
-    try {
-      const status = await isAlreadyEntered(numClient);
-      setInCasa(status.success && status.data ? true : false);
+    // ✅ Ne créer la séance QUE UNE FOIS
+    if (seanceProcessedRef.current) return;
+    if (!numClient || !clientInfo || inCasa) return;
 
-      // ✅ Vérifier si on n'a pas déjà traité cette création
-      if (!status.data && createSeance && !seanceProcessedRef.current) {
-        seanceProcessedRef.current = true; // Marquer comme traité
-        
-        if (inCasa) {
-          toast.warning("Le grimpeur est déjà en salle");
-          setLoadingEntree(false);
-          return;
-        }
-        if (isNotAllowedForEntrance(clientInfo)) {
-          toast.warning("Le grimpeur n'est pas autorisé à entrer en salle.");
-          setInCasa(false);
-          setLoadingEntree(false);
-          return;
-        }
+    const createSeanceAuto = async () => {
+      seanceProcessedRef.current = true;
+
+      if (isNotAllowedForEntrance(clientInfo)) {
+        toast.warning("Le grimpeur n'est pas autorisé à entrer en salle.");
+        setInCasa(false);
+        return;
+      }
+
+      try {
         const result = await postSeanceClient(numClient);
         if (!result.success) {
           toast.warning(result.message);
@@ -147,21 +167,14 @@ useEffect(() => {
           setInCasa(true);
           await reloadClientInfo();
         }
+      } catch {
+        toast.error("Erreur lors de la création de la séance");
+        setInCasa(false);
       }
-      // ✅ Si createSeance = false, réinitialiser le ref
-      if (!createSeance) {
-        seanceProcessedRef.current = false;
-      }
-    } catch {
-      toast.warning("Erreur lors de la vérification du statut d'entrée");
-      setInCasa(false);
-    } finally {
-      setLoadingEntree(false);
-    }
-  };
+    };
 
-  fetchEnteredStatus();
-}, [numClient, clientInfo, createSeance, reloadClientInfo]);
+    createSeanceAuto();
+  }, [createSeanceRef.current, numClient, clientInfo, inCasa, reloadClientInfo]);
 
   // -------------------------------------------------------------
   // Boutons d’action
@@ -219,9 +232,11 @@ useEffect(() => {
     if (response.success) {
       toast.success(response.message);
       setInCasa(false);
+      setTimeout(async () => {
       await reloadClientInfo();
-      
-      // ✅ Appeler la fonction pour nettoyer l'URL
+       onSeanceCanceled?.();
+       }, 100);
+      await reloadClientInfo();
       onSeanceCanceled?.();
     } else {
       toast.error(response.message);
