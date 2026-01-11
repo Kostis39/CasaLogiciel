@@ -37,6 +37,7 @@ export function DraftForm() {
       NomGrimpeur: "",
       PrenomGrimpeur: "",
       AccordReglement: false,
+      StatutVoie: 1,
     },
   });
 
@@ -449,7 +450,7 @@ return (
             />
           </div>
 
-          {/* Accès au mur */}
+          {/* Acces au mur */}
           <div className="flex flex-col mt-2">
             <label className="text-sm font-semibold mb-1">Accès au mur</label>
             <FormField

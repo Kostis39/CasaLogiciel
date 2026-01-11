@@ -22,11 +22,11 @@ ANNEE_MIN_SEANCE_EXTRACT = int(os.getenv("ANNEE_MIN_SEANCE_EXTRACT"))
 tables_db = ["Club", "Abonnement", "Ticket", "Grimpeur", "Seance"]
 tables_mariadb = ["Seance", "Transaction", "Grimpeur", "Ticket", "Abonnement", "Club"]
 
-USER=os.getenv("MY_USER")
-PASSWORD=os.getenv("PASSWORD")
-HOST = os.getenv("HOST")
-PORT = int(os.getenv("PORT"))
-DATABASE=os.getenv("DATABASE")
+USER=os.getenv("NEW_DB_USER")
+PASSWORD=os.getenv("NEW_DB_PASSWORD")
+HOST = os.getenv("NEW_DB_HOST")
+PORT = int(os.getenv("NEW_DB_PORT"))
+DATABASE=os.getenv("NEW_DB_NAME_DATABASE")
 
 #-------- Fonctions Utilitaires --------#
 

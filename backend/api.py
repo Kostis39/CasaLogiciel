@@ -69,7 +69,6 @@ api.add_resource(ClubsListe, "/clubs")                              # GET all, P
 api.add_resource(ClubResource, "/clubs/<int:id>")                   # GET, PUT, DELETE by id
 api.add_resource(ClubGrimpeurs, "/clubs/<int:id>/grimpeurs")        # GET tous les grimpeurs d’un club
 
-"""
-if __name__ == "__main__":
+
+if os.getenv("ENV") == "dev":
     app.run(debug=True)
-"""
