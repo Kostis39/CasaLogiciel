@@ -7,11 +7,11 @@ export const realService = {
     fetchTicketById: async (id: number): Promise<ApiResponse> => {
         try {
             const response = await fetch(`${API_URL}/ticket/${id}`);
-            if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
-            }
             const data = await response.json();
+            if (!response.ok) {
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
+            }
 
             return { success: true, message: "Ticket récupéré", data };
         } catch (error) {
@@ -30,11 +30,11 @@ export const realService = {
     fetchAbonnementById: async (id: number): Promise<ApiResponse> => {
         try {
             const response = await fetch(`${API_URL}/abonnement/${id}`);
-            if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
-            }
             const data = await response.json();
+            if (!response.ok) {
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
+            }
             return { success: true, message: "Abonnement récupéré", data };
         } catch (error) {
             console.error("Erreur fecth abonnementById:", error);
@@ -52,12 +52,12 @@ export const realService = {
     fetchClientById: async (id: number) : Promise<ApiResponse<Client>> => {
         try {
             const response = await fetch(`${API_URL}/grimpeurs/${id}`);
+            const data = await response.json();
             if (!response.ok) {
-                console.error(`Erreur HTTP: ${response.status}`);
-                return { success: false, message: `Erreur HTTP: ${response.status}` };
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
             }
-            const json = await response.json();
-            return { success: true, message: "Grimpeur récupéré", data: json };
+            return { success: true, message: "Grimpeur récupéré", data: data };
         } catch (error) {
             console.error("Erreur fecth clientById:", error);
             if (error instanceof TypeError) {
@@ -77,14 +77,12 @@ export const realService = {
                 limit: limit.toString(),
                 offset: offset.toString(),
             });
-
-            const response = await fetch(`${API_URL}/grimpeurs/search?${params.toString()}`);            
-            if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`, data: []};
-            }
-            
+            const response = await fetch(`${API_URL}/grimpeurs/search?${params.toString()}`);
             const json = await response.json();
+            if (!response.ok) {
+                console.error(`HTTP ${response.status}: ${json?.message}`);
+                return {success: false, message: `${json.message || "Erreur serveur: " + response.status}`, data: []};
+            }
             const data = Array.isArray(json.data) ? json.data : [];
             return { success: true, message: "Grimpeurs récupérés", data, total: json.total || 0 };
         } catch (error) {
@@ -105,12 +103,12 @@ export const realService = {
                 cache: "no-store",
             });
 
+            const json = await response.json();
             if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
+                console.error(`HTTP ${response.status}: ${json?.message}`);
+                return {success: false, message: `${json.message || "Erreur serveur: " + response.status}`};
             }
 
-            const json = await response.json();
             const data = Array.isArray(json.data) ? json.data : [];
 
             return { success: true, message: "Grimpeurs récupérés", data, total: json.total || 0 };
@@ -129,11 +127,11 @@ export const realService = {
     fetchAbonnements: async (): Promise<ApiResponse<Abonnement[]>> => {
         try {
             const response = await fetch(`${API_URL}/abonnements`);
-            if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
-            }
             const json = await response.json();
+            if (!response.ok) {
+                console.error(`HTTP ${response.status}: ${json?.message}`);
+                return {success: false, message: `${json.message || "Erreur serveur: " + response.status}`};
+            }
             const data = Array.isArray(json?.data) ? json.data : [];
             //const total = typeof json?.total === "number" ? json.total : 0;
 
@@ -154,11 +152,11 @@ export const realService = {
     fetchTickets: async (): Promise<ApiResponse<Ticket[]>> => {
         try {
             const response = await fetch(`${API_URL}/tickets`);
-            if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
-            }
             const json = await response.json();
+            if (!response.ok) {
+                console.error(`HTTP ${response.status}: ${json?.message}`);
+                return {success: false, message: `${json.message || "Erreur serveur: " + response.status}`};
+            }
             const data = Array.isArray(json?.data) ? json.data : [];
             //const total = typeof json?.total === "number" ? json.total : 0;
             return { success: true, message: "Tickets récupérés", data };
@@ -184,11 +182,11 @@ export const realService = {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(body),
             });
+            const data = await response.json();
             if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
             }
-            const data = await response.json().catch(() => ({}));
 
             return {success: true, message: data.message || "Séance créée"};
         } catch (error) {
@@ -214,11 +212,11 @@ export const realService = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(abonnementData),
             });
+            const data = await response.json();
             if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
             }
-            const data = await response.json().catch(() => ({}));
 
             return { success: true, message: "Abonnement créé", data };
         } catch (error) {
@@ -244,11 +242,11 @@ export const realService = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(ticketData),
             });
+            const data = await response.json();
             if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
             }
-            const data = await response.json().catch(() => ({}));
 
             return { success: true, message: "Ticket créé", data };
         } catch (error) {
@@ -274,12 +272,11 @@ export const realService = {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(filteredData),
             });
+            const json = await response.json();
             if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
+                console.error(`HTTP ${response.status}: ${json?.message}`);
+                return {success: false, message: `${json.message || "Erreur serveur: " + response.status}`};
             }
-
-            const json = await response.json().catch(() => ({}));
 
             return {
                 success: true,
@@ -348,11 +345,11 @@ export const realService = {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
-                if (!response.ok) {
-                    console.error(`HTTP ${response.status}:`);
-                    return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
-                }
-            const json = await response.json().catch(() => ({}));
+            const json = await response.json();
+            if (!response.ok) {
+                console.error(`HTTP ${response.status}: ${json?.message}`);
+                return {success: false, message: `${json.message || "Erreur serveur: " + response.status}`};
+            }
 
             return { success: true, message: "Transaction enregistrée", data: json };
         } catch (error) {
@@ -379,11 +376,11 @@ export const realService = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(abonnementData),
             });
+            const data = await response.json();
             if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
             }
-            const data = await response.json().catch(() => ({}));
 
             return { success: true, message: "Abonnement mis à jour", data };
         } catch (error) {
@@ -409,11 +406,11 @@ export const realService = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(ticketData),
             });
+            const data = await response.json();
             if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
             }
-            const data = await response.json().catch(() => ({}));
 
             return { success: true, message: "Ticket mis à jour", data };
         } catch (error) {
@@ -442,12 +439,11 @@ export const realService = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newClient),
             });
+            const data = await response.json();
             if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
             }
-
-            const data = await response.json().catch(() => ({}));
 
             return { success: true, message: "Cotisation mise à jour", data };
         } catch (error) {
@@ -476,18 +472,13 @@ export const realService = {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ CheminSignature: signatureBase64, ...params }),
             });
+            const data = await response.json();
             if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
             }
 
-            const json = await response.json().catch(() => ({}));
-
-            if (!response.ok) {
-                return { success: false, message: json.message || `Erreur HTTP: ${response.status}` };
-            }
-
-            return { success: true, message: json.message || "Signature enregistrée", data: json };
+            return { success: true, message: data.message || "Signature enregistrée", data: data };
         } catch (error) {
             console.error("Erreur update signature grimpeur:", error);
             if (error instanceof TypeError) {
@@ -507,13 +498,13 @@ export const realService = {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(client),
             });
+            const data = await response.json();
             if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
             }
-            const json = await response.json().catch(() => ({}));
 
-            return { success: true, message: json.message || "Client mis à jour", data: json.grimpeur };
+            return { success: true, message: data.message || "Client mis à jour", data: data.grimpeur };
         } catch (error) {
             console.error("Erreur update client data:", error);
             if (error instanceof TypeError) {
@@ -533,16 +524,16 @@ export const realService = {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(transaction),
             });
+            const data = await response.json();
             if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
             }
-            const json = await response.json().catch(() => ({}));
 
             return {
                 success: true,
-                message: json.message || "Transaction mise à jour",
-                data: json, // ou json.transaction si ton API renvoie { transaction: {...} }
+                message: data.message || "Transaction mise à jour",
+                data: data, // ou json.transaction si ton API renvoie { transaction: {...} }
             };
         } catch (error) {
             console.error("Erreur update transaction:", error);
@@ -563,12 +554,11 @@ export const realService = {
             const response = await fetch(`${API_URL}/abonnement/${idAbonnement}`, {
                 method: 'DELETE',
             });
+            const data = await response.json();
             if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
             }
-
-            const data = await response.json().catch(() => ({}));
 
             return { success: true, message: "Abonnement supprimé", data };
         } catch (error) {
@@ -588,11 +578,11 @@ export const realService = {
             const response = await fetch(`${API_URL}/ticket/${idTicket}`, {
                 method: 'DELETE',
             });
+            const data = await response.json();
             if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
             }
-            const data = await response.json().catch(() => ({}));
 
             return { success: true, message: "Ticket supprimé", data };
         } catch (error) {
@@ -612,11 +602,11 @@ export const realService = {
             const response = await fetch(`${API_URL}/seances/grimpeur/${NumGrimpeur}`, {
                 method: 'DELETE',
             });
+            const data = await response.json();
             if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
             }
-            const data = await response.json().catch(() => ({}));
 
             return { success: true, message: data.message || "Séance supprimée avec succès" };
         } catch (error) {
@@ -635,11 +625,11 @@ export const realService = {
     isAlreadyEntered: async (id: number) : Promise<ApiResponse> => {
         try {
             const response = await fetch(`${API_URL}/seances/grimpeur/${id}/aujourdhui`);
-            if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
-            }
             const data = await response.json();
+            if (!response.ok) {
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
+            }
             return { success: true, message: "Vérification effectuée", data: data.est_la === true };
 
         } catch (error) {
@@ -658,11 +648,11 @@ export const realService = {
     fetchClubs: async (): Promise<ApiResponse<Club[]>> => {
         try {
             const response = await fetch(`${API_URL}/clubs`);
-            if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
-            }
             const json = await response.json();
+            if (!response.ok) {
+                console.error(`HTTP ${response.status}: ${json?.message}`);
+                return {success: false, message: `${json.message || "Erreur serveur: " + response.status}`};
+            }
             const data = Array.isArray(json.data) ? json.data : [];
 
             return { success: true, message: "Clubs récupérés", data };
@@ -685,11 +675,11 @@ export const realService = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(clubData),
             });
+            const data = await response.json();
             if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
             }
-            const data = await response.json().catch(() => ({}));
 
             return { success: true, message: "Club créé", data };
         } catch (error) {
@@ -711,11 +701,11 @@ export const realService = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(clubData),
             });
+            const data = await response.json();
             if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
             }
-            const data = await response.json().catch(() => ({}));
 
             return { success: true, message: "Club mis à jour", data };
         } catch (error) {
@@ -735,12 +725,13 @@ export const realService = {
             const response = await fetch(`${API_URL}/clubs/${idClub}`, {
                 method: 'DELETE',
             });
-            if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
-            }
-            const data = await response.json().catch(() => ({}));
 
+            const data = await response.json();
+            if (!response.ok) {
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
+            }
+            
             return { success: true, message: "Club supprimé", data };
         } catch (error) {
             console.error("Erreur delete club:", error);
@@ -757,11 +748,11 @@ export const realService = {
     fetchClubById: async (clubId: number): Promise<ApiResponse> => {
         try {
             const response = await fetch(`${API_URL}/clubs/${clubId}`);
-            if (!response.ok) {
-                console.error(`HTTP ${response.status}:`);
-                return {success: false, message: `Erreur serveur: ${response.status} ${response.statusText}`};
-            }
             const data = await response.json();
+            if (!response.ok) {
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
+            }
 
             return { success: true, message: "Club du grimpeur récupéré", data };
         } catch (error) {

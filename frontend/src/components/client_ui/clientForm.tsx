@@ -461,7 +461,7 @@ return (
                   <ToggleGroup
                     type="single"
                     value={field.value?.toString()}
-                    onValueChange={(val) => field.onChange(val ? Number(val) : null)}
+                    onValueChange={(val) => field.onChange(val ? Number(val) : 1)}
                     className="flex gap-2"
                   >
                     {[{ value: 1, label: "Bloc" }, { value: 2, label: "Moulinette" }, { value: 3, label: "Tête" }].map(({ value, label }) => (
