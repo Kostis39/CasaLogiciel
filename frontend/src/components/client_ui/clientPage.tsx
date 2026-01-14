@@ -4,7 +4,7 @@ import { ClientListClientComponent } from "@/src/components/client_ui/clientList
 import ClientEdit from "@/src/components/client_ui/clientModif";
 import SearchClient from "@/src/components/client_ui/clientSearch";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ClientPage() {
   const searchParams = useSearchParams();
@@ -19,6 +19,10 @@ export default function ClientPage() {
   const handleEdit = () => setMode(1);
   const handleCancelEdit = () => setMode(0);
   const [refreshKey, setRefreshKey] = useState(0);
+  
+  useEffect(() => {
+    setMode(0);
+  }, [id]);
 
   const handleClientUpdated = () => {
     setRefreshKey(prev => prev + 1); // Force le re-render
