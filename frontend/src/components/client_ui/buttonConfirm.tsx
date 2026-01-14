@@ -19,10 +19,10 @@ type ConfirmButtonProps = {
   confirmText?: string;
   cancelText?: string;
   variantConfirm?: "default" | "destructive" | "outline";
-  // Nouveaux props pour le bouton trigger
   triggerSize?: ButtonProps["size"];
   triggerVariant?: ButtonProps["variant"];
   triggerClassName?: string;
+  disabled?: boolean;
 };
 
 export function ConfirmButton({
@@ -36,6 +36,7 @@ export function ConfirmButton({
   triggerSize = "lg",
   triggerVariant = "outline",
   triggerClassName = "",
+  disabled = false,
 }: ConfirmButtonProps) {
   const [open, setOpen] = useState(false);
 
@@ -53,6 +54,7 @@ export function ConfirmButton({
         variant={triggerVariant}
         className={triggerClassName}
         onClick={() => setOpen(true)}
+        disabled={disabled}
       >
         {triggerText}
       </Button>

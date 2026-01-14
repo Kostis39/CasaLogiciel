@@ -250,7 +250,7 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
           ...updated,
           TicketId: ticket.IdTicket,
           TypeTicket: ticket.TypeTicket,
-          NbSeanceRest: nbRest,
+          NbSeanceRest: (formData.NbSeanceRest || 0) + nbRest,
         };
         toast.success("Nouveau ticket ajouté !");
       }
@@ -345,7 +345,7 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
         ...formData,
         TicketId: ticket.IdTicket,
         TypeTicket: ticket.TypeTicket,
-        NbSeanceRest: nbRest,
+        NbSeanceRest: (formData.NbSeanceRest || 0 ) + nbRest,
       };
       const updateRes = await updateClientData(updatedClient);
       if (!updateRes.success) return toast.error(updateRes.message);

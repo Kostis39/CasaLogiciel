@@ -394,10 +394,16 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
           <div className="flex justify-center">
             <Button
               onClick={handleTicketUnique}
-              disabled={isLoadingEntree || 
-                inCasa || 
-                isNotAllowedForEntrance(clientInfo) ||
-                isDateValid(clientInfo.DateFinAbo)
+              disabled={
+                isLoadingEntree ||
+                inCasa ||
+                (
+                  (
+                    !(isDateValid(clientInfo.DateFinCoti) || !!clientInfo.NumLicenceGrimpeur) &&
+                    !clientInfo.AccordReglement
+                  ) ||
+                  (isDateValid(clientInfo.DateFinAbo) || !!clientInfo.NbSeanceRest)
+                )
               }
               variant="default"
               className="w-3/4 h-3/4 text-lg cursor-pointer"
@@ -422,6 +428,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
               triggerSize="lg"
               triggerVariant="outline"
               triggerClassName="w-3/4 h-3/4 text-lg cursor-pointer"
+              disabled={isLoadingEntree || !inCasa}
             />
           </div>
         </div>

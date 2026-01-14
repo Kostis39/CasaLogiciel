@@ -132,6 +132,23 @@ export function DraftForm() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    const numLicence = form.watch("NumLicenceGrimpeur");
+    
+    if (numLicence && numLicence.trim() !== "") {
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      
+      const targetYear = currentMonth >= 6 ? currentYear + 1 : currentYear;
+      const cotisationDate = new Date(targetYear, 8, 1);
+      
+      form.setValue("DateFinCoti", cotisationDate.toISOString().split("T")[0]);
+    } else {
+      form.setValue("DateFinCoti", undefined);
+    }
+  }, [form.watch("NumLicenceGrimpeur"), form]);
+
   const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
     setIsSubmitting(true);
     try {
