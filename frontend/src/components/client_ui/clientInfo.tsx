@@ -564,7 +564,7 @@ function AccesSalleInfo(client: Client){
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <p className="font-bold text-gray-700">Accées Salle</p>
+      <p className="font-bold text-gray-700">Accès Salle</p>
       {content}
     </div>
   );

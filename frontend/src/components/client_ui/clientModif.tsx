@@ -450,7 +450,15 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
                 </SelectContent>
               </Select>
             </div>
-            <InputField label="Solde (€)" type="number" value={formData.Solde ?? ""} onChange={(v) => handleChange("Solde", Number(v))} />
+              <InputField 
+                label="Solde (€)" 
+                type="number" 
+                value={formData.Solde ?? ""} 
+                onChange={(v) => {
+                  const num = Number(v);
+                  handleChange("Solde", num < 0 ? 0 : num); // Force à 0 si négatif
+                }} 
+              />
           </div>
 
           {/* Accès au mur */}

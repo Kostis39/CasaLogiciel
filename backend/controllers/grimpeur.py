@@ -15,7 +15,7 @@ ALLOWED_FIELDS = [
     "EmailGrimpeur", "NumLicenceGrimpeur", "ClubId", "StatutVoie",
     "TypeAbo", "DateFinAbo", "TypeTicket", "NbSeanceRest",
     "DateFinCoti", "AccordReglement", "AccordParental", "CheminSignature", "Note",
-    "TicketId", "AboId", "DateInscrGrimpeur"
+    "TicketId", "AboId", "DateInscrGrimpeur", "Solde"
 ]
 
 def validate_grimpeur_data(data):
@@ -147,13 +147,20 @@ class Grimpeur(Resource):
             json_data = request.get_json()
             if not json_data:
                 return {"message": "Aucune donnée fournie"}, 400
-
+            
             grimpeur = g.db_session.query(Clients.Grimpeur).filter_by(
                 NumGrimpeur=id
             ).first()
             if not grimpeur:
                 return {"message": "Grimpeur introuvable"}, 404
-
+            
+            # Vérifier que Solde est positif
+            solde = json_data.get("Solde")
+            if solde is not None and solde < 0:
+                return {
+                    "message": "Le solde ne peut pas être négatif"
+                }, 400
+            
             # Verify ClubId if provided
             club_id = json_data.get("ClubId")
             if club_id is not None:
@@ -164,14 +171,14 @@ class Grimpeur(Resource):
                     return {
                         "message": f"ClubId {club_id} n'existe pas"
                     }, 400
-
+            
             # Update allowed fields
             for key, value in json_data.items():
                 if key in ALLOWED_FIELDS:
                     if key == "CheminSignature" and not value:
                         continue
                     setattr(grimpeur, key, value)
-
+            
             g.db_session.commit()
             return {
                 "message": "Grimpeur mis à jour avec succès",
@@ -181,7 +188,7 @@ class Grimpeur(Resource):
             logger.error(f"Error updating grimpeur {id}: {e}")
             g.db_session.rollback()
             return {"message": "Erreur lors de la mise à jour"}, 500
-
+        
     def delete(self, id):
         """Delete a grimpeur"""
         try:
