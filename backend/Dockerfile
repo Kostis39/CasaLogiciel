@@ -5,7 +5,7 @@ FROM python:3.11
 WORKDIR /code
 
 # Install required dependencies
-COPY pyreqs.txt
+COPY pyreqs.txt .
 RUN pip install --no-cache-dir -r pyreqs.txt && rm pyreqs.txt
 
 # Copy the local files to the container

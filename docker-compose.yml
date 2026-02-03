@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  # ===== BASE DE DONNÉES =====
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+    volumes:
+      - ./bdd/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - casa_network
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    restart: unless-stopped
+
+  # ===== PHPMYADMIN =====
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: mariadb
+      PMA_USER: ${PMA_USER}
+      PMA_PASSWORD: ${PMA_PASSWORD}
+    ports:
+      - "8080:80"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - casa_network
+    restart: unless-stopped
+
+  # ===== BACKEND =====
+  backend:
+    image: casabackend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: casabackend
+    ports:
+      - "5000:5000"
+    environment:
+      # Variables depuis le .env racine
+      MARIADB_HOST: mariadb
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_PASSWORD: ${NEXT_PUBLIC_PASSWORD}
+    env_file:
+      - .env
+    volumes:
+      - /home/casamur/data/signatures:/code/static/uploads/signatures
+    networks:
+      - casa_network
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ===== FRONTEND =====
+  frontend:
+    image: casafrontend:latest
+    container_name: casafrontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_PASSWORD: ${NEXT_PUBLIC_PASSWORD}
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_PASSWORD: ${NEXT_PUBLIC_PASSWORD}
+    env_file:
+      - .env
+    networks:
+      - casa_network
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  mariadb_data:
+    driver: local
+
+networks:
+  casa_network:
+    driver: bridge

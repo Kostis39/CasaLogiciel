@@ -1,5 +1,5 @@
 # Utiliser une image Node.js comme base
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Créer un répertoire de travail dans le conteneur (chemin ABSOLU)
 WORKDIR /front
