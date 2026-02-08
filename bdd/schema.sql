@@ -227,6 +227,27 @@ ALTER TABLE `Grimpeur`
 --
 ALTER TABLE `Seance`
   ADD CONSTRAINT `fk_seance_grimpeur` FOREIGN KEY (`NumGrimpeur`) REFERENCES `Grimpeur` (`NumGrimpeur`);
+
+INSERT INTO Ticket (IdTicket, TypeTicket, NbSeanceTicket)
+VALUES (1, 'Carte Séance', 1);
+-- Changer le délimiteur pour les triggers
+DELIMITER //
+
+DROP TRIGGER IF EXISTS prevent_delete_ticket1//
+
+CREATE TRIGGER prevent_delete_ticket1
+BEFORE DELETE ON Ticket
+FOR EACH ROW
+BEGIN
+  IF OLD.IdTicket = 1 THEN
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'This ticket cannot be deleted because it is used as a reference in the application.';
+  END IF;
+END//
+
+-- Rétablir le délimiteur normal
+DELIMITER ;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

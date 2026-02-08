@@ -6,18 +6,21 @@ services:
     image: mariadb:latest
     container_name: mariadb
     environment:
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
-      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_NAME}
     volumes:
       - ./bdd/schema.sql:/docker-entrypoint-initdb.d/schema.sql
       - mariadb_data:/var/lib/mysql
     networks:
       - casa_network
+    ports:
+      - "3306:3306"
     healthcheck:
-      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-p${MARIADB_PASSWORD}"]
       timeout: 20s
       retries: 10
-    restart: unless-stopped
+      start_period: 40s
+    restart: always
 
   # ===== PHPMYADMIN =====
   phpmyadmin:
@@ -25,7 +28,7 @@ services:
     container_name: phpmyadmin
     environment:
       PMA_HOST: mariadb
-      PMA_USER: ${PMA_USER}
+      PMA_USER: ${MARIADB_USER}
       PMA_PASSWORD: ${PMA_PASSWORD}
     ports:
       - "8080:80"
@@ -33,7 +36,8 @@ services:
       mariadb:
         condition: service_healthy
     networks:
-      - casa_network
+      casa_network:
+        ipv4_address: 172.20.0.3
     restart: unless-stopped
 
   # ===== BACKEND =====
@@ -47,21 +51,20 @@ services:
       - "5000:5000"
     environment:
       # Variables depuis le .env racine
-      MARIADB_HOST: mariadb
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
-      MARIADB_DATABASE: ${MARIADB_DATABASE}
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-      NEXT_PUBLIC_PASSWORD: ${NEXT_PUBLIC_PASSWORD}
-    env_file:
-      - .env
+      DB_HOST: mariadb
+      DB_PORT: ${MARIADB_PORT}
+      DB_PASSWORD: ${MARIADB_PASSWORD}
+      DB_NAME: ${MARIADB_NAME}
+      DB_USER: ${MARIADB_USER}
+      ENV: ${ENV}
     volumes:
       - /home/casamur/data/signatures:/code/static/uploads/signatures
     networks:
-      - casa_network
+      casa_network:
+        ipv4_address: 172.20.0.4
     depends_on:
       mariadb:
         condition: service_healthy
-    restart: unless-stopped
 
   # ===== FRONTEND =====
   frontend:
@@ -70,21 +73,13 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-        NEXT_PUBLIC_PASSWORD: ${NEXT_PUBLIC_PASSWORD}
     ports:
       - "3000:3000"
-    environment:
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-      NEXT_PUBLIC_PASSWORD: ${NEXT_PUBLIC_PASSWORD}
-    env_file:
-      - .env
     networks:
-      - casa_network
+      casa_network:
+        ipv4_address: 172.20.0.5
     depends_on:
       - backend
-    restart: unless-stopped
 
 volumes:
   mariadb_data:
@@ -93,3 +88,7 @@ volumes:
 networks:
   casa_network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1

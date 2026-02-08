@@ -22,11 +22,11 @@ ANNEE_MIN_SEANCE_EXTRACT = int(os.getenv("ANNEE_MIN_SEANCE_EXTRACT"))
 tables_db = ["Club", "Abonnement", "Ticket", "Grimpeur", "Seance"]
 tables_mariadb = ["Seance", "Transaction", "Grimpeur", "Ticket", "Abonnement", "Club"]
 
-USER=os.getenv("NEW_DB_USER")
-PASSWORD=os.getenv("NEW_DB_PASSWORD")
-HOST = os.getenv("NEW_DB_HOST")
-PORT = int(os.getenv("NEW_DB_PORT"))
-DATABASE=os.getenv("NEW_DB_NAME_DATABASE")
+USER=os.getenv("DB_USER")
+PASSWORD=os.getenv("DB_PASSWORD")
+HOST = os.getenv("DB_HOST")
+PORT = int(os.getenv("DB_PORT"))
+DATABASE=os.getenv("DB_NAME")
 
 #-------- Fonctions Utilitaires --------#
 
@@ -201,10 +201,6 @@ def extractTicket():
 
     cursor.execute("""
         INSERT INTO Ticket (IdTicket, TypeTicket, NbSeanceTicket)
-        VALUES (1, 'Carte Séance', 1);
-    """)
-    cursor.execute("""
-        INSERT INTO Ticket (IdTicket, TypeTicket, NbSeanceTicket)
         VALUES (2, 'Carte de 10', 10);
     """)
 
@@ -291,11 +287,6 @@ def extractSeance():
 
 #-------- Fonction d'exportation des données vers MariaDB --------#
 
-import sys
-import mariadb
-import sqlite3
-from datetime import datetime
-
 def exportDataToMariaDb():
     try:
         mariadb_conn = mariadb.connect(
@@ -317,7 +308,10 @@ def exportDataToMariaDb():
     # Vider les tables dans MariaDB
     for table in tables_mariadb:
         try:
-            mariadb_cur.execute(f"DELETE FROM {table}")
+            if table == "Ticket":
+                mariadb_cur.execute(f"DELETE FROM {table} WHERE IdTicket != 1")
+            else:
+                mariadb_cur.execute(f"DELETE FROM {table}")
         except mariadb.Error as e:
             print(f"Erreur lors du vidage de la table {table} : {e}")
             mariadb_conn.rollback()
