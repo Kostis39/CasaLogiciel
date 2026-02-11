@@ -36,6 +36,10 @@ def shutdown_session(exception=None):
     if db_session is not None:
         db_session.close()
 
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204  # No Content
+
 @app.errorhandler(Exception)
 def handle_error(error):
     """Catch any unhandled errors"""
@@ -69,7 +73,5 @@ api.add_resource(ClubsListe, "/clubs")                              # GET all, P
 api.add_resource(ClubResource, "/clubs/<int:id>")                   # GET, PUT, DELETE by id
 api.add_resource(ClubGrimpeurs, "/clubs/<int:id>/grimpeurs")        # GET tous les grimpeurs d’un club
 
-"""
 if os.getenv("ENV") == "dev":
     app.run(debug=True)
-"""

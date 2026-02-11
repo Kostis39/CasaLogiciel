@@ -6,3 +6,5 @@ vpn*
 **pyc
 CasaCentral.code-workspace
 .env
+*.sql.gz
+.env.dev
