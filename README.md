@@ -1,64 +1,60 @@
-# Casa Central
+# Casa Logiciel
 
 ## Prérequis
 
+- Docker:
+```bash
+Client:
+ Version:           28.2.2
+ API version:       1.50
+ Go version:        go1.23.1
+```
+- Docker compose:
+```bash
+docker-compose version 1.29.2, build unknown
+docker-py version: 5.0.3
+CPython version: 3.10.12
+OpenSSL version: OpenSSL 3.0.2 15 Mar 202
+```
 - Python 3.11
-- Installer les package nécessaire:
+- Npm 11.8 avec Next.js
+
+## Mise en production
+
+1. Initialiser le fichier `.env` global, pour ce faire suivre explication du `.env.example`.
+2. Lancement en une commande:
+```bash
+sudo docker-compose up -d --build
+```
+
+## Extraction des données de l'ancienne app à la nouvelle
+
+1. Mettre les fichiers csv avec comme séparateur `,` dans le dossier `./data_extract`.
+2. Initialiser les vars d'environnements pour pouvoir connecter le prog à la nouvelle bdd.
+3. Lancer le programme d'extraction:
+```bash
+python extract_data.py
+```
+
+## Dévellopement
+
+1. Installer les dépendances manquantes:
 ```bash
 cd backend
 pip install - r pyreqs.txt
-```
-- npm : Next.js 15.3.2 + tailwind
-- Installer tt les packages requis:
-```bash
-cd frontend
+cd ../frontend
 npm install
 ```
-- Obtenir et stocker les fichiers `vpn-auth.txt` et `profile-userlocked.ovpn` dans le répertoire principal (demander à l'admin).
-- Obtenir et stocker le fichier `.env` dans `./archive` (demander à l'admin).
-
-## Se connecter à la base de donnée
-
-- Se connecter au VPN (ou de manière sécu à l'endroit où est stocker la bd):
+2. Initialiser les fichiers `.env` ou `.env.local` de `la racine`, `backend/` et `frontend`.
+3. Lancement base de données:
 ```bash
-sudo sh vpnlog.sh
+sudo docker-compose up -d mariadb phpmyadmin
 ```
-
-## Migration Base de Données
-
-- Mettre dans le dossier `archive` les fichiers **CSV sans Headers**.
-- Lancer le script:
-```python
-cd archive
-python extract_data.py
-```
-- Vérifier qu'il y ai bien ce message: `Données exportées avec succès vers MariaDB`
-
-## Lancement 
-
-1. Lancer l'API:
+4. Lancement Backend:
 ```bash
-cd backend
-gunicorn -w 4 -b 0.0.0.0:5000 api:app
+pyton api.py
 ```
-2. Lancer le frontend:
+5. Lancement Frontend:
 ```bash
-cd frontend
-npm run build 
-npm run start
+npm run dev
 ```
-C'est normal si il ya 3 Warning lors du build.
-
-## Fichiers de config
-#### Extraction base de donnees
-
-Le fichier `./archive/.env` contient les chemins relatifs à la connexion à la bd distante et au nom des fichiers `csv`.
-
-#### Backend
-
-Le fichier `backend/db.python` contient tout le protocle pour ce connecter à la bd distante.
-
-#### Frontend
-
-Le fichier `frontend/.env.local` le path de l'API (il faut rebuild pour que ça marche).
-

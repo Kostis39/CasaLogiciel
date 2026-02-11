@@ -12,7 +12,8 @@ services:
       - ./bdd/schema.sql:/docker-entrypoint-initdb.d/schema.sql
       - mariadb_data:/var/lib/mysql
     networks:
-      - casa_network
+      casa_network:
+        ipv4_address: 172.20.0.2
     ports:
       - "3306:3306"
     healthcheck:
@@ -44,7 +45,8 @@ services:
         crond -f -L /var/log/cron.log
       "
     networks:
-      - casa_network
+      casa_network:
+        ipv4_address: 172.20.0.6
     depends_on:
       mariadb:
         condition: service_healthy
@@ -102,6 +104,10 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL_PROD: ${NEXT_PUBLIC_API_URL_PROD}
+        NEXT_PUBLIC_PASSWORD: ${NEXT_PUBLIC_PASSWORD}
+        NEXT_PUBLIC_ENV: prod
     ports:
       - "3000:3000"
     networks:
