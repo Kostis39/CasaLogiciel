@@ -11,6 +11,16 @@ COPY package.json package-lock.json ./
 RUN npm cache clean --force \
     && npm ci
 
+# Recevoir les ARG
+ARG NEXT_PUBLIC_API_URL_PROD
+ARG NEXT_PUBLIC_PASSWORD
+ARG NEXT_PUBLIC_ENV
+
+# Les convertir en ENV pour le build Next.js
+ENV NEXT_PUBLIC_API_URL_PROD=$NEXT_PUBLIC_API_URL_PROD
+ENV NEXT_PUBLIC_PASSWORD=$NEXT_PUBLIC_PASSWORD
+ENV NEXT_PUBLIC_ENV=$NEXT_PUBLIC_ENV
+
 # Copier le reste du code source
 COPY . .
 

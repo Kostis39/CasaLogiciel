@@ -105,9 +105,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL_PROD: ${NEXT_PUBLIC_API_URL_PROD}
-        NEXT_PUBLIC_PASSWORD: ${NEXT_PUBLIC_PASSWORD}
-        NEXT_PUBLIC_ENV: prod
+        - NEXT_PUBLIC_API_URL_PROD=${NEXT_PUBLIC_API_URL_PROD}
+        - NEXT_PUBLIC_PASSWORD=${NEXT_PUBLIC_PASSWORD}
+        - NEXT_PUBLIC_ENV=prod
     ports:
       - "3000:3000"
     networks:
