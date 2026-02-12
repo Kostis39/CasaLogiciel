@@ -36,6 +36,16 @@ sudo docker-compose up -d --build
 python extract_data.py
 ```
 
+## Update
+
+Lancer:
+```bash
+git pull
+sudo docker-compose down frontend backend
+sudo docker-compose up -d --build frontend backend
+sudo docker system prune -a
+```
+
 ## Dévellopement
 
 1. Installer les dépendances manquantes:

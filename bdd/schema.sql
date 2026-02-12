@@ -187,6 +187,13 @@ ALTER TABLE `Abonnement`
   MODIFY `IdAbo` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `Club`
+--
+ALTER TABLE `Club`
+  MODIFY `IdClub` int(11) NOT NULL AUTO_INCREMENT;
+
+
+--
 -- AUTO_INCREMENT for table `Grimpeur`
 --
 ALTER TABLE `Grimpeur`
