@@ -34,8 +34,8 @@ services:
       DB_PASS: ${MARIADB_PASSWORD}
       TZ: Europe/Paris
     volumes:
-      - .home/casamur/backups:/backups  # Dossier pour stocker les backups
-      - .home/casamur/scripts:/scripts:ro  # Scripts en lecture seule
+      - /home/casamur/backups:/backups  # Dossier pour stocker les backups
+      - /home/casamur/scripts:/scripts:ro  # Scripts en lecture seule
     command: >
       sh -c "
         apk add --no-cache mariadb-client tzdata &&
