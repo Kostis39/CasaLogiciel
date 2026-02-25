@@ -326,7 +326,7 @@ return (
         className="flex flex-col gap-8 flex-1 pb-10"
       >
         {/* --- Informations Générales --- */}
-        <section className="border border-gray-200 rounded-xl p-5 bg-gray-50 flex flex-col gap-4">
+        <section className="border border-black rounded-xl p-5 bg-gray-50 flex flex-col gap-4">
           <h3 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">
             Informations générales
           </h3>
@@ -341,7 +341,11 @@ return (
                 <FormItem>
                   <FormLabel>Nom *</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Entrer le nom" />
+                    <Input 
+                      {...field} 
+                      placeholder="Entrer le nom"
+                      className="border-black"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -357,7 +361,7 @@ return (
                 <FormItem>
                   <FormLabel>Prénom *</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Entrer le prénom" />
+                    <Input {...field} placeholder="Entrer le prénom" className="border-black"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -376,6 +380,7 @@ return (
                       type="date"
                       value={field.value ?? ""}
                       onChange={(e) => field.onChange(e.target.value || null)}
+                      className="border-black"
                     />
                   </FormControl>
                   <FormMessage />
@@ -391,7 +396,7 @@ return (
                 <FormItem>
                   <FormLabel>Téléphone</FormLabel>
                   <FormControl>
-                    <Input {...field} type="tel"   value={field.value ?? ""} placeholder="Numéro de téléphone" />
+                    <Input {...field} type="tel" value={field.value ?? ""} placeholder="Numéro de téléphone" className="border-black"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -406,7 +411,7 @@ return (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input {...field} value={field.value ?? ""} type="email" placeholder="Adresse email" />
+                    <Input {...field} value={field.value ?? ""} type="email" placeholder="Adresse email" className="border-black"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -421,7 +426,7 @@ return (
                 <FormItem>
                   <FormLabel>Licence</FormLabel>
                   <FormControl>
-                    <Input {...field} value={field.value ?? ""} placeholder="Numéro de licence" />
+                    <Input {...field} value={field.value ?? ""} placeholder="Numéro de licence" className="border-black"/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -444,10 +449,10 @@ return (
                         } else {
                           field.onChange(Number(val));
                         }
-                      }}
+                      }} 
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="border-black">
                           <SelectValue placeholder="Choisir un club" />
                         </SelectTrigger>
                       </FormControl>
@@ -498,7 +503,7 @@ return (
         </section>
 
         {/* --- Abonnement & Tickets --- */}
-        <section className="border border-gray-200 rounded-xl p-5 bg-gray-50 flex flex-col gap-6">
+        <section className="border border-black rounded-xl p-5 bg-gray-50 flex flex-col gap-6">
           <h3 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">
             Abonnements & Tickets
           </h3>
@@ -532,7 +537,7 @@ return (
                     }}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="border-black">
                         <SelectValue placeholder="Choisir un abonnement" />
                       </SelectTrigger>
                     </FormControl>
@@ -557,7 +562,7 @@ return (
                 <FormItem className="w-48">
                   <FormLabel>Date fin</FormLabel>
                   <FormControl>
-                    <Input type="date" value={field.value ?? ""} onChange={(e) => field.onChange(e.target.value)} />
+                    <Input type="date" value={field.value ?? ""} onChange={(e) => field.onChange(e.target.value)} className="border-black"/>
                   </FormControl>
                 </FormItem>
               )}
@@ -591,7 +596,7 @@ return (
                     }}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="border-black">
                         <SelectValue placeholder="Choisir un ticket" />
                       </SelectTrigger>
                     </FormControl>
@@ -621,6 +626,7 @@ return (
                       value={field.value ?? ""}
                       onChange={(e) => field.onChange(Number(e.target.value) || undefined)}
                       placeholder="Nb séances"
+                      className="border-black"
                     />
                   </FormControl>
                 </FormItem>
@@ -630,7 +636,7 @@ return (
         </section>
 
         {/* --- Cotisation --- */}
-        <section className="border border-gray-200 rounded-xl p-5 bg-gray-50 flex flex-col gap-4">
+        <section className="border border-black rounded-xl p-5 bg-gray-50 flex flex-col gap-4">
           <h3 className="text-xl font-semibold mb-2 text-gray-700 border-b pb-2">
             Cotisation *
           </h3>
@@ -656,6 +662,7 @@ return (
                     gap-4 p-4 bg-white rounded-xl shadow-sm
                     cursor-pointer select-none
                     hover:bg-gray-100 transition
+                    border border-black
                   "
                   onClick={handleRowClick}
                 >
@@ -678,7 +685,7 @@ return (
 
 
         {/* --- Signature --- */}
-        <section className="border border-gray-200 rounded-xl p-5 bg-gray-50 flex flex-col gap-4">
+        <section className="border border-black rounded-xl p-5 bg-gray-50 flex flex-col gap-4">
           <h3 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Signature du règlement *</h3>
           <FormField
             control={form.control}
@@ -688,7 +695,7 @@ return (
                 <div className="flex flex-col">
                   <canvas
                     ref={canvasRef}
-                    className="border border-gray-200 w-full h-64 bg-white rounded"
+                    className="border border-black w-full h-64 bg-white rounded"
                     style={{ touchAction: "none" }}
                   />
                   <div className="flex gap-2 justify-center">
@@ -718,6 +725,7 @@ return (
                       px-2 py-2
                       rounded-lg
                       hover:bg-gray-100 transition
+                      border border-black
                     "
                     onClick={() => field.onChange(!field.value)}
                   >
@@ -754,7 +762,7 @@ return (
         </section>
 
         {/* --- Note --- */}
-        <section className="border border-gray-200 rounded-xl p-5 bg-gray-50">
+        <section className="border border-black rounded-xl p-5 bg-gray-50">
           <FormField
             control={form.control}
             name="Note"
@@ -766,7 +774,7 @@ return (
                     value={field.value ?? ""}
                     onChange={(e) => field.onChange(e.target.value || null)}
                     placeholder="Entrer une note"
-                    className="min-h-[80px]"
+                    className="min-h-[80px] border-black"
                   />
                 </FormControl>
               </FormItem>
@@ -781,6 +789,7 @@ return (
             title="Confirmer la réinitialisation"
             description="Êtes-vous sûr(e) de vouloir réinitialiser le formulaire ? Cette action ne peut pas être annulée."
             onConfirm={() => form.reset()}
+            triggerClassName="border border-black"
           />
 
           <Button size="lg" type="submit" disabled={isSubmitting}>

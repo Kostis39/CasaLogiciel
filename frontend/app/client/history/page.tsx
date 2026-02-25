@@ -422,7 +422,7 @@ export default function AdminPage() {
         <LoadingSpinner />
       ) : tab === "transactions" ? (
         transactions.length ? (
-          <div className="relative overflow-x-auto rounded-lg border border-gray-200">
+          <div className="relative overflow-x-auto rounded-lg border border-black">
             <table className="w-full text-sm text-left">
               <thead className="text-xs text-gray-700 uppercase bg-gray-100">
                 <tr>
@@ -435,7 +435,7 @@ export default function AdminPage() {
               </thead>
               <tbody>
                 {transactions.map((t) => (
-                  <tr key={t.IdTransac} className="border-t border-gray-200 bg-white hover:bg-gray-50 transition-colors">
+                  <tr key={t.IdTransac} className="border-t border-black bg-white hover:bg-gray-50 transition-colors">
                     <td className="p-4 font-medium">{t.IdTransac}</td>
                     <td className="p-4">{t.NumGrimpeur ?? "-"}</td>
                       <td className={`p-4 rounded font-medium ${
@@ -487,7 +487,7 @@ export default function AdminPage() {
           <p className="text-gray-500 mt-4">Aucune transaction trouvée.</p>
         )
       ) : seances.length ? (
-        <div className="relative overflow-x-auto rounded-lg border border-gray-200">
+        <div className="relative overflow-x-auto rounded-lg border border-black">
           <table className="w-full text-sm text-left">
             <thead className="text-xs text-gray-700 uppercase bg-gray-100">
               <tr>
@@ -500,7 +500,7 @@ export default function AdminPage() {
             </thead>
             <tbody>
               {seances.map((s) => (
-                <tr key={s.IdSeance} className="border-t border-gray-200 bg-white hover:bg-gray-50 transition-colors">
+                <tr key={s.IdSeance} className="border-t border-black bg-white hover:bg-gray-50 transition-colors">
                   <td className="p-4 font-medium">{s.IdSeance}</td>
                   <td className="p-4">{s.NumGrimpeur}</td>
 <td className={`p-4 rounded font-medium ${

@@ -417,7 +417,7 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
     <form onSubmit={handleSubmit} className="flex flex-col gap-8 flex-1 pb-15">
       
         {/* --- Informations Générales --- */}
-        <section className="border border-gray-200 rounded-xl p-5 bg-gray-50 flex flex-col gap-4">
+        <section className="border border-black rounded-xl p-5 bg-gray-50 flex flex-col gap-4">
           <h3 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Informations générales</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <InputField label="Numéro de Grimpeur" value={clientInfo.NumGrimpeur} onChange={() => {}} readOnly />
@@ -437,7 +437,7 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
                   else handleChange("ClubId", Number(val));
                 }}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full border border-black">
                   <SelectValue placeholder="Choisir un club" />
                 </SelectTrigger>
                 <SelectContent>
@@ -469,7 +469,7 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
                 <button
                   key={value}
                   type="button"
-                  className={`px-3 py-1 rounded border text-gray-700 ${getStatutVoieBg(value)} ${formData.StatutVoie === value ? "border-blue-500" : ""}`}
+                  className={`px-3 py-1 rounded border text-gray-700 ${getStatutVoieBg(value)} ${formData.StatutVoie === value ? "border-black" : ""}`}
                   onClick={() => handleChange("StatutVoie", value)}
                 >
                   {label}
@@ -480,7 +480,7 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
         </section>
 
         {/* --- Abonnements & Tickets --- */}
-        <section className="border border-gray-200 rounded-xl p-5 bg-gray-50 flex flex-col gap-6">
+        <section className="border border-black rounded-xl p-5 bg-gray-50 flex flex-col gap-6">
           <h3 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Abonnements & Tickets</h3>
 
           {/* --- Fin abonnement actuelle --- */}
@@ -494,7 +494,7 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
           </div>
 
           {/* --- Nouveau abonnement --- */}
-          <div className="border border-gray-300 rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-end bg-white shadow-sm">
+          <div className="border border-black rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-end bg-white shadow-sm">
             <div className="flex-1">
               <label className="text-sm font-semibold text-gray-700 mb-1 block">Ajouter un nouvel abonnement</label>
               <Select
@@ -512,7 +512,7 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
                   }
                 }}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full border border-black">
                   <SelectValue placeholder="Choisir un abonnement" />
                 </SelectTrigger>
                 <SelectContent>
@@ -558,7 +558,7 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
           </div>
 
           {/* --- Nouveau ticket --- */}
-          <div className="border border-gray-300 rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-end bg-white shadow-sm">
+          <div className="border border-black rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-end bg-white shadow-sm">
             <div className="flex-1">
               <label className="text-sm font-semibold text-gray-700 mb-1 block">Ajouter un nouveau ticket</label>
               <Select
@@ -572,7 +572,7 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
                   }
                 }}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full border border-black">
                   <SelectValue placeholder="Choisir un ticket" />
                 </SelectTrigger>
                 <SelectContent>
@@ -610,13 +610,13 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
 
 
         {/* --- Cotisation --- */}
-        <section className="border border-gray-200 rounded-xl p-5 bg-gray-50 flex items-end gap-3">
+        <section className="border border-black rounded-xl p-5 bg-gray-50 flex items-end gap-3">
           <InputField label="Fin cotisation" type="date" value={formData.DateFinCoti || ""} onChange={(v) => handleChange("DateFinCoti", v)} />
-          <Button type="button" variant="outline" size="sm" onClick={() => handleChange("DateFinCoti", getTodayPlusOneYear())}>+1 an</Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => handleChange("DateFinCoti", getTodayPlusOneYear())} className="border-black">+1 an</Button>
         </section>
 
         {/* --- Signature --- */}
-        <section className="border border-gray-200 rounded-xl p-5 bg-gray-50 flex flex-col gap-4">
+        <section className="border border-black rounded-xl p-5 bg-gray-50 flex flex-col gap-4">
           <h1 className="text-2xl font-bold mb-6">Test de Signature</h1>
 
           <div className="flex flex-col sm:flex-row gap-4">
@@ -629,11 +629,11 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
             <div className="flex flex-col">
               <canvas
                 ref={canvasRef}
-                className="border border-gray-200 w-full h-64 bg-white rounded"
+                className="border border-black w-full h-64 bg-white rounded"
                 style={{ touchAction: "none" }}
               />
               <div className="flex gap-2 mt-2">
-                <Button type="button" variant="outline" onClick={handleClearSignature}>
+                <Button type="button" variant="outline" onClick={handleClearSignature} className="border-black">
                   Effacer
                 </Button>
                 <Button type="button" variant="default" onClick={handleSignatureSave} disabled={isUpdatingSignature}>
@@ -643,20 +643,52 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
             </div>
           </div>
 
-          <div>
-            {formData.AccordReglement ? <p className="text-green-600 font-semibold">Règlement signé ✅</p> : <p className="text-red-500 font-semibold">Règlement non signé ❌</p>}
-          </div>
-          <div className="flex items-center justify-between gap-2 mt-4">
-            <label>Accord Parental</label>
-            <p>Votre signature ci-dessus vaut aussi pour l'autorisation parentale si elle est cochée.</p>
-            <Switch checked={formData.AccordParental || false} onCheckedChange={(checked) => handleChange("AccordParental", checked)} />
+         {/* Accord Parental */}
+          <div className="flex flex-col items-center w-full mt-6">
+            <div className="flex flex-col items-center space-y-3 w-full">
+              
+              {/* Ligne cliquable */}
+              <div
+                className="
+                  flex justify-between items-center
+                  w-full max-w-[500px]
+                  cursor-pointer select-none
+                  px-2 py-2
+                  rounded-lg
+                  hover:bg-gray-100 transition
+                  border border-black
+                "
+                onClick={() => handleChange("AccordParental", !formData.AccordParental)}
+              >
+                <label className="cursor-pointer text-gray-800">
+                  Accord Parental
+                </label>
+
+                <div
+                  onClick={(e) => {
+                    // Empêche la ligne de capturer le clic du switch
+                    e.stopPropagation();
+                  }}
+                >
+                  <Switch
+                    checked={formData.AccordParental || false}
+                    onCheckedChange={(checked) => handleChange("AccordParental", checked)}
+                  />
+                </div>
+              </div>
+
+              {/* Texte explicatif sous la même largeur que le canvas */}
+              <p className="text-sm text-gray-600 text-center max-w-[500px]">
+                Votre signature ci-dessus vaut aussi pour l'autorisation parentale si elle est cochée.
+              </p>
+            </div>
           </div>
         </section>
 
         {/* --- Note --- */}
-        <section className="border border-gray-200 rounded-xl p-5 bg-gray-50">
+        <section className="border border-black rounded-xl p-5 bg-gray-50">
           <label className="block text-sm font-semibold text-gray-700 mb-1">Note</label>
-          <textarea value={formData.Note || ""} onChange={(e) => handleChange("Note", e.target.value)} className="w-full border rounded px-2 py-1 min-h-[80px]" />
+          <textarea value={formData.Note || ""} onChange={(e) => handleChange("Note", e.target.value)} className="w-full border border-black rounded px-2 py-1 min-h-[80px]" />
         </section>
 
         {/* --- Actions --- */}
@@ -708,7 +740,7 @@ function InputField({
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           onChange(e.target.value)
         }
-        className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all disabled:bg-gray-100 disabled:text-gray-500"
+        className="border border-black rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all disabled:bg-gray-100 disabled:text-gray-500"
         disabled={readOnly}
       />
     </div>

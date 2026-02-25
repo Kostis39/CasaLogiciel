@@ -22,6 +22,7 @@ OpenSSL version: OpenSSL 3.0.2 15 Mar 202
 ## Mise en production
 
 1. Initialiser le fichier `.env` global, pour ce faire suivre explication du `.env.example`.
+3. Ajout du pdf du réglement dans `frontend/public/` il faut qu'il soit nommé `reglement.pdf`.
 2. Lancement en une commande:
 ```bash
 sudo docker-compose up -d --build
