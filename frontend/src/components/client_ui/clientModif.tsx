@@ -617,7 +617,7 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
 
         {/* --- Signature --- */}
         <section className="border border-black rounded-xl p-5 bg-gray-50 flex flex-col gap-4">
-          <h1 className="text-2xl font-bold mb-6">Test de Signature</h1>
+          <h1 className="text-2xl font-bold mb-6">Signature</h1>
 
           <div className="flex flex-col sm:flex-row gap-4">
             {formData.CheminSignature && (
