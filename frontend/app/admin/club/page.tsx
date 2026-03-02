@@ -16,6 +16,7 @@ import { Club } from '@/src/types&fields/types';
 import { deleteClub, fetchClubs, postClub, updateClub } from '@/src/services/api';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '@/src/components/client_ui/LoadingSpinner';
+import { Switch } from '@/src/components/ui/switch';
 
 const TOAST_MESSAGES = {
   DELETE_SUCCESS: 'Club supprimé avec succès',
@@ -33,6 +34,7 @@ const FORM_INITIAL_STATE = {
   emailClub: '',
   adresseClub: '',
   siteInternet: '',
+  puyDeDome: false, 
 };
 
 const isFormValid = (form: typeof FORM_INITIAL_STATE) => {
@@ -71,6 +73,10 @@ export default function ClubsPage() {
     }
   };
 
+  const handleSwitchChange = (field: 'puyDeDome', value: boolean) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+  };
+
   const handleFormChange = (field: keyof typeof FORM_INITIAL_STATE, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
   };
@@ -98,6 +104,7 @@ export default function ClubsPage() {
       emailClub: club.EmailClub,
       adresseClub: club.AdresseClub,
       siteInternet: club.SiteInternet,
+      puyDeDome: club.PuyDeDome ?? false,
     });
     setEditMode(false);
     setIsDetailDialogOpen(true);
@@ -116,6 +123,7 @@ export default function ClubsPage() {
         EmailClub: form.emailClub,
         AdresseClub: form.adresseClub,
         SiteInternet: form.siteInternet,
+        PuyDeDome: form.puyDeDome,
       };
 
       const res = await postClub(clubData);
@@ -147,6 +155,7 @@ export default function ClubsPage() {
         EmailClub: form.emailClub,
         AdresseClub: form.adresseClub,
         SiteInternet: form.siteInternet,
+        PuyDeDome: form.puyDeDome,
       };
 
       const res = await updateClub(selectedClub.IdClub, clubData);
@@ -210,7 +219,7 @@ export default function ClubsPage() {
             clubs.map((club) => (
               <Card
                 key={club.IdClub}
-                className="cursor-pointer hover:shadow-lg transition-shadow"
+                className={`cursor-pointer hover:shadow-lg transition-shadow ${club.PuyDeDome ? 'border-blue-500' : ''}`}
                 onClick={() => openDetailDialog(club)}
                 onContextMenu={(e) => {
                   e.preventDefault();
@@ -343,6 +352,18 @@ export default function ClubsPage() {
                 placeholder="https://"
               />
             </div>
+            <label 
+              htmlFor="puy-de-dome-switch-create"
+              className="flex items-center justify-between border border-input rounded-md px-3 py-2 cursor-pointer hover:bg-accent/50 transition-colors"
+            >       
+              <span className="block font-semibold">Puy-de-Dôme</span>
+              <Switch
+                id="puy-de-dome-switch-create"
+                checked={form.puyDeDome}
+                onCheckedChange={(checked) => handleSwitchChange('puyDeDome', checked)}
+                className="data-[state=checked]:bg-blue-500"
+              />
+            </label>
           </div>
           <DialogFooter className="flex justify-end mt-6 gap-2">
             <Button variant="secondary" onClick={() => setIsCreateDialogOpen(false)}>
@@ -460,6 +481,23 @@ export default function ClubsPage() {
                 placeholder="https://"
               />
             </div>
+            <label 
+              htmlFor="puy-de-dome-switch"  
+              className={`flex items-center justify-between border border-input rounded-md px-3 py-2 transition-colors ${
+                !editMode 
+                  ? 'cursor-not-allowed' 
+                  : 'cursor-pointer hover:bg-accent/50'
+              }`}
+            >
+              <span className="block font-semibold">Puy-de-Dôme</span>
+              <Switch
+                id="puy-de-dome-switch"
+                checked={form.puyDeDome}
+                onCheckedChange={(checked) => handleSwitchChange('puyDeDome', checked)}
+                disabled={!editMode}
+                className="data-[state=checked]:bg-blue-500"
+              />
+            </label>
           </div>
           <DialogFooter className="flex justify-between mt-6">
             {!editMode ? (

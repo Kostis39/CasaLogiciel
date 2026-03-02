@@ -51,7 +51,8 @@ CREATE TABLE `Club` (
   `VilleClub` text DEFAULT NULL,
   `TelClub` text DEFAULT NULL,
   `EmailClub` text DEFAULT NULL,
-  `SiteInternet` text DEFAULT NULL
+  `SiteInternet` text DEFAULT NULL,
+  `PuyDeDome` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- --------------------------------------------------------

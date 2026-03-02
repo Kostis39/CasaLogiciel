@@ -34,6 +34,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
   const [isLoadingEntree, setLoadingEntree] = useState(false);
   const seanceProcessedRef = useRef(false);
   const createSeanceRef = useRef(createSeance);
+  const [isFFME63, setIsFFME63] = useState(false);
 
   // ✅ Mettre à jour le ref quand createSeance change
   useEffect(() => {
@@ -88,13 +89,17 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
             const clubResponse = await fetchClubById(data.ClubId) as ApiResponse<Club>;
             if (clubResponse.success && clubResponse.data) {
               setClubName(clubResponse.data.NomClub);
+              setIsFFME63(clubResponse.data.PuyDeDome === true);
             } else {
+              setIsFFME63(false);
               setClubName(`${data.ClubId}`);
             }
           } catch {
+            setIsFFME63(false);
             setClubName(`${data.ClubId}`);
           }
         } else {
+          setIsFFME63(false);
           setClubName("—");
         }
       } catch {
@@ -151,7 +156,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
     const createSeanceAuto = async () => {
       seanceProcessedRef.current = true;
 
-      if (isNotAllowedForEntrance(clientInfo)) {
+      if (isNotAllowedForEntrance(clientInfo, isFFME63)) {
         toast.warning("Le grimpeur n'est pas autorisé à entrer en salle.");
         setInCasa(false);
         return;
@@ -317,7 +322,9 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
           {fieldInfoClient.map(({ label, value }) => (
           <div key={label} className="flex flex-col justify-center break-words overflow-auto">
             <div className="break-words whitespace-pre-line w-full">
-              <p className="text-sm font-semibold text-gray-700">{label}</p>
+              <p className={`text-sm font-semibold ${
+              label === 'Club' && isFFME63 ? 'text-blue-600' : 'text-gray-700'
+              }`}>{label}</p>
               <p>{value}</p>
             </div>
           </div>
@@ -338,7 +345,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
         {/* Suite des infos du grimpeur*/}
         <div className="grid grid-cols-3 grid-rows-2">
           <div className="flex flex-col items-center justify-center">
-            {CotisationInfo(clientInfo)}
+            {CotisationInfo(clientInfo, isFFME63)}
           </div>
 
           <div className="flex flex-col items-center justify-center">
@@ -377,9 +384,8 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
           <div className="flex justify-center">
             <Button
               onClick={handleEntreeSimple}
-              disabled={isLoadingEntree || 
-                inCasa || 
-                isNotAllowedForEntrance(clientInfo)}
+              disabled={isLoadingEntree ||
+                isNotAllowedForEntrance(clientInfo, isFFME63)}
               variant="default"
               className="w-3/4 h-3/4 text-lg cursor-pointer"
             >
@@ -470,10 +476,16 @@ function SignatureClient({
 }
 
 
-  function CotisationInfo(client: Client){
+  function CotisationInfo(client: Client, isFFME63: boolean){
     let content;
-    
-    if (client.DateFinCoti !== null && client.DateFinCoti !== undefined) {
+    if (isFFME63) {
+      content = (
+        <>
+          <p className="text-green-500 font-bold">Licence dans club du</p>
+          <p className="text-green-500 font-bold">CT63 en cours</p>
+        </>
+      );
+    }else if (client.DateFinCoti !== null && client.DateFinCoti !== undefined) {
       content = (
         <>
           {isDateValid(client.DateFinCoti) ? (
@@ -487,12 +499,6 @@ function SignatureClient({
               <p>Fin le {client.DateFinCoti}</p>
             </>
           )}
-        </>
-      );
-    } else if (client.NumLicenceGrimpeur) {
-      content = (
-        <>
-          <p className="text-green-500 font-bold">Licence en cours</p>
         </>
       );
     } else {
@@ -570,7 +576,7 @@ function AccesSalleInfo(client: Client){
   );
 }
 
-function isNotAllowedForEntrance(client: Client): boolean {
+function isNotAllowedForEntrance(client: Client, isFFME63: boolean): boolean {
   const hasValidSubscription = 
     isDateValid(client.DateFinAbo) || 
     (client.NbSeanceRest && client.NbSeanceRest > 0);
@@ -579,7 +585,7 @@ function isNotAllowedForEntrance(client: Client): boolean {
   
   const hasMembership = 
     isDateValid(client.DateFinCoti) || 
-    !!client.NumLicenceGrimpeur;
+    isFFME63;
   
   return !(hasValidSubscription && hasSignature && hasMembership);
 }

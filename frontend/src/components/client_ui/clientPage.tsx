@@ -54,7 +54,7 @@ export default function ClientPage() {
         ) : (
           <ClientGrid 
             numClient={num} 
-            onEdit={handleEdit} 
+            onEdit={handleEdit}
             createSeance={createSeance}
             onSeanceCanceled={handleSeanceCanceled} // ✅ Passer la fonction
           />

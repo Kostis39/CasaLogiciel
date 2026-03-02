@@ -152,8 +152,12 @@ export function DraftForm() {
   const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
     setIsSubmitting(true);
     try {
-      if (!data.DateFinCoti) {
-        toast.error("Veuillez cotiser avant de créer le grimpeur !");
+      const selectedClub = data.ClubId ? clubs.find(c => c.IdClub === data.ClubId) : null;
+      const isClubPuyDeDome = selectedClub?.PuyDeDome === true;
+
+      // La cotisation n'est obligatoire que si le grimpeur n'est PAS dans un club du Puy-de-Dôme
+      if (!isClubPuyDeDome && !data.DateFinCoti) {
+        toast.error("Veuillez cotiser avant de créer le grimpeur (obligatoire hors club du Puy-de-Dôme) !");
         return;
       }
       if (padRef.current?.isEmpty()) {
@@ -666,7 +670,7 @@ return (
                   "
                   onClick={handleRowClick}
                 >
-                  <p className="text-gray-700">Cotisation obligatoire</p>
+                  <p className="text-gray-700">Cotisation obligatoire (sauf si club du CT63)</p>
 
                   <div onClick={handleSwitchClick}>
                     <Switch

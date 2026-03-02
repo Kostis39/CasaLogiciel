@@ -649,6 +649,28 @@ export const realService = {
         }
     },
 
+    isFromPuyDeDome: async (id: number) : Promise<ApiResponse> => {
+        try {
+            const response = await fetch(`${API_URL}/grimpeurs/puydedome/${id}`);
+            const data = await response.json();
+            if (!response.ok) {
+                console.error(`HTTP ${response.status}: ${data?.message}`);
+                return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
+            }
+            return { success: true, message: "Vérification effectuée", data: data.puy_de_dome === true };
+
+        } catch (error) {
+            console.error("Erreur isFromPuyDeDome:", error);
+            if (error instanceof TypeError) {
+                return {success: false, message: `Impossible de contacter le serveur ${API_URL}`};
+            }
+            if (error instanceof SyntaxError) {
+                return {success: false, message: "Réponse du serveur invalide"};
+            }
+            return {success: false, message: "Erreur inconnue"};
+        }
+    },
+
     // Fonctions pour les clubs
     fetchClubs: async (): Promise<ApiResponse<Club[]>> => {
         try {

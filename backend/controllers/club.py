@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 ALLOWED_CLUB_FIELDS = [
     "NomClub", "CodePostClub", "VilleClub", "TelClub",
-    "EmailClub", "AdresseClub", "SiteInternet"
+    "EmailClub", "AdresseClub", "SiteInternet", "PuyDeDome"
 ]
 
 def validate_club_data(data):

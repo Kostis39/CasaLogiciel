@@ -338,6 +338,10 @@ export const mockService = {
         if (!id){return { success: false, message: "ID invalide", data: false };}
         return { success: true, message: "Mock: Vérification effectuée", data: id % 2 === 0 };
     },
+    isFromPuyDeDome: async (id: number) => {
+        if (!id){return { success: false, message: "ID invalide", data: false };}
+        return { success: true, message: "Mock: Vérification Puy de Dôme effectuée", data: id % 3 === 0 };
+    },
     //----------------------------------- Clubs -----------------------------------
     fetchClubs: async (): Promise<ApiResponse<Club[]>> => {
         await new Promise((resolve) => setTimeout(resolve, 100));

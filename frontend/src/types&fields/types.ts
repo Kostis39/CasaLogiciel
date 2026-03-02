@@ -111,6 +111,7 @@ export type ClubForm = {
   EmailClub: string;
   AdresseClub: string;
   SiteInternet: string;
+  PuyDeDome?: boolean;
 };
 
 export type Club = {
@@ -122,6 +123,7 @@ export type Club = {
   EmailClub: string;
   AdresseClub: string;
   SiteInternet: string;
+  PuyDeDome?: boolean;
 };
 
 export type responsePostClientSignature = {

@@ -37,6 +37,7 @@ export const {
   
 //------- Others -------
   isAlreadyEntered,
+  isFromPuyDeDome,
   fetchClubs,
   postClub,
   updateClub,

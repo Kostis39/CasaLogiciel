@@ -327,3 +327,33 @@ class GrimpeurSearch(Resource):
         except Exception as e:
             logger.error(f"Error searching grimpeurs: {e}")
             return {"message": "Erreur lors de la recherche"}, 500
+        
+class GrimpeurPuyDeDome(Resource):
+    def get(self, id):
+        """Check if grimpeur's club is in Puy-de-Dôme"""
+        try:
+            grimpeur = g.db_session.query(Clients.Grimpeur).filter_by(
+                NumGrimpeur=id
+            ).first()
+            if not grimpeur:
+                return {"message": "Grimpeur not found"}, 404
+            
+            if not grimpeur.ClubId:
+                return {
+                    "message": "Grimpeur has no club assigned",
+                    "PuyDeDome": False
+                }, 200
+            
+            club = g.db_session.query(Groupes.Club).filter_by(
+                IdClub=grimpeur.ClubId
+            ).first()
+            if not club:
+                return {"message": "Club not found"}, 404
+            
+            return {
+                "message": "Grimpeur has club assigned",
+                "PuyDeDome": club.PuyDeDome or False
+            }, 200
+        except Exception as e:
+            logger.error(f"Error checking PuyDeDome for grimpeur {id}: {e}")
+            return {"message": "Erreur lors de la vérification"}, 500

@@ -19,6 +19,7 @@ class Club(Casabase, SerializerMixin):
     EmailClub: Mapped[str] = mapped_column(String(50), nullable=True)
     AdresseClub: Mapped[str] = mapped_column(String(90), nullable=True)
     SiteInternet: Mapped[str] = mapped_column(String(150), nullable=True)
+    PuyDeDome: Mapped[bool] = mapped_column(nullable=True)
 
 """
 class Creneau(Casabase, SerializerMixin):
