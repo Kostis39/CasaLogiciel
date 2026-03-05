@@ -35,15 +35,9 @@ class ClubsListe(Resource):
     def get(self):
         """Get all clubs"""
         try:
-            limit = request.args.get("limit", 20, type=int)
-            offset = request.args.get("offset", 0, type=int)
-            
-            limit = min(limit, 100)
-            offset = max(offset, 0)
-
             query = g.db_session.query(Groupes.Club).order_by(Groupes.Club.IdClub.desc())
             total = query.count()
-            clubs = query.offset(offset).limit(limit).all()
+            clubs = query.all()
             
             return {
                 "data": [c.to_dict() for c in clubs],
