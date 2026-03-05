@@ -68,10 +68,11 @@ export function getTodayPlusOneYear(): string {
   return today.toISOString().split("T")[0]; // format YYYY-MM-DD
 }
 
-export function isDateValid(dateFinCoti: string | undefined | null): boolean {
-  if (!dateFinCoti) return false;
+export function isDateValid(dateToValid: string | undefined | null): boolean {
+  if (!dateToValid) return false;
   const today = new Date();
-  const cotiDate = new Date(dateFinCoti);
+  today.setHours(0, 0, 0, 0);
+  const cotiDate = new Date(dateToValid);
   return cotiDate >= today;
 }
 
