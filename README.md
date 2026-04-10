@@ -28,6 +28,18 @@ OpenSSL version: OpenSSL 3.0.2 15 Mar 202
 sudo docker-compose up -d --build
 ```
 
+### Premier lancement de Metabase (outil statistique)
+
+1. Pour ce premier champ mettre ses informations
+2. Cliquer sur Next
+3. Add your data : choisir *MySQL*
+- Display Name: le nom que vous voulais donner à votre base de données
+- Host: mariadb Port: 3306
+- Database name: casabdd
+- Username: root
+- Password: *mdp MARIADB_PASSWORD mis dans le .env*
+4. Décocher et c'est bon !
+
 ## Extraction des données de l'ancienne app à la nouvelle
 
 1. Mettre les fichiers csv avec comme séparateur `,` dans le dossier `./data_extract`.

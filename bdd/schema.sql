@@ -255,7 +255,7 @@ END//
 
 -- Rétablir le délimiteur normal
 DELIMITER ;
-
+CREATE DATABASE IF NOT EXISTS metabaseappdb;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
