@@ -1,6 +1,8 @@
 import { buttonVariants } from "@/src/components/ui/button"
 import Link from "next/link";
 
+const METABASE_URL: string = process.env.NEXT_PUBLIC_METABASE_URL || "";
+
 export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background">
@@ -15,7 +17,7 @@ export default function Home() {
         <Link href="/recap" className={buttonVariants({size: "big", variant: "outline"})}>
           Récapitulatif
         </Link>
-        <Link href="/stats" className={buttonVariants({size: "big", variant: "outline"})}>
+        <Link href={METABASE_URL} className={buttonVariants({size: "big", variant: "outline"})}>
           Statistiques
         </Link>
       </div>

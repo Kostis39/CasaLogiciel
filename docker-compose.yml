@@ -22,29 +22,6 @@ services:
       start_period: 40s
     restart: always
 
-  metabase:
-    image: metabase/metabase:latest
-    container_name: metabase
-    hostname: metabase
-    volumes:
-      - /dev/urandom:/dev/random:ro
-    ports:
-      - 4000:3000
-    environment:
-      MB_DB_TYPE: mysql
-      MB_DB_DBNAME: metabaseappdb
-      MB_DB_PORT: ${MARIADB_PORT}
-      MB_DB_USER: ${MARIADB_USER}
-      MB_DB_PASS: ${MARIADB_PASSWORD}
-      MB_DB_HOST: mariadb
-    networks:
-      casa_network:
-        ipv4_address: 172.20.0.7
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    restart: unless-stopped
-
   # ===== BACKUP DE LA BASE DE DONNÉES =====
   mariadb-backup:
     image: alpine:3.19
@@ -131,6 +108,7 @@ services:
         - NEXT_PUBLIC_API_URL_PROD=${NEXT_PUBLIC_API_URL_PROD}
         - NEXT_PUBLIC_PASSWORD=${NEXT_PUBLIC_PASSWORD}
         - NEXT_PUBLIC_ENV=prod
+        - NEXT_PUBLIC_METABASE_URL=${NEXT_PUBLIC_METABASE_URL}
     ports:
       - "3000:3000"
     networks:
@@ -138,6 +116,30 @@ services:
         ipv4_address: 172.20.0.5
     depends_on:
       - backend
+    restart: always
+
+  # ===== METABASE (OUTILS D'ANALYSE DE DONNEES) =====
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase
+    hostname: metabase
+    volumes:
+      - /dev/urandom:/dev/random:ro
+    ports:
+      - 4000:3000
+    environment:
+      MB_DB_TYPE: mysql
+      MB_DB_DBNAME: metabaseappdb
+      MB_DB_PORT: ${MARIADB_PORT}
+      MB_DB_USER: ${MARIADB_USER}
+      MB_DB_PASS: ${MARIADB_PASSWORD}
+      MB_DB_HOST: mariadb
+    networks:
+      casa_network:
+        ipv4_address: 172.20.0.7
+    depends_on:
+      mariadb:
+        condition: service_healthy
     restart: always
 
 volumes:
