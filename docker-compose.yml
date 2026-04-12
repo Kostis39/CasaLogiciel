@@ -59,7 +59,7 @@ services:
     environment:
       PMA_HOST: mariadb
       PMA_USER: ${MARIADB_USER}
-      PMA_PASSWORD: ${PMA_PASSWORD}
+      PMA_PASSWORD: ${MARIADB_PASSWORD}
     ports:
       - "8080:80"
     depends_on:
