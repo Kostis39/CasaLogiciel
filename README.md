@@ -59,9 +59,9 @@ sudo docker-compose up -d --build frontend backend
 sudo docker system prune -a
 ```
 
-## Dévellopement
+## Développement
 
-1. Installer les dépendances manquantes:
+1. Installer les dépendances manquantes :
 ```bash
 cd backend
 pip install - r pyreqs.txt
@@ -69,15 +69,15 @@ cd ../frontend
 npm install
 ```
 2. Initialiser les fichiers `.env` ou `.env.local` de `la racine`, `backend/` et `frontend`.
-3. Lancement base de données:
+3. Lancement base de données :
 ```bash
 sudo docker-compose up -d mariadb phpmyadmin
 ```
-4. Lancement Backend:
+4. Lancement Backend :
 ```bash
-pyton api.py
+python api.py
 ```
-5. Lancement Frontend:
+5. Lancement Frontend: 
 ```bash
 npm run dev
 ```
