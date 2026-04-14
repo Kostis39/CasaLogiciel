@@ -32,6 +32,8 @@ services:
       DB_NAME: ${MARIADB_NAME}
       DB_USER: ${MARIADB_USER}
       DB_PASS: ${MARIADB_PASSWORD}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
       TZ: Europe/Paris
     volumes:
       - /home/casamur/backups:/backups  # Dossier pour stocker les backups
