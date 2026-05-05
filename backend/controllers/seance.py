@@ -3,7 +3,9 @@ from flask import request, g
 from flask_restful import Resource
 from models import Clients
 import logging
+from zoneinfo import ZoneInfo
 
+PARIS_TZ = ZoneInfo("Europe/Paris")
 logger = logging.getLogger(__name__)
 
 class Seances(Resource):
@@ -45,7 +47,7 @@ class Seances(Resource):
             if not grimpeur:
                 return {"message": "Grimpeur introuvable."}, 404
 
-            now = datetime.now()
+            now = datetime.now(tz=PARIS_TZ)
             date_seance = now.date()
             heure_seance = now.time()
 
