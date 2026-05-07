@@ -7,7 +7,7 @@ Pour ce faire nous avons:
 - Frontend (application): *React* avec le framework *NextJs + Tailwind*
 
 Ajouté à ça nous avons d'autres services d'administration ou de stat:
-- Backup de la bas de donnée: scrip *sh* qui envoie les backups sur le OneDrive
+- Backup de la bas de donnée: scrip *cron* lié à un *duplicati* pour stocker sur le OneDrive les backups
 - Administration de la base de donnée: *PhpMyAdmin*
 - Outils de statistique lié à la bdd: *MetaBase*
 
@@ -51,7 +51,8 @@ Et la base de donnée metabaseappdb sert au fonctionnement de metabase.
 * Fonctionnement:
 *Unique fichier*: aucune idée de comment ça fonctionne Anto help
 * Commentaire:
-Utilise directement les outils de la base de données pour l'exporter puis créer une archive chiffré avec les signatures en plus de la bdd. Puis envoi l'archive dans le OneDrive.
+Utilise directement les outils de la base de données pour l'exporter puis créer une archive chiffré avec les signatures en plus de la bdd. Puis envoi l'archive dans le OneDrive. 
+Via Duplicati il ya un outils de monitoring qui notifie si la save c'est bien passé.
 
 ## Administration BDD
 
