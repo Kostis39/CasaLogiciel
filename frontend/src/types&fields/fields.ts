@@ -1,3 +1,4 @@
+import { formatDate } from "../lib/utils";
 import { Client } from "./types";
 
 type ClientField<K extends keyof Client = keyof Client> = {
@@ -21,7 +22,7 @@ export const clientFields: ClientField[] = [
       if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
         age--;
       }
-      return `${dateStr} (${age} ans)`;
+      return `${formatDate(dateStr as string)} (${age} ans)`;
     }
   },
   { label: "Date d'inscription", key: "DateInscrGrimpeur",
@@ -34,7 +35,7 @@ export const clientFields: ClientField[] = [
       if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
         age--;
       }
-      return `${dateStr} (${age} ans)`;
+      return `${formatDate(dateStr as string)} (${age} ans)`;
     }
   },
   { label: "Numéro de licence", key: "NumLicenceGrimpeur", format: (v) => (v as string) || "—" },
