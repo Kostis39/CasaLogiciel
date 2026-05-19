@@ -11,18 +11,7 @@ import { Card } from "@/src/components/ui/card";
 import Image from "next/image";
 import {fetchAbonnements, fetchTickets } from "@/src/services/api";
 import { API_URL } from "@/src/services/real";
-
-const formatDate = (dateStr?: string) => {
-  if (!dateStr) return "-";
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return dateStr; // si ce n’est pas une vraie date
-  return date.toLocaleDateString("fr-FR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-};
-
+import { formatDate } from "@/src/lib/utils";
 
 // Modal générique pour modifier
 function EditModal<T extends object>({
@@ -41,8 +30,9 @@ function EditModal<T extends object>({
   useEffect(() => {
     setFormData(item);
   }, [item]);
-
   if (!item || !formData) return null;
+  const isIsoDate = (v: unknown): boolean =>
+    typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -54,20 +44,21 @@ function EditModal<T extends object>({
       <Card className="relative bg-white p-6 rounded-lg shadow-lg w-[480px] z-10 border-0">
         <h2 className="text-xl font-semibold mb-4">Modifier</h2>
         <div className="space-y-4">
-          {fields.map((key) => (
-            <div key={String(key)}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {String(key)}
-              </label>
-              <Input
-                type="text"
-                value={(formData[key as keyof T] ?? "") as string}
-                onChange={(e) =>
-                  setFormData({ ...formData, [key]: e.target.value })
-                }
-              />
-            </div>
-          ))}
+          {fields.map((key) => {
+            const value = formData[key as keyof T];
+            return (
+              <div key={String(key)}>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {String(key)}
+                </label>
+                <Input
+                  type={isIsoDate(value) ? "date" : "text"}  // ✅ date picker si ISO
+                  value={(value ?? "") as string}
+                  onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
+                />
+              </div>
+            );
+          })}
         </div>
         <div className="flex justify-end gap-3 mt-6">
           <Button

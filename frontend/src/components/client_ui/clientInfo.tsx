@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import { API_URL } from "@/src/services/real";
 import { ConfirmButton } from "./buttonConfirm";
 import LoadingSpinner from "@/src/components/client_ui/LoadingSpinner";
+import { formatDate } from "@/src/lib/utils";
 
 // --------------------------------------------------------------------
 
@@ -491,12 +492,12 @@ function SignatureClient({
           {isDateValid(client.DateFinCoti) ? (
             <>
               <p className="text-green-500 font-bold">Cotisation Active</p>
-              <p>Fin le {client.DateFinCoti}</p>
+              <p>Fin le {formatDate(client.DateFinCoti)}</p>
             </>
           ) : (
             <>
               <p className="text-red-500 font-bold">Cotisation Expirée</p>
-              <p>Fin le {client.DateFinCoti}</p>
+              <p>Fin le {formatDate(client.DateFinCoti)}</p>
             </>
           )}
         </>
@@ -520,14 +521,14 @@ function AbonnementInfo(client: Client){
     content = (
       <>
         <p className="text-green-500 font-bold">Abonnement Actif</p>
-        <p>Fin le {client.DateFinAbo}</p>
+        <p>Fin le {formatDate(client.DateFinAbo)}</p>
       </>
     );
   } else {
     content = (
       <>
         <p className="text-red-500 font-bold">Abonnement Expiré</p>
-        <p>Fin le {client.DateFinAbo}</p>
+        <p>Fin le {formatDate(client.DateFinAbo)}</p>
       </>
     );
   }
