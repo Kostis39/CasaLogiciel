@@ -31,10 +31,10 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `Abonnement` (
-  `IdAbo` int(11) NOT NULL,
-  `DureeAbo` int(11) NOT NULL,
-  `TypeAbo` text NOT NULL,
-  `PrixAbo` decimal(10,2) DEFAULT NULL
+  `IdAbo`    int(11)       NOT NULL COMMENT 'Identifiant unique de l\'abonnement',
+  `DureeAbo` int(11)       NOT NULL COMMENT 'Durée de l\'abonnement en jours',
+  `TypeAbo`  text          NOT NULL COMMENT 'Type d\'abonnement (ex: annuel, mensuel, ...)',
+  `PrixAbo`  decimal(10,2) DEFAULT NULL COMMENT 'Prix de l\'abonnement en euros'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- --------------------------------------------------------
@@ -44,15 +44,15 @@ CREATE TABLE `Abonnement` (
 --
 
 CREATE TABLE `Club` (
-  `IdClub` int(11) NOT NULL,
-  `NomClub` text DEFAULT NULL,
-  `AdresseClub` text DEFAULT NULL,
-  `CodePostClub` text DEFAULT NULL,
-  `VilleClub` text DEFAULT NULL,
-  `TelClub` text DEFAULT NULL,
-  `EmailClub` text DEFAULT NULL,
-  `SiteInternet` text DEFAULT NULL,
-  `PuyDeDome` tinyint(1) DEFAULT NULL
+  `IdClub`       int(11)    NOT NULL COMMENT 'Identifiant unique du club',
+  `NomClub`      text       DEFAULT NULL COMMENT 'Nom du club',
+  `AdresseClub`  text       DEFAULT NULL COMMENT 'Adresse postale du club',
+  `CodePostClub` text       DEFAULT NULL COMMENT 'Code postal du club',
+  `VilleClub`    text       DEFAULT NULL COMMENT 'Ville du club',
+  `TelClub`      text       DEFAULT NULL COMMENT 'Numéro de téléphone du club',
+  `EmailClub`    text       DEFAULT NULL COMMENT 'Adresse email du club',
+  `SiteInternet` text       DEFAULT NULL COMMENT 'URL du site internet du club',
+  `PuyDeDome`    tinyint(1) DEFAULT NULL COMMENT 'Indique si le club est dans le Puy-de-Dôme (1=oui, 0=non), afin de ne pas obligé la cotisation'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- --------------------------------------------------------
@@ -62,27 +62,27 @@ CREATE TABLE `Club` (
 --
 
 CREATE TABLE `Grimpeur` (
-  `NumGrimpeur` int(11) NOT NULL,
-  `NomGrimpeur` varchar(50) NOT NULL,
-  `PrenomGrimpeur` varchar(50) NOT NULL,
-  `AccordReglement` tinyint(1) NOT NULL DEFAULT 0,
-  `DateInscrGrimpeur` date DEFAULT NULL,
-  `DateNaissGrimpeur` date DEFAULT NULL,
-  `AccordParental` tinyint(1) DEFAULT NULL,
-  `TelGrimpeur` text DEFAULT NULL,
-  `StatutGrimpeur` text DEFAULT NULL,
-  `NumLicenceGrimpeur` text DEFAULT NULL,
-  `DateFinAbo` date DEFAULT NULL,
-  `Note` text DEFAULT NULL,
-  `EmailGrimpeur` text DEFAULT NULL,
-  `StatutVoie` int(2) NOT NULL DEFAULT 0,
-  `DateFinCoti` date DEFAULT NULL,
-  `NbSeanceRest` int(11) DEFAULT 0,
-  `Solde` float DEFAULT 0,
-  `CheminSignature` text DEFAULT NULL,
-  `ClubId` int(11) DEFAULT NULL,
-  `AboId` int(11) DEFAULT NULL,
-  `TicketId` int(11) DEFAULT NULL
+  `NumGrimpeur`        int(11)     NOT NULL COMMENT 'Identifiant unique du grimpeur',
+  `NomGrimpeur`        varchar(50) NOT NULL COMMENT 'Nom de famille du grimpeur',
+  `PrenomGrimpeur`     varchar(50) NOT NULL COMMENT 'Prénom du grimpeur',
+  `AccordReglement`    tinyint(1)  NOT NULL DEFAULT 0 COMMENT 'Accord du règlement intérieur (1=oui, 0=non)',
+  `DateInscrGrimpeur`  date        DEFAULT NULL COMMENT 'Date d\'inscription du grimpeur',
+  `DateNaissGrimpeur`  date        DEFAULT NULL COMMENT 'Date de naissance du grimpeur',
+  `AccordParental`     tinyint(1)  DEFAULT NULL COMMENT 'Accord parental pour les mineurs (1=oui, 0=non)',
+  `TelGrimpeur`        text        DEFAULT NULL COMMENT 'Numéro de téléphone du grimpeur',
+  `StatutGrimpeur`     text        DEFAULT NULL COMMENT 'Statut du grimpeur (ex: étudiant, chomeur, travailleur, ...)',
+  `NumLicenceGrimpeur` text        DEFAULT NULL COMMENT 'Numéro de licence FFME du grimpeur',
+  `DateFinAbo`         date        DEFAULT NULL COMMENT 'Date de fin de l\'abonnement en cours',
+  `Note`               text        DEFAULT NULL COMMENT 'Notes libres sur le grimpeur',
+  `EmailGrimpeur`      text        DEFAULT NULL COMMENT 'Adresse email du grimpeur',
+  `StatutVoie`         int(2)      NOT NULL DEFAULT 0 COMMENT 'Statut d\'accès aux voies (0=bloc, 1=moulinette, 2=tête)',
+  `DateFinCoti`        date        DEFAULT NULL COMMENT 'Date de fin de cotisation',
+  `NbSeanceRest`       int(11)     DEFAULT 0 COMMENT 'Nombre de séances restantes sur le ticket en cours',
+  `Solde`              float       DEFAULT 0 COMMENT 'Solde du compte du grimpeur en euros',
+  `CheminSignature`    text        DEFAULT NULL COMMENT 'Chemin vers le fichier de signature du grimpeur',
+  `ClubId`             int(11)     DEFAULT NULL COMMENT 'Référence vers le club d\'appartenance (FK Club)',
+  `AboId`              int(11)     DEFAULT NULL COMMENT 'Référence vers l\'abonnement en cours (FK Abonnement)',
+  `TicketId`           int(11)     DEFAULT NULL COMMENT 'Référence vers le ticket en cours (FK Ticket)'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- --------------------------------------------------------
@@ -92,12 +92,12 @@ CREATE TABLE `Grimpeur` (
 --
 
 CREATE TABLE `Seance` (
-  `IdSeance` int(11) NOT NULL,
-  `DateSeance` date NOT NULL,
-  `HeureSeance` time NOT NULL,
-  `NumGrimpeur` int(11) DEFAULT NULL,
-  `TicketId` int(11) DEFAULT NULL,
-  `AboId` int(11) DEFAULT NULL
+  `IdSeance`    int(11) NOT NULL COMMENT 'Identifiant unique de la séance',
+  `DateSeance`  date    NOT NULL COMMENT 'Date d\'entrée en salle',
+  `HeureSeance` time    NOT NULL COMMENT 'Heure d\'entrée en salle',
+  `NumGrimpeur` int(11) DEFAULT NULL COMMENT 'Référence vers le grimpeur concerné (FK Grimpeur)',
+  `TicketId`    int(11) DEFAULT NULL COMMENT 'Référence vers le ticket utilisé (FK Ticket), l\'un ou l\'autre (AboId) est null',
+  `AboId`       int(11) DEFAULT NULL COMMENT 'Référence vers l\'abonnement utilisé (FK Abonnement), l\'un ou l\'autre (TicketId) est null'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- --------------------------------------------------------
@@ -107,10 +107,10 @@ CREATE TABLE `Seance` (
 --
 
 CREATE TABLE `Ticket` (
-  `IdTicket` int(11) NOT NULL,
-  `TypeTicket` text NOT NULL,
-  `NbSeanceTicket` int(11) DEFAULT NULL,
-  `PrixTicket` decimal(10,2) DEFAULT NULL
+  `IdTicket`       int(11)       NOT NULL COMMENT 'Identifiant unique du ticket',
+  `TypeTicket`     text          NOT NULL COMMENT 'Type de ticket (ex: unitaire, 10 séances, ...)',
+  `NbSeanceTicket` int(11)       DEFAULT NULL COMMENT 'Nombre de séances incluses dans le ticket',
+  `PrixTicket`     decimal(10,2) DEFAULT NULL COMMENT 'Prix du ticket en euros'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- --------------------------------------------------------
@@ -120,15 +120,15 @@ CREATE TABLE `Ticket` (
 --
 
 CREATE TABLE `Transaction` (
-  `IdTransac` int(11) NOT NULL,
-  `TypeObjet` enum('ticket','abonnement','produit') NOT NULL,
-  `IdObjet` int(11) NOT NULL,
-  `ModePaiment` varchar(255) DEFAULT NULL,
-  `DateTransac` date NOT NULL,
-  `HeureTransac` time NOT NULL,
-  `MontantFinalTransac` float DEFAULT NULL,
-  `Note` varchar(100) DEFAULT NULL,
-  `NumGrimpeur` int(11) DEFAULT NULL
+  `IdTransac`           int(11)                              NOT NULL COMMENT 'Identifiant unique de la transaction',
+  `TypeObjet`           enum('ticket','abonnement','produit') NOT NULL COMMENT 'Type d\'objet acheté (ticket, abonnement ou produit)',
+  `IdObjet`             int(11)      NOT NULL COMMENT 'Identifiant de l\'objet acheté (FK selon TypeObjet)',
+  `ModePaiment`         varchar(255) DEFAULT NULL COMMENT 'Mode de paiement (ex: CB, espèces, chèque, ...)',
+  `DateTransac`         date         NOT NULL COMMENT 'Date de la transaction',
+  `HeureTransac`        time         NOT NULL COMMENT 'Heure de la transaction',
+  `MontantFinalTransac` float        DEFAULT NULL COMMENT 'Montant final payé en euros',
+  `Note`                varchar(100) DEFAULT NULL COMMENT 'Notes libres sur la transaction',
+  `NumGrimpeur`         int(11)      DEFAULT NULL COMMENT 'Référence vers le grimpeur concerné (FK Grimpeur)'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 --
@@ -193,7 +193,6 @@ ALTER TABLE `Abonnement`
 ALTER TABLE `Club`
   MODIFY `IdClub` int(11) NOT NULL AUTO_INCREMENT;
 
-
 --
 -- AUTO_INCREMENT for table `Grimpeur`
 --
@@ -226,9 +225,9 @@ ALTER TABLE `Transaction`
 -- Constraints for table `Grimpeur`
 --
 ALTER TABLE `Grimpeur`
-  ADD CONSTRAINT `fk_grimpeur_abo` FOREIGN KEY (`AboId`) REFERENCES `Abonnement` (`IdAbo`),
+  ADD CONSTRAINT `fk_grimpeur_abo`    FOREIGN KEY (`AboId`)    REFERENCES `Abonnement` (`IdAbo`),
   ADD CONSTRAINT `fk_grimpeur_ticket` FOREIGN KEY (`TicketId`) REFERENCES `Ticket` (`IdTicket`),
-  ADD CONSTRAINT `fk_grimpeur_club` FOREIGN KEY (`ClubId`) REFERENCES `Club` (`IdClub`);
+  ADD CONSTRAINT `fk_grimpeur_club`   FOREIGN KEY (`ClubId`)   REFERENCES `Club` (`IdClub`);
 
 --
 -- Constraints for table `Seance`
@@ -238,6 +237,7 @@ ALTER TABLE `Seance`
 
 INSERT INTO Ticket (IdTicket, TypeTicket, NbSeanceTicket)
 VALUES (1, 'Carte Séance', 1);
+
 -- Changer le délimiteur pour les triggers
 DELIMITER //
 
@@ -255,6 +255,7 @@ END//
 
 -- Rétablir le délimiteur normal
 DELIMITER ;
+
 CREATE DATABASE IF NOT EXISTS metabaseappdb;
 COMMIT;
 

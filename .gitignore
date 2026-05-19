@@ -9,4 +9,3 @@ CasaCentral.code-workspace
 *.sql.gz
 .env.dev
 *.txt
-*.pdf
