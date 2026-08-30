@@ -1,9 +1,9 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import { 
-  deleteSeance, fetchClientById, fetchClubById, 
-  isAlreadyEntered, isDateValid, postSeanceClient, 
-  postTransaction, updateClientData 
+import {
+  deleteSeance, fetchClientById, fetchClubById,
+  isAlreadyEntered, isDateValid, postSeanceClient,
+  postTransaction, updateClientData
 } from "@/src/services/api";
 import { clientFields } from "@/src/types&fields/fields";
 import { Client, ApiResponse, Club } from "@/src/types&fields/types";
@@ -49,13 +49,13 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
     if (!numClient) return;
     try {
       const response = await fetchClientById(numClient);
-      
+
       // ✅ Vérifier le succès ET extraire les données
       if (!response.success || !response.data) {
         toast.error(response.message || "Erreur lors du rechargement du client");
         return;
       }
-      
+
       setClientInfo(response.data);
     } catch (error) {
       console.error(error);
@@ -74,14 +74,14 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
       setLoading(true);
       try {
         const response = await fetchClientById(numClient);
-        
+
         // ✅ Vérifier le succès ET extraire les données
         if (!response.success || !response.data) {
           toast.error(response.message || "Erreur de chargement client");
           setLoading(false);
           return;
         }
-        
+
         const data = response.data;
         setClientInfo(data);
 
@@ -228,8 +228,8 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
     } catch {
       toast.error("Erreur lors de l'entrée unique");
       setInCasa(false);
-    }finally {
-    setLoadingEntree(false);
+    } finally {
+      setLoadingEntree(false);
     }
   };
 
@@ -239,9 +239,9 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
       toast.success(response.message);
       setInCasa(false);
       setTimeout(async () => {
-      await reloadClientInfo();
-       onSeanceCanceled?.();
-       }, 100);
+        await reloadClientInfo();
+        onSeanceCanceled?.();
+      }, 100);
       await reloadClientInfo();
       onSeanceCanceled?.();
     } else {
@@ -252,18 +252,18 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
   const handleEntreeSimple = async () => {
     setLoadingEntree(true);
     try {
-        if (inCasa) {
-          toast.warning("Le grimpeur est déjà en salle");
-        }
-        const result = await postSeanceClient(numClient);
-        if (!result.success) {
-          toast.warning(result.message);
-          setInCasa(false);
-        } else {
-          toast.success(result.message);
-          setInCasa(true);
-          await reloadClientInfo(); // ✅ refresh ici aussi
-        }
+      if (inCasa) {
+        toast.warning("Le grimpeur est déjà en salle");
+      }
+      const result = await postSeanceClient(numClient);
+      if (!result.success) {
+        toast.warning(result.message);
+        setInCasa(false);
+      } else {
+        toast.success(result.message);
+        setInCasa(true);
+        await reloadClientInfo(); // ✅ refresh ici aussi
+      }
     } catch {
       toast.error("Erreur lors de la création de la séance");
     } finally {
@@ -289,9 +289,9 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
 
 
   return (
-    
+
     <div className={`flex flex-col h-full rounded-md relative`}>
-      
+
       {onEdit && (
         <Button
           size="lg"
@@ -299,11 +299,11 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
           onClick={onEdit}
           className="absolute top-4 right-4 p-2 w-12 h-12 flex items-center justify-center cursor-pointer"
         >
-          <Image 
-            src="/inscription.svg" 
-            alt="Modifier" 
-            width={24} 
-            height={24} 
+          <Image
+            src="/inscription.svg"
+            alt="Modifier"
+            width={24}
+            height={24}
           />
         </Button>
       )}
@@ -315,20 +315,19 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
           ) : (
             <div className="text-red-500 font-bold">Hors salle</div>
           )}
-          <Image src="/avatar.png" alt="Avatar" width={200} height={200}/>
+          <Image src="/avatar.png" alt="Avatar" width={200} height={200} priority />
           <p>{clientInfo.NumGrimpeur}</p>
         </div>
 
         <div className="flex-1 grid grid-cols-4 gap-2 h-full">
           {fieldInfoClient.map(({ label, value }) => (
-          <div key={label} className="flex flex-col justify-center break-words overflow-auto">
-            <div className="break-words whitespace-pre-line w-full">
-              <p className={`text-sm font-semibold ${
-              label === 'Club' && isFFME63 ? 'text-blue-600' : 'text-gray-700'
-              }`}>{label}</p>
-              <p>{value}</p>
+            <div key={label} className="flex flex-col justify-center break-words overflow-auto">
+              <div className="break-words whitespace-pre-line w-full">
+                <p className={`text-sm font-semibold ${label === 'Club' && isFFME63 ? 'text-blue-600' : 'text-gray-700'
+                  }`}>{label}</p>
+                <p>{value}</p>
+              </div>
             </div>
-          </div>
           ))}
 
           <div className="flex flex-col justify-center break-words col-span-2">
@@ -391,11 +390,11 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
               className="w-3/4 h-3/4 text-lg cursor-pointer"
             >
               {isLoadingEntree ? (
-                <LoadingSpinner small color="white"/>
+                <LoadingSpinner small color="white" />
               ) : (
                 "Entrée"
               )}
-              </Button>
+            </Button>
           </div>
 
           <div className="flex justify-center">
@@ -420,7 +419,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
               ) : (
                 "Ticket unique"
               )}
-              </Button>
+            </Button>
           </div>
 
           <div className="flex justify-center">
@@ -477,43 +476,43 @@ function SignatureClient({
 }
 
 
-  function CotisationInfo(client: Client, isFFME63: boolean){
-    let content;
-    if (isFFME63) {
-      content = (
-        <>
-          <p className="text-green-500 font-bold">Licence dans club du</p>
-          <p className="text-green-500 font-bold">CT63 en cours</p>
-        </>
-      );
-    }else if (client.DateFinCoti !== null && client.DateFinCoti !== undefined) {
-      content = (
-        <>
-          {isDateValid(client.DateFinCoti) ? (
-            <>
-              <p className="text-green-500 font-bold">Cotisation Active</p>
-              <p>Fin le {formatDate(client.DateFinCoti)}</p>
-            </>
-          ) : (
-            <>
-              <p className="text-red-500 font-bold">Cotisation Expirée</p>
-              <p>Fin le {formatDate(client.DateFinCoti)}</p>
-            </>
-          )}
-        </>
-      );
-    } else {
-      content = <p className="text-red-500 font-bold">Pas de cotisation</p>;
-    }
-    
-    return (
-      <div className="flex flex-col items-center justify-center">
-        {content}
-      </div>
+function CotisationInfo(client: Client, isFFME63: boolean) {
+  let content;
+  if (isFFME63) {
+    content = (
+      <>
+        <p className="text-green-500 font-bold">Licence dans club du</p>
+        <p className="text-green-500 font-bold">CT63 en cours</p>
+      </>
     );
+  } else if (client.DateFinCoti !== null && client.DateFinCoti !== undefined) {
+    content = (
+      <>
+        {isDateValid(client.DateFinCoti) ? (
+          <>
+            <p className="text-green-500 font-bold">Cotisation Active</p>
+            <p>Fin le {formatDate(client.DateFinCoti)}</p>
+          </>
+        ) : (
+          <>
+            <p className="text-red-500 font-bold">Cotisation Expirée</p>
+            <p>Fin le {formatDate(client.DateFinCoti)}</p>
+          </>
+        )}
+      </>
+    );
+  } else {
+    content = <p className="text-red-500 font-bold">Pas de cotisation</p>;
   }
 
-function AbonnementInfo(client: Client){
+  return (
+    <div className="flex flex-col items-center justify-center">
+      {content}
+    </div>
+  );
+}
+
+function AbonnementInfo(client: Client) {
   let content;
   if (client.DateFinAbo === null || client.DateFinAbo === undefined) {
     content = <p className="font-bold text-gray-700">Pas d'abonnement</p>;
@@ -540,7 +539,7 @@ function AbonnementInfo(client: Client){
   );
 }
 
-function EntreeInfo(client: Client){
+function EntreeInfo(client: Client) {
   let content;
   if (!client.NbSeanceRest || client.NbSeanceRest <= 0) {
     content = <p className="font-bold text-gray-700">Pas d'entrées</p>;
@@ -559,13 +558,13 @@ function EntreeInfo(client: Client){
   );
 }
 
-function AccesSalleInfo(client: Client){
+function AccesSalleInfo(client: Client) {
   let content;
   if (client.StatutVoie === 3) {
     content = <p className="font-bold">Tête</p>;
-  }else if (client.StatutVoie === 2) {
+  } else if (client.StatutVoie === 2) {
     content = <p className="font-bold">Moulinette</p>;
-  }else{
+  } else {
     content = <p className="font-bold">Bloc</p>;
   }
 
@@ -578,15 +577,15 @@ function AccesSalleInfo(client: Client){
 }
 
 function isNotAllowedForEntrance(client: Client, isFFME63: boolean): boolean {
-  const hasValidSubscription = 
-    isDateValid(client.DateFinAbo) || 
+  const hasValidSubscription =
+    isDateValid(client.DateFinAbo) ||
     (client.NbSeanceRest && client.NbSeanceRest > 0);
-  
+
   const hasSignature = !!client.AccordReglement;
-  
-  const hasMembership = 
-    isDateValid(client.DateFinCoti) || 
+
+  const hasMembership =
+    isDateValid(client.DateFinCoti) ||
     isFFME63;
-  
+
   return !(hasValidSubscription && hasSignature && hasMembership);
 }

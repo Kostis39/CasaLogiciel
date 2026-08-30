@@ -6,7 +6,7 @@ import clsx from "clsx";
 import { getStatutVoieBg } from "@/src/services/api";
 
 export function ClientCard(
-  { prenom, nom, num, statutVoie }: { prenom: string , nom: string , num: number, statutVoie: number | undefined }
+  { prenom, nom, num, statutVoie }: { prenom: string, nom: string, num: number, statutVoie: number | undefined }
 ) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -18,7 +18,7 @@ export function ClientCard(
     const params = new URLSearchParams(searchParams);
     params.delete("createSeance");
     params.set("id", num.toString());
-    router.replace(`?${params.toString()}`); 
+    router.replace(`?${params.toString()}`);
   };
 
   return (
@@ -35,7 +35,7 @@ export function ClientCard(
       aria-pressed={isSelected}
     >
       <div>
-        <Image src="/avatar.png" alt="Avatar" width={70} height={70} />
+        <Image src="/avatar.png" alt="Avatar" width={70} height={70} priority />
       </div>
       <div className="break-words hyphens-auto w-full">
         <p className="font-bold mb-2">{prenom} {nom}</p>
