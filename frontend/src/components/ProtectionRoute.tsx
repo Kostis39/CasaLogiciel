@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { getStoredToken, clearAuth, isBackendAuthenticated } from '@/src/services/auth';
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -9,36 +10,13 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   const checkAuth = () => {
-    const authFlag = localStorage.getItem('isAuthenticated') === 'true';
-    const authDateStr = localStorage.getItem('authDate');
-
-    if (!authFlag || !authDateStr) {
-      setIsAuthenticated(false);
-      return;
+    // Le token signé par le backend est la source de vérité
+    // (validité 24h, vérifiée à chaque requête authFetch)
+    const authenticated = isBackendAuthenticated();
+    if (!authenticated) {
+      clearAuth();
     }
-
-    const authDate = new Date(authDateStr);
-    const now = new Date();
-    const todayMidnight = new Date();
-    todayMidnight.setHours(0, 0, 0, 0);
-
-    if (authDate.getTime() < todayMidnight.getTime()) {
-      localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem('authDate');
-      setIsAuthenticated(false);
-      return;
-    }
-
-    const currentHour = now.getHours();
-    if (currentHour < 4) {
-      // Avant 4h : on considère que c'est encore "hier"
-      localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem('authDate');
-      setIsAuthenticated(false);
-      return;
-    }
-
-    setIsAuthenticated(true);
+    setIsAuthenticated(authenticated);
   };
 
   useEffect(() => {

@@ -1,7 +1,11 @@
-from flask import Flask, g
+from flask import Flask, g, request
 from flask_cors import CORS
 from flask_restful import Api
+import logging
+import os
+
 from db import create_engine, get_session, test_connection
+from auth import LoginResource, register_auth_protection
 
 from controllers.grimpeur import *
 from controllers.abonnement import *
@@ -14,8 +18,25 @@ from middleware import setup_logging
 
 # Flask Setup
 app = Flask(__name__)
-CORS(app)
+
+# CORS restreint aux origines du frontend (NEXT_PUBLIC_* et CORS_ORIGINS en .env)
+_cors_origins = [
+    o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()
+]
+if _cors_origins:
+    CORS(app, origins=_cors_origins)
+else:
+    logger_default = logging.getLogger(__name__)
+    logger_default.warning(
+        "CORS_ORIGINS non défini : CORS ouvert sur toutes les origines. "
+        "Définir CORS_ORIGINS (ex: http://ip-serveur:3000) en production."
+    )
+    CORS(app)
+
 api = Api(app)
+
+# Authentification : protège toutes les routes (sauf /login, /favicon.ico, OPTIONS)
+register_auth_protection(app)
 
 # Init Database
 engine = create_engine()
@@ -43,10 +64,13 @@ def favicon():
 @app.errorhandler(Exception)
 def handle_error(error):
     """Catch any unhandled errors"""
-    print(f"Error: {error}")
-    return {"error": str(error)}, 500
+    # Log complet côté serveur uniquement, message générique au client
+    app.logger.error(f"Unhandled error on {request.method} {request.path}: {error}", exc_info=True)
+    return {"message": "Erreur interne du serveur"}, 500
 
 
+
+api.add_resource(LoginResource, "/login")
 
 # Vraies classes
 # Api endpoints (les vrais)

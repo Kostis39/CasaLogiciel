@@ -1,5 +1,6 @@
 import { getTodayPlusOneYear, isDateValid } from "./api";
 import { Grimpeur, ApiResponse, TransactionForm, GrimpeurForm, Transaction, ClubForm, Abonnement, Ticket, Club, responsePostGrimpeurSignature } from "../types&fields/types";
+import { authFetch } from "./auth";
 export let API_URL: string | undefined;
 if (process.env.NEXT_PUBLIC_ENV == "prod" && process.env.NEXT_PUBLIC_API_URL_PROD) {
     API_URL = process.env.NEXT_PUBLIC_API_URL_PROD;
@@ -11,7 +12,7 @@ export const realService = {
     // Récupère un ticket par son id
     fetchTicketById: async (id: number): Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/ticket/${id}`);
+            const response = await authFetch(`${API_URL}/ticket/${id}`);
             const data = await response.json();
             if (!response.ok) {
                 console.error(`HTTP ${response.status}: ${data?.message}`);
@@ -34,7 +35,7 @@ export const realService = {
     // Récupère un abonnement par son id
     fetchAbonnementById: async (id: number): Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/abonnement/${id}`);
+            const response = await authFetch(`${API_URL}/abonnement/${id}`);
             const data = await response.json();
             if (!response.ok) {
                 console.error(`HTTP ${response.status}: ${data?.message}`);
@@ -56,7 +57,7 @@ export const realService = {
 //----------------------------------- Fetchers -----------------------------------
     fetchGrimpeurById: async (id: number) : Promise<ApiResponse<Grimpeur>> => {
         try {
-            const response = await fetch(`${API_URL}/grimpeurs/${id}`);
+            const response = await authFetch(`${API_URL}/grimpeurs/${id}`);
             const data = await response.json();
             if (!response.ok) {
                 console.error(`HTTP ${response.status}: ${data?.message}`);
@@ -82,7 +83,7 @@ export const realService = {
                 limit: limit.toString(),
                 offset: offset.toString(),
             });
-            const response = await fetch(`${API_URL}/grimpeurs/search?${params.toString()}`);
+            const response = await authFetch(`${API_URL}/grimpeurs/search?${params.toString()}`);
             const json = await response.json();
             if (!response.ok) {
                 console.error(`HTTP ${response.status}: ${json?.message}`);
@@ -104,7 +105,7 @@ export const realService = {
 
     fetchGrimpeurs: async (limit: number, offset: number): Promise<ApiResponse<Grimpeur[]>> => {
         try {
-            const response = await fetch(`${API_URL}/grimpeurs?limit=${limit}&offset=${offset}`, {
+            const response = await authFetch(`${API_URL}/grimpeurs?limit=${limit}&offset=${offset}`, {
                 cache: "no-store",
             });
 
@@ -131,7 +132,7 @@ export const realService = {
 
     fetchAbonnements: async (): Promise<ApiResponse<Abonnement[]>> => {
         try {
-            const response = await fetch(`${API_URL}/abonnements`);
+            const response = await authFetch(`${API_URL}/abonnements`);
             const json = await response.json();
             if (!response.ok) {
                 console.error(`HTTP ${response.status}: ${json?.message}`);
@@ -156,7 +157,7 @@ export const realService = {
 
     fetchTickets: async (): Promise<ApiResponse<Ticket[]>> => {
         try {
-            const response = await fetch(`${API_URL}/tickets`);
+            const response = await authFetch(`${API_URL}/tickets`);
             const json = await response.json();
             if (!response.ok) {
                 console.error(`HTTP ${response.status}: ${json?.message}`);
@@ -182,7 +183,7 @@ export const realService = {
     postSeanceGrimpeur: async (id: number): Promise<ApiResponse> => {
         try {
             const body = { NumGrimpeur: id };
-            const response = await fetch(`${API_URL}/seances`, {
+            const response = await authFetch(`${API_URL}/seances`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(body),
@@ -212,7 +213,7 @@ export const realService = {
         PrixAbo: number;
     }): Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/abonnements`, {
+            const response = await authFetch(`${API_URL}/abonnements`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(abonnementData),
@@ -242,7 +243,7 @@ export const realService = {
         PrixTicket: number;
     }): Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/tickets`, {
+            const response = await authFetch(`${API_URL}/tickets`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(ticketData),
@@ -272,7 +273,7 @@ export const realService = {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { TypeAbo, TypeTicket, ...filteredData } = data;
 
-            const response = await fetch(`${API_URL}/grimpeurs`, {
+            const response = await authFetch(`${API_URL}/grimpeurs`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(filteredData),
@@ -345,7 +346,7 @@ export const realService = {
                 Note: note,
             };
 
-            const response = await fetch(`${API_URL}/transactions`, {
+            const response = await authFetch(`${API_URL}/transactions`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -376,7 +377,7 @@ export const realService = {
         PrixAbo: number;
     }): Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/abonnement/${idAbonnement}`, {
+            const response = await authFetch(`${API_URL}/abonnement/${idAbonnement}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(abonnementData),
@@ -406,7 +407,7 @@ export const realService = {
         PrixTicket: number;
     }): Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/ticket/${idTicket}`, {
+            const response = await authFetch(`${API_URL}/ticket/${idTicket}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(ticketData),
@@ -439,7 +440,7 @@ export const realService = {
                 newGrimpeur.DateFinCoti = getTodayPlusOneYear();
             }
 
-            const response = await fetch(`${API_URL}/grimpeurs/${grimpeur.NumGrimpeur}`, {
+            const response = await authFetch(`${API_URL}/grimpeurs/${grimpeur.NumGrimpeur}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newGrimpeur),
@@ -472,7 +473,7 @@ export const realService = {
             const params: Record<string, string> = {};
             if (accordParental !== undefined) params["AccordParental"] = String(accordParental);
                 console.log("API_URL actuelle:", signatureBase64);
-            const response = await fetch(`${API_URL}/grimpeurs/accord/${id}`, {
+            const response = await authFetch(`${API_URL}/grimpeurs/accord/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ CheminSignature: signatureBase64, ...params }),
@@ -498,7 +499,7 @@ export const realService = {
 
     updateGrimpeurData: async (grimpeur: Grimpeur): Promise<ApiResponse<Grimpeur>> => {
         try {
-            const response = await fetch(`${API_URL}/grimpeurs/${grimpeur.NumGrimpeur}`, {
+            const response = await authFetch(`${API_URL}/grimpeurs/${grimpeur.NumGrimpeur}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(grimpeur),
@@ -524,7 +525,7 @@ export const realService = {
 
     updateTransaction: async (transaction: Transaction): Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/transactions`, {
+            const response = await authFetch(`${API_URL}/transactions`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(transaction),
@@ -556,7 +557,7 @@ export const realService = {
 //----------------------------------- Deleters -----------------------------------
     deleteAbonnement: async (idAbonnement: number): Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/abonnement/${idAbonnement}`, {
+            const response = await authFetch(`${API_URL}/abonnement/${idAbonnement}`, {
                 method: 'DELETE',
             });
             const data = await response.json();
@@ -580,7 +581,7 @@ export const realService = {
 
     deleteTicket: async (idTicket: number): Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/ticket/${idTicket}`, {
+            const response = await authFetch(`${API_URL}/ticket/${idTicket}`, {
                 method: 'DELETE',
             });
             const data = await response.json();
@@ -604,7 +605,7 @@ export const realService = {
 
     deleteSeance: async (NumGrimpeur: number): Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/seances/grimpeur/${NumGrimpeur}`, {
+            const response = await authFetch(`${API_URL}/seances/grimpeur/${NumGrimpeur}`, {
                 method: 'DELETE',
             });
             const data = await response.json();
@@ -629,7 +630,7 @@ export const realService = {
 //----------------------------------- Others -----------------------------------
     isAlreadyEntered: async (id: number) : Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/seances/grimpeur/${id}/aujourdhui`);
+            const response = await authFetch(`${API_URL}/seances/grimpeur/${id}/aujourdhui`);
             const data = await response.json();
             if (!response.ok) {
                 console.error(`HTTP ${response.status}: ${data?.message}`);
@@ -651,7 +652,7 @@ export const realService = {
 
     isFromPuyDeDome: async (id: number) : Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/grimpeurs/puydedome/${id}`);
+            const response = await authFetch(`${API_URL}/grimpeurs/puydedome/${id}`);
             const data = await response.json();
             if (!response.ok) {
                 console.error(`HTTP ${response.status}: ${data?.message}`);
@@ -674,7 +675,7 @@ export const realService = {
     // Fonctions pour les clubs
     fetchClubs: async (): Promise<ApiResponse<Club[]>> => {
         try {
-            const response = await fetch(`${API_URL}/clubs`);
+            const response = await authFetch(`${API_URL}/clubs`);
             const json = await response.json();
             if (!response.ok) {
                 console.error(`HTTP ${response.status}: ${json?.message}`);
@@ -697,7 +698,7 @@ export const realService = {
 
     postClub: async (clubData: ClubForm): Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/clubs`, {
+            const response = await authFetch(`${API_URL}/clubs`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(clubData),
@@ -723,7 +724,7 @@ export const realService = {
 
     updateClub: async (idClub: number, clubData: ClubForm): Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/clubs/${idClub}`, {
+            const response = await authFetch(`${API_URL}/clubs/${idClub}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(clubData),
@@ -749,7 +750,7 @@ export const realService = {
 
     deleteClub: async (idClub: number): Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/clubs/${idClub}`, {
+            const response = await authFetch(`${API_URL}/clubs/${idClub}`, {
                 method: 'DELETE',
             });
 
@@ -774,7 +775,7 @@ export const realService = {
 
     fetchClubById: async (clubId: number): Promise<ApiResponse> => {
         try {
-            const response = await fetch(`${API_URL}/clubs/${clubId}`);
+            const response = await authFetch(`${API_URL}/clubs/${clubId}`);
             const data = await response.json();
             if (!response.ok) {
                 console.error(`HTTP ${response.status}: ${data?.message}`);

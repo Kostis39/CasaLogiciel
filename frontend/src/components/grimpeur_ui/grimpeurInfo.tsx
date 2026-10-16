@@ -12,6 +12,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { Button } from "@/src/components/ui/button";
 import { toast } from "react-toastify";
 import { API_URL } from "@/src/services/real";
+import { AuthImage } from "./authImage";
 import { ConfirmButton } from "./buttonConfirm";
 import LoadingSpinner from "@/src/components/grimpeur_ui/LoadingSpinner";
 import { formatDate } from "@/src/lib/utils";
@@ -460,9 +461,9 @@ function SignatureGrimpeur({
     <div className="flex flex-col items-center justify-center">
       <p className="font-bold text-gray-700">{typeSignature}</p>
       {cheminSignature && accord && (
-        <img
-          src={`${API_URL}/${cheminSignature}?v=${cacheBuster}`} // ou ton endpoint pour servir les images
-          alt="Si signature non visible verifier l'accord"
+        <AuthImage
+          src={`${API_URL}/${cheminSignature}?v=${cacheBuster}`}
+          alt="Signature"
           className="mt-2 w-40 h-auto border"
         />
       )}

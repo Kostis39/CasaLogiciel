@@ -28,6 +28,7 @@ import { ConfirmButton } from "./buttonConfirm";
 import LoadingSpinner from "./LoadingSpinner";
 import SignaturePad from "signature_pad";
 import { API_URL } from "@/src/services/real";
+import { AuthImage } from "./authImage";
 
 interface GrimpeurEditProps {
   numGrimpeur: number;
@@ -623,7 +624,7 @@ export default function GrimpeurEdit({ numGrimpeur, onCancel, onGrimpeurUpdated 
             {formData.CheminSignature && (
               <div className="flex flex-col">
                 <p>Signature actuelle :</p>
-                <img src={`${API_URL}/${formData.CheminSignature}`} alt="Signature" className="border w-64 h-auto mt-2" />
+                <AuthImage src={`${API_URL}/${formData.CheminSignature}`} alt="Signature" className="border w-64 h-auto mt-2" />
               </div>
             )}
             <div className="flex flex-col">

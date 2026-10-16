@@ -89,6 +89,9 @@ services:
       DB_NAME: ${MARIADB_NAME}
       DB_USER: ${MARIADB_USER}
       ENV: prod
+      # Authentification API : même valeur que NEXT_PUBLIC_PASSWORD + secret de signature
+      AUTH_PASSWORD: ${NEXT_PUBLIC_PASSWORD}
+      AUTH_SECRET: ${AUTH_SECRET}
     volumes:
       - /home/casamur/data/signatures:/code/static/uploads/signatures
     networks:

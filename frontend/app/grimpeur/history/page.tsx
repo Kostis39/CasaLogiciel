@@ -11,6 +11,7 @@ import { Card } from "@/src/components/ui/card";
 import Image from "next/image";
 import {fetchAbonnements, fetchTickets } from "@/src/services/api";
 import { API_URL } from "@/src/services/real";
+import { authFetch } from "@/src/services/auth";
 import { formatDate } from "@/src/lib/utils";
 
 // Modal générique pour modifier
@@ -189,7 +190,7 @@ export default function AdminPage() {
 
       url += `?limit=${filters.limit}&offset=${filters.offset}`;
 
-      const res = await fetch(url);
+      const res = await authFetch(url);
       const json: ApiResponse<Transaction[]> = await res.json();
 
       if (res.ok && json.data) {
@@ -225,7 +226,7 @@ export default function AdminPage() {
 
       url += `?limit=${filters.limit}&offset=${filters.offset}`;
 
-      const res = await fetch(url);
+      const res = await authFetch(url);
       const json: ApiResponse<Seance[]> = await res.json();
 
       if (res.ok && json.data) {
@@ -258,7 +259,7 @@ export default function AdminPage() {
   // SAVE / DELETE
   // -------------------------------
   const handleSaveTransaction = async (t: Transaction) => {
-    const res = await fetch(`${API_URL}/transactions`, {
+    const res = await authFetch(`${API_URL}/transactions`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(t),
@@ -274,7 +275,7 @@ export default function AdminPage() {
   };
 
   const handleSaveSeance = async (s: Seance) => {
-    const res = await fetch(`${API_URL}/seances`, {
+    const res = await authFetch(`${API_URL}/seances`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(s),
@@ -290,7 +291,7 @@ export default function AdminPage() {
   };
 
   const handleDeleteTransaction = async (id: number) => {
-    const res = await fetch(`${API_URL}/transactions/id/${id}`, {
+    const res = await authFetch(`${API_URL}/transactions/id/${id}`, {
       method: "DELETE",
     });
     const response = await res.json();
@@ -303,7 +304,7 @@ export default function AdminPage() {
   };
 
   const handleDeleteSeance = async (id: number) => {
-    const res = await fetch(`${API_URL}/seances/id/${id}`, { method: "DELETE" });
+    const res = await authFetch(`${API_URL}/seances/id/${id}`, { method: "DELETE" });
     const response = await res.json();
     if (res.ok) {
       toast.success(response.message);

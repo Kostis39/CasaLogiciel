@@ -6,27 +6,32 @@ import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/src/components/ui/card';
 import { Label } from '@/src/components/ui/label';
+import { login } from '@/src/services/auth';
 
 const PASSWORD = process.env.NEXT_PUBLIC_PASSWORD;
 
 export default function LoginPage() {
   const [input, setInput] = useState('');
   const [error, setError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (input === PASSWORD) {
-        // On stocke la date d'aujourd'hui (sans l'heure, pour comparer au jour)
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Minuit du jour courant
-
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('authDate', today.toISOString()); // ex: "2025-12-20T00:00:00.000Z"
-
-        window.location.href = '/';
-
-    } else {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setError(false);
+    try {
+      // Vérification locale (UX) puis échange contre un token signé côté backend
+      if (input !== PASSWORD) {
         setError(true);
+        return;
+      }
+      await login();
+      window.location.href = '/';
+    } catch {
+      setError(true);
+    } finally {
+      setIsSubmitting(false);
     }
     };
 
@@ -62,8 +67,8 @@ export default function LoginPage() {
               )}
             </div>
 
-            <Button type="submit" className="w-full" size="lg">
-              Se connecter
+            <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+              {isSubmitting ? "Connexion..." : "Se connecter"}
             </Button>
           </form>
 
