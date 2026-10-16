@@ -63,13 +63,19 @@ services:
     container_name: phpmyadmin
     environment:
       PMA_HOST: mariadb
-      PMA_USER: ${MARIADB_USER}
-      PMA_PASSWORD: ${MARIADB_PASSWORD}
-    # phpMyAdmin réservé à l'administration : uniquement accessible depuis
-    # l'hôte (127.0.0.1), pas depuis le réseau local/Internet.
-    # Accès distant recommandé : tunnel SSH (ssh -L 8080:127.0.0.1:8080 serveur)
+      # Auth MySQL classique (cookie) : pas d'auto-login. L'utilisateur saisit
+      # ses identifiants MariaDB à chaque connexion.
+      # (PMA_USER/PMA_PASSWORD volontairement RETIRÉS : ils auto-connectaient
+      #  quiconque atteignait la page, en root, sans aucun mot de passe.)
+      PMA_ABSOLUTE_URI: ${PMA_PUBLIC_URL:-}
+    volumes:
+      - ./config/phpmyadmin/default.conf:/etc/apache2/sites-enabled/000-default.conf:ro
+      - ./config/phpmyadmin/htpasswd:/etc/apache2/auth/htpasswd:ro
+    # Accessible depuis le réseau local, derrière double authentification :
+    #  1) Basic Auth HTTP (htpasswd bcrypt — voir config/phpmyadmin/)
+    #  2) login MySQL phpMyAdmin
     ports:
-      - "127.0.0.1:8080:80"
+      - "8080:80"
     depends_on:
       mariadb:
         condition: service_healthy
@@ -138,10 +144,12 @@ services:
     hostname: metabase
     volumes:
       - /dev/urandom:/dev/random:ro
-    # Metabase réservé à l'analyse : uniquement accessible depuis l'hôte.
-    # Accès distant recommandé : tunnel SSH (ssh -L 4000:127.0.0.1:4000 serveur)
+    # Accessible depuis le réseau local. L'accès est protégé par les
+    # comptes Metabase (email/mot de passe configurés au premier lancement).
+    # MB_SETUP_TOKEN requis : sans lui, la page de setup initial est fermée
+    # (empêche quiconque de revendiquer l'instance au premier accès).
     ports:
-      - "127.0.0.1:4000:3000"
+      - "4000:3000"
     environment:
       MB_DB_TYPE: mysql
       MB_DB_DBNAME: metabaseappdb
@@ -149,6 +157,10 @@ services:
       MB_DB_USER: ${MARIADB_USER}
       MB_DB_PASS: ${MARIADB_PASSWORD}
       MB_DB_HOST: mariadb
+      # Jeton d'installation : une fois le setup initial fait, conserver
+      # la valeur (ou la retirer) — elle ne sert qu'au premier lancement.
+      MB_SETUP_TOKEN: ${METABASE_SETUP_TOKEN:-}
+      MB_ANON_TRACKING_ENABLED: "false"
     networks:
       casa_network:
         ipv4_address: 172.20.0.7

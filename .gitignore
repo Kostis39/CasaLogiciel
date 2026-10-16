@@ -9,4 +9,5 @@ CasaCentral.code-workspace
 *.sql.gz
 .env.dev
 *.txt
-*.pdf
+*.pdf# Hash du mot de passe Basic Auth phpMyAdmin — ne pas versionner le vrai
+config/phpmyadmin/htpasswd
