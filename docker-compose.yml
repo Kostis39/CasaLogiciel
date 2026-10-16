@@ -13,8 +13,11 @@ services:
     networks:
       casa_network:
         ipv4_address: 172.20.0.2
-    ports:
-      - "3306:3306"
+    # Pas de port publié : MariaDB n'est joignable que par les conteneurs
+    # du réseau interne casa_network (backend, phpmyadmin, metabase, backup).
+    # Accès ponctuel depuis l'hôte :
+    #   docker compose exec mariadb mariadb -u root -p
+    # Ou temporairement : docker compose up -d mariadb --publish 127.0.0.1:3306:3306
     healthcheck:
       test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-p${MARIADB_PASSWORD}"]
       timeout: 20s
@@ -62,8 +65,11 @@ services:
       PMA_HOST: mariadb
       PMA_USER: ${MARIADB_USER}
       PMA_PASSWORD: ${MARIADB_PASSWORD}
+    # phpMyAdmin réservé à l'administration : uniquement accessible depuis
+    # l'hôte (127.0.0.1), pas depuis le réseau local/Internet.
+    # Accès distant recommandé : tunnel SSH (ssh -L 8080:127.0.0.1:8080 serveur)
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:80"
     depends_on:
       mariadb:
         condition: service_healthy
@@ -79,6 +85,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: casabackend
+    # API consommée par le frontend (navigateur des postes clients) : doit
+    # rester joignable sur le réseau. L'authentification Bearer protège les routes.
     ports:
       - "5000:5000"
     environment:
@@ -130,8 +138,10 @@ services:
     hostname: metabase
     volumes:
       - /dev/urandom:/dev/random:ro
+    # Metabase réservé à l'analyse : uniquement accessible depuis l'hôte.
+    # Accès distant recommandé : tunnel SSH (ssh -L 4000:127.0.0.1:4000 serveur)
     ports:
-      - 4000:3000
+      - "127.0.0.1:4000:3000"
     environment:
       MB_DB_TYPE: mysql
       MB_DB_DBNAME: metabaseappdb
