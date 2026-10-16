@@ -1,5 +1,5 @@
 
-export type Client = {
+export type Grimpeur = {
   NomGrimpeur: string;
   PrenomGrimpeur: string;
   DateNaissGrimpeur: string;
@@ -26,7 +26,7 @@ export type Client = {
   AboId?: number | null;
 };
 
-export type ClientForm = {
+export type GrimpeurForm = {
   NomGrimpeur: string;
   PrenomGrimpeur: string;
   DateNaissGrimpeur: string;
@@ -126,7 +126,7 @@ export type Club = {
   PuyDeDome?: boolean;
 };
 
-export type responsePostClientSignature = {
+export type responsePostGrimpeurSignature = {
   message: string,
   CheminSignature: string,
   AccordParental: boolean,

@@ -8,25 +8,25 @@ export const {
 //------- Fetchers -------
   fetchTicketById,
   fetchAbonnementById,
-  fetchClientById,
-  fetchClientSearch,
-  fetchClients,
+  fetchGrimpeurById,
+  fetchGrimpeurSearch,
+  fetchGrimpeurs,
   fetchAbonnements,
   fetchTickets,
 
 //------- Posters -------
-  postSeanceClient,
+  postSeanceGrimpeur,
   postAbonnement,
   postTicket,
-  postClientData,
+  postGrimpeurData,
   postTransaction,
 
 //------- Putters -------
   updateAbonnement,
   updateTicket,
-  updateCotisationClient,
+  updateCotisationGrimpeur,
   updateGrimpeurSignature,
-  updateClientData,
+  updateGrimpeurData,
   updateTransaction,
 
 //------- Deleters -------

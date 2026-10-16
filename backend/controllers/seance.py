@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from flask import request, g
 from flask_restful import Resource
-from models import Clients
+from models import Grimpeurs
 import logging
 from zoneinfo import ZoneInfo
 
@@ -18,8 +18,8 @@ class Seances(Resource):
             limit = min(limit, 100)
             offset = max(offset, 0)
 
-            query = g.db_session.query(Clients.Seance).order_by(
-                Clients.Seance.IdSeance.desc()
+            query = g.db_session.query(Grimpeurs.Seance).order_by(
+                Grimpeurs.Seance.IdSeance.desc()
             )
             total = query.count()
             seances = query.offset(offset).limit(limit).all()
@@ -41,7 +41,7 @@ class Seances(Resource):
             if not id_grimpeur:
                 return {"message": "Le champ 'NumGrimpeur' est requis."}, 400
 
-            grimpeur = g.db_session.query(Clients.Grimpeur).filter_by(
+            grimpeur = g.db_session.query(Grimpeurs.Grimpeur).filter_by(
                 NumGrimpeur=id_grimpeur
             ).first()
             if not grimpeur:
@@ -55,14 +55,14 @@ class Seances(Resource):
             if (grimpeur.DateFinAbo is None or grimpeur.DateFinAbo <= date.today()) and grimpeur.NbSeanceRest <= 0:
                 return {"message": "Le grimpeur n'a pas d'entrée valide."}, 403
 
-            nouvelle_seance = Clients.Seance()
+            nouvelle_seance = Grimpeurs.Seance()
             nouvelle_seance.NumGrimpeur = id_grimpeur
             nouvelle_seance.DateSeance = date_seance
             nouvelle_seance.HeureSeance = heure_seance
 
             if grimpeur.DateFinAbo and grimpeur.DateFinAbo >= date.today():
                 # Check if already has seance today
-                seance_exist = g.db_session.query(Clients.Seance).filter_by(
+                seance_exist = g.db_session.query(Grimpeurs.Seance).filter_by(
                     NumGrimpeur=id_grimpeur, DateSeance=date_seance
                 ).first()
                 if seance_exist:
@@ -91,7 +91,7 @@ class SeancesById(Resource):
     def get(self, id_seance):
         """Get a specific seance by ID"""
         try:
-            seance = g.db_session.query(Clients.Seance).filter_by(IdSeance=id_seance).first()
+            seance = g.db_session.query(Grimpeurs.Seance).filter_by(IdSeance=id_seance).first()
             if not seance:
                 return {"message": f"Aucune séance trouvée avec l'identifiant {id_seance}."}, 404
             return seance.to_dict(), 200
@@ -102,7 +102,7 @@ class SeancesById(Resource):
     def delete(self, id_seance):
         """Delete a specific seance"""
         try:
-            seance = g.db_session.query(Clients.Seance).filter_by(IdSeance=id_seance).first()
+            seance = g.db_session.query(Grimpeurs.Seance).filter_by(IdSeance=id_seance).first()
             if not seance:
                 return {"message": f"Aucune séance trouvée avec l'identifiant {id_seance}."}, 404
             
@@ -125,9 +125,9 @@ class SeancesByGrimpeur(Resource):
             limit = min(limit, 100)
             offset = max(offset, 0)
 
-            query = g.db_session.query(Clients.Seance).filter_by(
+            query = g.db_session.query(Grimpeurs.Seance).filter_by(
                 NumGrimpeur=num_grimpeur
-            ).order_by(Clients.Seance.IdSeance.desc())
+            ).order_by(Grimpeurs.Seance.IdSeance.desc())
             total = query.count()
             seances = query.offset(offset).limit(limit).all()
 
@@ -142,14 +142,14 @@ class SeancesByGrimpeur(Resource):
     def delete(self, num_grimpeur):
         """Delete today's seances for a grimpeur"""
         try:
-            grimpeur = g.db_session.query(Clients.Grimpeur).filter_by(
+            grimpeur = g.db_session.query(Grimpeurs.Grimpeur).filter_by(
                 NumGrimpeur=num_grimpeur
             ).first()
             if not grimpeur:
                 return {"message": "Grimpeur not found"}, 404
             
             aujourd_hui = date.today()
-            seances_auj = g.db_session.query(Clients.Seance).filter_by(
+            seances_auj = g.db_session.query(Grimpeurs.Seance).filter_by(
                 NumGrimpeur=num_grimpeur, DateSeance=aujourd_hui
             ).all()
             
@@ -183,9 +183,9 @@ class SeancesByDate(Resource):
             limit = min(limit, 100)
             offset = max(offset, 0)
 
-            query = g.db_session.query(Clients.Seance).filter_by(
+            query = g.db_session.query(Grimpeurs.Seance).filter_by(
                 DateSeance=date_str
-            ).order_by(Clients.Seance.IdSeance.desc())
+            ).order_by(Grimpeurs.Seance.IdSeance.desc())
             total = query.count()
             seances = query.offset(offset).limit(limit).all()
 
@@ -202,7 +202,7 @@ class SeanceExistante(Resource):
         """Check if grimpeur has a seance today"""
         try:
             aujourd_hui = date.today()
-            seance_exist = g.db_session.query(Clients.Seance).filter_by(
+            seance_exist = g.db_session.query(Grimpeurs.Seance).filter_by(
                 NumGrimpeur=num_grimpeur, DateSeance=aujourd_hui
             ).first()
 

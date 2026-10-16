@@ -1,12 +1,12 @@
 "use client";
-import { ClientGrid } from "@/src/components/client_ui/clientInfo";
-import { ClientListClientComponent } from "@/src/components/client_ui/clientListDefault";
-import ClientEdit from "@/src/components/client_ui/clientModif";
-import SearchClient from "@/src/components/client_ui/clientSearch";
+import { GrimpeurGrid } from "@/src/components/grimpeur_ui/grimpeurInfo";
+import { GrimpeurListGrimpeurComponent } from "@/src/components/grimpeur_ui/grimpeurListDefault";
+import GrimpeurEdit from "@/src/components/grimpeur_ui/grimpeurModif";
+import SearchGrimpeur from "@/src/components/grimpeur_ui/grimpeurSearch";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function ClientPage() {
+export default function GrimpeurPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
@@ -24,7 +24,7 @@ export default function ClientPage() {
     setMode(0);
   }, [id]);
 
-  const handleClientUpdated = () => {
+  const handleGrimpeurUpdated = () => {
     setRefreshKey(prev => prev + 1); // Force le re-render
   };
 
@@ -37,23 +37,23 @@ export default function ClientPage() {
   return (
     <div className="flex flex-col gap-1 min-h-0">
       <div>
-        <SearchClient />
+        <SearchGrimpeur />
       </div>
       <div className="grid gap-1" style={{ gridTemplateColumns: "1fr 5fr" }}>
         <div className="flex flex-col overflow-auto h-[96vh]">
-          <ClientListClientComponent query={query} refreshKey={refreshKey}/>
+          <GrimpeurListGrimpeurComponent query={query} refreshKey={refreshKey}/>
         </div>
         {!num ? (
           <p className="text-gray-500 text-center py-8">
-            Aucun client sélectionné.
+            Aucun grimpeur sélectionné.
           </p>
         ) : mode === 1 ? (
           <div className="flex flex-col overflow-auto h-[96vh]">
-            <ClientEdit numClient={num} onCancel={handleCancelEdit} onClientUpdated={handleClientUpdated}/>
+            <GrimpeurEdit numGrimpeur={num} onCancel={handleCancelEdit} onGrimpeurUpdated={handleGrimpeurUpdated}/>
           </div>
         ) : (
-          <ClientGrid 
-            numClient={num} 
+          <GrimpeurGrid 
+            numGrimpeur={num} 
             onEdit={handleEdit}
             createSeance={createSeance}
             onSeanceCanceled={handleSeanceCanceled} // ✅ Passer la fonction

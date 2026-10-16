@@ -2,16 +2,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Abonnement, Client, Club, Ticket } from "@/src/types&fields/types";
+import { Abonnement, Grimpeur, Club, Ticket } from "@/src/types&fields/types";
 import { Button } from "@/src/components/ui/button";
 import {
   fetchAbonnements,
-  fetchClientById,
+  fetchGrimpeurById,
   fetchTickets,
   fetchClubs,
   getTodayPlusOneYear,
   postTransaction,
-  updateClientData,
+  updateGrimpeurData,
   updateGrimpeurSignature,
   getStatutVoieBg,
 } from "@/src/services/api";
@@ -29,14 +29,14 @@ import LoadingSpinner from "./LoadingSpinner";
 import SignaturePad from "signature_pad";
 import { API_URL } from "@/src/services/real";
 
-interface ClientEditProps {
-  numClient: number;
+interface GrimpeurEditProps {
+  numGrimpeur: number;
   onCancel?: () => void;
-  onClientUpdated?: () => void;
+  onGrimpeurUpdated?: () => void;
 }
 
 
-export default function ClientEdit({ numClient, onCancel, onClientUpdated }: ClientEditProps) {
+export default function GrimpeurEdit({ numGrimpeur, onCancel, onGrimpeurUpdated }: GrimpeurEditProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isAddingAbo, setIsAddingAbo] = useState(false);
   const [isAddingTicket, setIsAddingTicket] = useState(false);
@@ -47,8 +47,8 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
   const [newAboDate, setNewAboDate] = useState<string>("");
   const [newTicket, setNewTicket] = useState<string | null>(null);
   const [newTicketSeances, setNewTicketSeances] = useState<number>(0);
-  const [clientInfo, setClientInfo] = useState<Client | null>(null);
-  const [formData, setFormData] = useState<Client | null>(null);
+  const [grimpeurInfo, setGrimpeurInfo] = useState<Grimpeur | null>(null);
+  const [formData, setFormData] = useState<Grimpeur | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const padRef = useRef<SignaturePad | null>(null);
   const [isUpdatingSignature, setIsUpdatingSignature] = useState(false);
@@ -115,27 +115,27 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
 
 
   useEffect(() => {
-    const loadClient = async () => {
+    const loadGrimpeur = async () => {
       try {
-        const response = await fetchClientById(numClient);
+        const response = await fetchGrimpeurById(numGrimpeur);
         
         // ✅ Vérifier le succès ET extraire les données
         if (!response.success || !response.data) {
-          toast.error(response.message || "Erreur de chargement client");
+          toast.error(response.message || "Erreur de chargement grimpeur");
           return;
         }
         
-        // clone to avoid shared references between clientInfo and formData
+        // clone to avoid shared references between grimpeurInfo and formData
         const clone = JSON.parse(JSON.stringify(response.data));
-        setClientInfo(clone);
+        setGrimpeurInfo(clone);
         setFormData(JSON.parse(JSON.stringify(response.data)));
       } catch (error) {
-        console.error("Erreur loadClient:", error);
-        toast.error("Erreur de chargement client");
+        console.error("Erreur loadGrimpeur:", error);
+        toast.error("Erreur de chargement grimpeur");
       }
     };
-    loadClient();
-  }, [numClient]);
+    loadGrimpeur();
+  }, [numGrimpeur]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -150,22 +150,22 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
   }, []);
 
 
-  if (!clientInfo || !formData){
+  if (!grimpeurInfo || !formData){
     return (
       <LoadingSpinner/>
     );
   }
 
-  const handleChange = <K extends keyof Client>(key: K, value: Client[K]) =>
-  setFormData((prev) => (prev ? ({ ...prev, [key]: value } as Client) : prev));
+  const handleChange = <K extends keyof Grimpeur>(key: K, value: Grimpeur[K]) =>
+  setFormData((prev) => (prev ? ({ ...prev, [key]: value } as Grimpeur) : prev));
 
   // Compute whether there are unsaved changes.
   const computeIsDirty = () => {
-    if (!clientInfo || !formData) return false;
+    if (!grimpeurInfo || !formData) return false;
 
     // Basic compare of form fields
     try {
-      if (JSON.stringify(formData) !== JSON.stringify(clientInfo)) return true;
+      if (JSON.stringify(formData) !== JSON.stringify(grimpeurInfo)) return true;
     } catch {
       // fallback: consider dirty if stringify fails
       return true;
@@ -175,7 +175,7 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
     if (newAbo) return true;
     if (newTicket) return true;
     if (newAboDate) return true;
-    if (newTicketSeances && Number(newTicketSeances) !== (clientInfo.NbSeanceRest ?? 0)) return true;
+    if (newTicketSeances && Number(newTicketSeances) !== (grimpeurInfo.NbSeanceRest ?? 0)) return true;
 
     return false;
   };
@@ -256,12 +256,12 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
       }
 
       // --- Envoi global ---
-      const updateRes = await updateClientData(updated);
+      const updateRes = await updateGrimpeurData(updated);
       if (!updateRes.success) return toast.error(updateRes.message);
 
       setFormData(updated); // on met à jour le state local pour affichage
-      toast.success("Client mis à jour avec succès !");
-      onClientUpdated?.();
+      toast.success("Grimpeur mis à jour avec succès !");
+      onGrimpeurUpdated?.();
       onCancel?.();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
@@ -301,16 +301,16 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
         return toast.error(transRes.message);;
       }
 
-      const updatedClient = {
+      const updatedGrimpeur = {
         ...formData,
         DateFinAbo: dateFin,
         AboId: abo.IdAbo,
         TypeAbo: abo.TypeAbo,
       };
-      const updateRes = await updateClientData(updatedClient);
+      const updateRes = await updateGrimpeurData(updatedGrimpeur);
       if (!updateRes.success) return toast.error(updateRes.message);
 
-      setFormData(updatedClient);
+      setFormData(updatedGrimpeur);
       setNewAbo("");
       setNewAboDate("");
       toast.success("Nouvel abonnement ajouté !");
@@ -341,16 +341,16 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
       });
       if (!transRes.success) return toast.error(transRes.message);
 
-      const updatedClient = {
+      const updatedGrimpeur = {
         ...formData,
         TicketId: ticket.IdTicket,
         TypeTicket: ticket.TypeTicket,
         NbSeanceRest: (formData.NbSeanceRest || 0 ) + nbRest,
       };
-      const updateRes = await updateClientData(updatedClient);
+      const updateRes = await updateGrimpeurData(updatedGrimpeur);
       if (!updateRes.success) return toast.error(updateRes.message);
 
-      setFormData(updatedClient);
+      setFormData(updatedGrimpeur);
       setNewTicket("");
       setNewTicketSeances(0);
       toast.success("Nouveau ticket ajouté !");
@@ -411,7 +411,7 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
   return (
   <div className="h-full flex flex-col">
     <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
-      Modifier : {clientInfo.PrenomGrimpeur} {clientInfo.NomGrimpeur}
+      Modifier : {grimpeurInfo.PrenomGrimpeur} {grimpeurInfo.NomGrimpeur}
     </h2>
 
     <form onSubmit={handleSubmit} className="flex flex-col gap-8 flex-1 pb-15">
@@ -420,7 +420,7 @@ export default function ClientEdit({ numClient, onCancel, onClientUpdated }: Cli
         <section className="border border-black rounded-xl p-5 bg-gray-50 flex flex-col gap-4">
           <h3 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Informations générales</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            <InputField label="Numéro de Grimpeur" value={clientInfo.NumGrimpeur} onChange={() => {}} readOnly />
+            <InputField label="Numéro de Grimpeur" value={grimpeurInfo.NumGrimpeur} onChange={() => {}} readOnly />
             <InputField label="Prénom" value={formData.PrenomGrimpeur} onChange={(v) => handleChange("PrenomGrimpeur", v)} />
             <InputField label="Nom" value={formData.NomGrimpeur} onChange={(v) => handleChange("NomGrimpeur", v)} />
             <InputField label="Date de naissance" type="date" value={formData.DateNaissGrimpeur || ""} onChange={(v) => handleChange("DateNaissGrimpeur", v)} />

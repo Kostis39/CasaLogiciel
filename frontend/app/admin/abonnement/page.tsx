@@ -21,7 +21,7 @@ import {
 import { toast } from 'react-toastify';
 import { Abonnement } from '@/src/types&fields/types';
 import { Card } from '@/src/components/ui/card';
-import LoadingSpinner from '@/src/components/client_ui/LoadingSpinner';
+import LoadingSpinner from '@/src/components/grimpeur_ui/LoadingSpinner';
 
 const TOAST_MESSAGES = {
   DELETE_SUCCESS: 'Abonnement supprimé avec succès',

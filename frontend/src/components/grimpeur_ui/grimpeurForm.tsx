@@ -24,15 +24,15 @@ import {
 } from "@/src/components/ui/select";
 import { Switch } from "@/src/components/ui/switch";
 import { Textarea } from "@/src/components/ui/textarea";
-import { Abonnement, ClientForm, Club, Ticket } from "@/src/types&fields/types";
-import { fetchAbonnements, fetchClubs, fetchTickets, getStatutVoieBg, postClientData, postTransaction, updateGrimpeurSignature } from "@/src/services/api";
+import { Abonnement, GrimpeurForm, Club, Ticket } from "@/src/types&fields/types";
+import { fetchAbonnements, fetchClubs, fetchTickets, getStatutVoieBg, postGrimpeurData, postTransaction, updateGrimpeurSignature } from "@/src/services/api";
 import SignaturePad from "signature_pad";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { ConfirmButton } from "./buttonConfirm";
 
 export function DraftForm() {
-  const form = useForm<ClientForm>({
+  const form = useForm<GrimpeurForm>({
     defaultValues: {
       NomGrimpeur: "",
       PrenomGrimpeur: "",
@@ -149,7 +149,7 @@ export function DraftForm() {
     }
   }, [form.watch("NumLicenceGrimpeur"), form]);
 
-  const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
+  const handleSubmit = form.handleSubmit(async (data: GrimpeurForm) => {
     setIsSubmitting(true);
     try {
       const selectedClub = data.ClubId ? clubs.find(c => c.IdClub === data.ClubId) : null;
@@ -164,7 +164,7 @@ export function DraftForm() {
         toast.error("Veuillez signer avant de créer le grimpeur !");
         return;
       }
-      const result = await postClientData(data);
+      const result = await postGrimpeurData(data);
       if (!result.success || !result.data) {
         toast.error(result.message+"");
         return;
@@ -240,7 +240,7 @@ export function DraftForm() {
     handleClearSignature();
 
   } catch (err) {
-    const message = (err as Error)?.message ?? "Erreur lors de la création du client";
+    const message = (err as Error)?.message ?? "Erreur lors de la création du grimpeur";
     toast.error(message);
   } finally {
     setIsSubmitting(false);
@@ -286,7 +286,7 @@ export function DraftForm() {
           </motion.div>
 
           <h2 className="text-center text-2xl font-bold mb-2">
-            Client enregistré ✅
+            Grimpeur enregistré ✅
           </h2>
           <p className="text-center text-lg text-muted-foreground mb-6">
             Le formulaire a bien été soumis.
@@ -294,7 +294,7 @@ export function DraftForm() {
 
       <div className="flex justify-center gap-4">
           <Link
-            href={`/client?query=${createdGrimpeurId}&id=${createdGrimpeurId}`}
+            href={`/grimpeur?query=${createdGrimpeurId}&id=${createdGrimpeurId}`}
             className={`${buttonVariants({variant: "default" })}`}
           >
             Voir le profil du grimpeur
@@ -309,7 +309,7 @@ export function DraftForm() {
               setCreatedGrimpeurId(null);
             }}
           >
-            Ajouter un autre client
+            Ajouter un autre grimpeur
           </Button>
       </div>
         </motion.div>

@@ -5,7 +5,7 @@ import Image from "next/image";
 import clsx from "clsx";
 import { getStatutVoieBg } from "@/src/services/api";
 
-export function ClientCard(
+export function GrimpeurCard(
   { prenom, nom, num, statutVoie }: { prenom: string, nom: string, num: number, statutVoie: number | undefined }
 ) {
   const searchParams = useSearchParams();

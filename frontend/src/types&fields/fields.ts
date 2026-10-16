@@ -1,13 +1,13 @@
 import { formatDate } from "../lib/utils";
-import { Client } from "./types";
+import { Grimpeur } from "./types";
 
-type ClientField<K extends keyof Client = keyof Client> = {
+type GrimpeurField<K extends keyof Grimpeur = keyof Grimpeur> = {
   label: string;
   key: K;
-  format?: (v: Client[K]) => string;
+  format?: (v: Grimpeur[K]) => string;
 };
 
-export const clientFields: ClientField[] = [
+export const grimpeurFields: GrimpeurField[] = [
   { label: "Nom", key: "NomGrimpeur" },
   { label: "Prénom", key: "PrenomGrimpeur" },
   { 

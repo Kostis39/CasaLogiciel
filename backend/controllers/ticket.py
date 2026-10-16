@@ -1,6 +1,6 @@
 from flask import request, g
 from flask_restful import Resource
-from models import Clients
+from models import Grimpeurs
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,8 +15,8 @@ class Tickets(Resource):
             limit = min(limit, 100)
             offset = max(offset, 0)
             
-            query = g.db_session.query(Clients.Ticket).order_by(
-                Clients.Ticket.IdTicket.desc()
+            query = g.db_session.query(Grimpeurs.Ticket).order_by(
+                Grimpeurs.Ticket.IdTicket.desc()
             )
             total = query.count()
             tickets = query.offset(offset).limit(limit).all()
@@ -36,7 +36,7 @@ class Tickets(Resource):
             if json is None:
                 return {"message": "No JSON data provided"}, 400
 
-            nouveau_ticket = Clients.Ticket()
+            nouveau_ticket = Grimpeurs.Ticket()
             for key, value in json.items():
                 if value is not None and hasattr(nouveau_ticket, key):
                     setattr(nouveau_ticket, key, value)
@@ -55,7 +55,7 @@ class Ticket(Resource):
     def get(self, id):
         """Get a single ticket by ID"""
         try:
-            ticket = g.db_session.query(Clients.Ticket).filter_by(IdTicket=id).first()
+            ticket = g.db_session.query(Grimpeurs.Ticket).filter_by(IdTicket=id).first()
             if not ticket:
                 return {"message": "Ticket not found"}, 404
             return ticket.to_dict(), 200
@@ -70,7 +70,7 @@ class Ticket(Resource):
             if not json_data:
                 return {"message": "No input data provided"}, 400
 
-            ticket = g.db_session.query(Clients.Ticket).filter_by(IdTicket=id).first()
+            ticket = g.db_session.query(Grimpeurs.Ticket).filter_by(IdTicket=id).first()
             if not ticket:
                 return {"message": "Ticket not found"}, 404
 
@@ -88,15 +88,15 @@ class Ticket(Resource):
     def delete(self, id):
         """Delete a ticket (with integrity checks)"""
         try:
-            ticket = g.db_session.query(Clients.Ticket).filter_by(IdTicket=id).first()
+            ticket = g.db_session.query(Grimpeurs.Ticket).filter_by(IdTicket=id).first()
             if not ticket:
                 return {"message": "Ticket not found"}, 404
 
             # Check if used in transactions
-            transaction_first = g.db_session.query(Clients.Transaction).filter_by(
+            transaction_first = g.db_session.query(Grimpeurs.Transaction).filter_by(
                 TypeObjet="ticket", IdObjet=id
             ).first()
-            transaction_count = g.db_session.query(Clients.Transaction).filter_by(
+            transaction_count = g.db_session.query(Grimpeurs.Transaction).filter_by(
                 TypeObjet="ticket", IdObjet=id
             ).count()
 
@@ -106,8 +106,8 @@ class Ticket(Resource):
                 }, 400
 
             # Check if assigned to grimpeurs
-            grimpeur_first = g.db_session.query(Clients.Grimpeur).filter_by(TicketId=id).first()
-            grimpeur_count = g.db_session.query(Clients.Grimpeur).filter_by(TicketId=id).count()
+            grimpeur_first = g.db_session.query(Grimpeurs.Grimpeur).filter_by(TicketId=id).first()
+            grimpeur_count = g.db_session.query(Grimpeurs.Grimpeur).filter_by(TicketId=id).count()
 
             if grimpeur_first:
                 return {
@@ -115,8 +115,8 @@ class Ticket(Resource):
                 }, 400
 
             # Check if used in seances
-            seance_first = g.db_session.query(Clients.Seance).filter_by(TicketId=id).first()
-            seance_count = g.db_session.query(Clients.Seance).filter_by(TicketId=id).count()
+            seance_first = g.db_session.query(Grimpeurs.Seance).filter_by(TicketId=id).first()
+            seance_count = g.db_session.query(Grimpeurs.Seance).filter_by(TicketId=id).count()
 
             if seance_first:
                 return {

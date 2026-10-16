@@ -5,7 +5,7 @@ import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import { SidebarGroup, SidebarGroupContent, SidebarInput } from "../ui/sidebar";
 
-const SearchClient = () => {
+const SearchGrimpeur = () => {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
@@ -49,4 +49,4 @@ const SearchClient = () => {
   );
 }
 
-export default SearchClient
+export default SearchGrimpeur

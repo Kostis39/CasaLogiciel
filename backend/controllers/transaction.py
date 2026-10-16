@@ -1,6 +1,6 @@
 from flask import request, g
 from flask_restful import Resource
-from models import Clients
+from models import Grimpeurs
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,8 +15,8 @@ class Transactions(Resource):
             limit = min(limit, 100)
             offset = max(offset, 0)
 
-            query = g.db_session.query(Clients.Transaction).order_by(
-                Clients.Transaction.IdTransac.desc()
+            query = g.db_session.query(Grimpeurs.Transaction).order_by(
+                Grimpeurs.Transaction.IdTransac.desc()
             )
             total = query.count()
             transactions = query.offset(offset).limit(limit).all()
@@ -36,7 +36,7 @@ class Transactions(Resource):
             if not json:
                 return {"message": "Aucune donnée JSON fournie."}, 400
 
-            nouvelle_transac = Clients.Transaction()
+            nouvelle_transac = Grimpeurs.Transaction()
             for key, value in json.items():
                 if value is not None and hasattr(nouvelle_transac, key):
                     setattr(nouvelle_transac, key, value)
@@ -59,7 +59,7 @@ class TransactionById(Resource):
     def get(self, id_transac):
         """Get a specific transaction by ID"""
         try:
-            transac = g.db_session.query(Clients.Transaction).filter_by(
+            transac = g.db_session.query(Grimpeurs.Transaction).filter_by(
                 IdTransac=id_transac
             ).first()
             if not transac:
@@ -72,7 +72,7 @@ class TransactionById(Resource):
     def delete(self, id_transac):
         """Delete a specific transaction"""
         try:
-            transac = g.db_session.query(Clients.Transaction).filter_by(
+            transac = g.db_session.query(Grimpeurs.Transaction).filter_by(
                 IdTransac=id_transac
             ).first()
             if not transac:
@@ -97,9 +97,9 @@ class TransactionsByGrimpeur(Resource):
             limit = min(limit, 100)
             offset = max(offset, 0)
 
-            query = g.db_session.query(Clients.Transaction).filter_by(
+            query = g.db_session.query(Grimpeurs.Transaction).filter_by(
                 NumGrimpeur=num_grimpeur
-            ).order_by(Clients.Transaction.IdTransac.desc())
+            ).order_by(Grimpeurs.Transaction.IdTransac.desc())
             total = query.count()
             transactions = query.offset(offset).limit(limit).all()
 
@@ -122,9 +122,9 @@ class TransactionsByDate(Resource):
             limit = min(limit, 100)
             offset = max(offset, 0)
 
-            query = g.db_session.query(Clients.Transaction).filter_by(
+            query = g.db_session.query(Grimpeurs.Transaction).filter_by(
                 DateTransac=date_str
-            ).order_by(Clients.Transaction.IdTransac.desc())
+            ).order_by(Grimpeurs.Transaction.IdTransac.desc())
             total = query.count()
             transactions = query.offset(offset).limit(limit).all()
 

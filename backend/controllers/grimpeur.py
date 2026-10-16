@@ -1,6 +1,6 @@
 from flask import request, g
 from flask_restful import Resource
-from models import Clients, Groupes
+from models import Grimpeurs, Groupes
 from datetime import date
 import base64
 import os
@@ -47,7 +47,7 @@ def validate_grimpeur_data(data):
     for key, value in data.items():
         if key in ALLOWED_FIELDS and isinstance(value, str):
             try:
-                col = getattr(Clients.Grimpeur, key)
+                col = getattr(Grimpeurs.Grimpeur, key)
                 if hasattr(col.type, "length") and col.type.length:
                     max_len = col.type.length
                     if len(value) > max_len:
@@ -70,8 +70,8 @@ class GrimpeursListe(Resource):
             offset = max(offset, 0)
 
             # Use request-scoped session from app context (from api.py)
-            query = g.db_session.query(Clients.Grimpeur).order_by(
-                Clients.Grimpeur.NumGrimpeur.desc()
+            query = g.db_session.query(Grimpeurs.Grimpeur).order_by(
+                Grimpeurs.Grimpeur.NumGrimpeur.desc()
             )
             total = query.count()
             grimpeurs = query.offset(offset).limit(limit).all()
@@ -108,7 +108,7 @@ class GrimpeursListe(Resource):
                     }, 400
 
             # Create new grimpeur
-            nouv_grimp = Clients.Grimpeur()
+            nouv_grimp = Grimpeurs.Grimpeur()
             for key, value in json_data.items():
                 if key in ALLOWED_FIELDS and value is not None:
                     setattr(nouv_grimp, key, value)
@@ -131,7 +131,7 @@ class Grimpeur(Resource):
     def get(self, id):
         """Get a single grimpeur by ID"""
         try:
-            grimpeur = g.db_session.query(Clients.Grimpeur).filter_by(
+            grimpeur = g.db_session.query(Grimpeurs.Grimpeur).filter_by(
                 NumGrimpeur=id
             ).first()
             if not grimpeur:
@@ -148,7 +148,7 @@ class Grimpeur(Resource):
             if not json_data:
                 return {"message": "Aucune donnée fournie"}, 400
             
-            grimpeur = g.db_session.query(Clients.Grimpeur).filter_by(
+            grimpeur = g.db_session.query(Grimpeurs.Grimpeur).filter_by(
                 NumGrimpeur=id
             ).first()
             if not grimpeur:
@@ -192,7 +192,7 @@ class Grimpeur(Resource):
     def delete(self, id):
         """Delete a grimpeur"""
         try:
-            grimpeur = g.db_session.query(Clients.Grimpeur).filter_by(
+            grimpeur = g.db_session.query(Grimpeurs.Grimpeur).filter_by(
                 NumGrimpeur=id
             ).first()
             if not grimpeur:
@@ -228,7 +228,7 @@ class GrimpeurAccords(Resource):
             filepath = os.path.join(signaturePath, filename)
 
             # Get grimpeur
-            grimpeur = g.db_session.query(Clients.Grimpeur).filter_by(
+            grimpeur = g.db_session.query(Grimpeurs.Grimpeur).filter_by(
                 NumGrimpeur=id
             ).first()
             if not grimpeur:
@@ -292,29 +292,29 @@ class GrimpeurSearch(Resource):
             conditions = []
             for token in tokens:
                 subconds = [
-                    Clients.Grimpeur.NomGrimpeur.ilike(f"%{token}%"),
-                    Clients.Grimpeur.PrenomGrimpeur.ilike(f"%{token}%"),
+                    Grimpeurs.Grimpeur.NomGrimpeur.ilike(f"%{token}%"),
+                    Grimpeurs.Grimpeur.PrenomGrimpeur.ilike(f"%{token}%"),
                     Groupes.Club.NomClub.ilike(f"%{token}%"),
                 ]
 
                 # If numeric, search by NumGrimpeur too
                 if token.isdigit():
                     subconds.append(
-                        cast(Clients.Grimpeur.NumGrimpeur, String).startswith(token)
+                        cast(Grimpeurs.Grimpeur.NumGrimpeur, String).startswith(token)
                     )
 
                 conditions.append(or_(*subconds))
 
             # Execute query
             grimpeurs = (
-                g.db_session.query(Clients.Grimpeur)
+                g.db_session.query(Grimpeurs.Grimpeur)
                 .join(
                     Groupes.Club,
-                    Clients.Grimpeur.ClubId == Groupes.Club.IdClub,
+                    Grimpeurs.Grimpeur.ClubId == Groupes.Club.IdClub,
                     isouter=True
                 )
                 .filter(and_(*conditions))
-                .order_by(Clients.Grimpeur.NumGrimpeur.desc())
+                .order_by(Grimpeurs.Grimpeur.NumGrimpeur.desc())
             )
 
             total = grimpeurs.count()
@@ -332,7 +332,7 @@ class GrimpeurPuyDeDome(Resource):
     def get(self, id):
         """Check if grimpeur's club is in Puy-de-Dôme"""
         try:
-            grimpeur = g.db_session.query(Clients.Grimpeur).filter_by(
+            grimpeur = g.db_session.query(Grimpeurs.Grimpeur).filter_by(
                 NumGrimpeur=id
             ).first()
             if not grimpeur:

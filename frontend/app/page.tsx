@@ -10,8 +10,8 @@ export default function Home() {
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-background">
       <h1 className="text-6xl font-extrabold tracking-tight text-primary mb-10">Casamur</h1>
       <div className="grid grid-cols-2 grid-rows-2 gap-5">
-        <Link href="/client" className={buttonVariants({ size: "big", variant: "outline" })}>
-          Client
+        <Link href="/grimpeur" className={buttonVariants({ size: "big", variant: "outline" })}>
+          Grimpeur
         </Link>
         <Link href="/admin" className={buttonVariants({ size: "big", variant: "outline" })}>
           Administrateur

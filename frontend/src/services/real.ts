@@ -1,5 +1,5 @@
 import { getTodayPlusOneYear, isDateValid } from "./api";
-import { Client, ApiResponse, TransactionForm, ClientForm, Transaction, ClubForm, Abonnement, Ticket, Club, responsePostClientSignature } from "../types&fields/types";
+import { Grimpeur, ApiResponse, TransactionForm, GrimpeurForm, Transaction, ClubForm, Abonnement, Ticket, Club, responsePostGrimpeurSignature } from "../types&fields/types";
 export let API_URL: string | undefined;
 if (process.env.NEXT_PUBLIC_ENV == "prod" && process.env.NEXT_PUBLIC_API_URL_PROD) {
     API_URL = process.env.NEXT_PUBLIC_API_URL_PROD;
@@ -20,7 +20,7 @@ export const realService = {
 
             return { success: true, message: "Ticket récupéré", data };
         } catch (error) {
-            console.error("Erreur fetch clientById:", error);
+            console.error("Erreur fetch grimpeurById:", error);
             if (error instanceof TypeError) {
                 return {success: false, message: `Impossible de contacter le serveur ${API_URL}`};
             }
@@ -54,7 +54,7 @@ export const realService = {
     },
 
 //----------------------------------- Fetchers -----------------------------------
-    fetchClientById: async (id: number) : Promise<ApiResponse<Client>> => {
+    fetchGrimpeurById: async (id: number) : Promise<ApiResponse<Grimpeur>> => {
         try {
             const response = await fetch(`${API_URL}/grimpeurs/${id}`);
             const data = await response.json();
@@ -64,7 +64,7 @@ export const realService = {
             }
             return { success: true, message: "Grimpeur récupéré", data: data };
         } catch (error) {
-            console.error("Erreur fecth clientById:", error);
+            console.error("Erreur fecth grimpeurById:", error);
             if (error instanceof TypeError) {
                 return {success: false, message: `Impossible de contacter le serveur ${API_URL}`};
             }
@@ -75,7 +75,7 @@ export const realService = {
         }
     },
 
-    fetchClientSearch: async (query: string, limit: number, offset: number): Promise<ApiResponse<Client[]>> => {
+    fetchGrimpeurSearch: async (query: string, limit: number, offset: number): Promise<ApiResponse<Grimpeur[]>> => {
         try {
             const params = new URLSearchParams({
                 query,
@@ -102,7 +102,7 @@ export const realService = {
         }
     },
 
-    fetchClients: async (limit: number, offset: number): Promise<ApiResponse<Client[]>> => {
+    fetchGrimpeurs: async (limit: number, offset: number): Promise<ApiResponse<Grimpeur[]>> => {
         try {
             const response = await fetch(`${API_URL}/grimpeurs?limit=${limit}&offset=${offset}`, {
                 cache: "no-store",
@@ -179,7 +179,7 @@ export const realService = {
     },
 
 //----------------------------------- Posters -----------------------------------
-    postSeanceClient: async (id: number): Promise<ApiResponse> => {
+    postSeanceGrimpeur: async (id: number): Promise<ApiResponse> => {
         try {
             const body = { NumGrimpeur: id };
             const response = await fetch(`${API_URL}/seances`, {
@@ -195,7 +195,7 @@ export const realService = {
 
             return {success: true, message: data.message || "Séance créée"};
         } catch (error) {
-            console.error("Erreur post client:", error);
+            console.error("Erreur post grimpeur:", error);
             if (error instanceof TypeError) {
                 return {success: false, message: `Impossible de contacter le serveur ${API_URL}`};
             }
@@ -266,7 +266,7 @@ export const realService = {
         }
     },
 
-    postClientData: async (data: ClientForm): Promise<ApiResponse<Client>> => {
+    postGrimpeurData: async (data: GrimpeurForm): Promise<ApiResponse<Grimpeur>> => {
         try {
             // Copie des données sans TypeAbo ni TypeTicket
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -285,11 +285,11 @@ export const realService = {
 
             return {
                 success: true,
-                message: json.message || "Client ajouté avec succès",
+                message: json.message || "Grimpeur ajouté avec succès",
                 data: json.grimpeur,
             };
         } catch (error) {
-            console.error("Erreur post clientData:", error);
+            console.error("Erreur post grimpeurData:", error);
             if (error instanceof TypeError) {
                 return {success: false, message: `Impossible de contacter le serveur ${API_URL}`};
             }
@@ -430,19 +430,19 @@ export const realService = {
         }
     },
 
-    updateCotisationClient: async (client: Client): Promise<ApiResponse> => {
+    updateCotisationGrimpeur: async (grimpeur: Grimpeur): Promise<ApiResponse> => {
         try {
-            const newClient = { ...client };
-            if (isDateValid(newClient.DateFinCoti)) {
-                newClient.DateFinCoti = null;
+            const newGrimpeur = { ...grimpeur };
+            if (isDateValid(newGrimpeur.DateFinCoti)) {
+                newGrimpeur.DateFinCoti = null;
             } else {
-                newClient.DateFinCoti = getTodayPlusOneYear();
+                newGrimpeur.DateFinCoti = getTodayPlusOneYear();
             }
 
-            const response = await fetch(`${API_URL}/grimpeurs/${client.NumGrimpeur}`, {
+            const response = await fetch(`${API_URL}/grimpeurs/${grimpeur.NumGrimpeur}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newClient),
+                body: JSON.stringify(newGrimpeur),
             });
             const data = await response.json();
             if (!response.ok) {
@@ -452,7 +452,7 @@ export const realService = {
 
             return { success: true, message: "Cotisation mise à jour", data };
         } catch (error) {
-            console.error("Erreur update cotisation client:", error);
+            console.error("Erreur update cotisation grimpeur:", error);
             if (error instanceof TypeError) {
                 return {success: false, message: `Impossible de contacter le serveur ${API_URL}`};
             }
@@ -467,7 +467,7 @@ export const realService = {
         id: number,
         signatureBase64: string,
         accordParental?: boolean
-    ): Promise<ApiResponse<responsePostClientSignature>> => {
+    ): Promise<ApiResponse<responsePostGrimpeurSignature>> => {
         try {
             const params: Record<string, string> = {};
             if (accordParental !== undefined) params["AccordParental"] = String(accordParental);
@@ -496,12 +496,12 @@ export const realService = {
         }
     },
 
-    updateClientData: async (client: Client): Promise<ApiResponse<Client>> => {
+    updateGrimpeurData: async (grimpeur: Grimpeur): Promise<ApiResponse<Grimpeur>> => {
         try {
-            const response = await fetch(`${API_URL}/grimpeurs/${client.NumGrimpeur}`, {
+            const response = await fetch(`${API_URL}/grimpeurs/${grimpeur.NumGrimpeur}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(client),
+                body: JSON.stringify(grimpeur),
             });
             const data = await response.json();
             if (!response.ok) {
@@ -509,9 +509,9 @@ export const realService = {
                 return {success: false, message: `${data.message || "Erreur serveur: " + response.status}`};
             }
 
-            return { success: true, message: data.message || "Client mis à jour", data: data.grimpeur };
+            return { success: true, message: data.message || "Grimpeur mis à jour", data: data.grimpeur };
         } catch (error) {
-            console.error("Erreur update client data:", error);
+            console.error("Erreur update grimpeur data:", error);
             if (error instanceof TypeError) {
                 return {success: false, message: `Impossible de contacter le serveur ${API_URL}`};
             }

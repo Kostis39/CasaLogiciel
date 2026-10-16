@@ -15,7 +15,7 @@ import { Card } from '@/src/components/ui/card';
 import { Club } from '@/src/types&fields/types';
 import { deleteClub, fetchClubs, postClub, updateClub } from '@/src/services/api';
 import { toast } from 'react-toastify';
-import LoadingSpinner from '@/src/components/client_ui/LoadingSpinner';
+import LoadingSpinner from '@/src/components/grimpeur_ui/LoadingSpinner';
 import { Switch } from '@/src/components/ui/switch';
 
 const TOAST_MESSAGES = {

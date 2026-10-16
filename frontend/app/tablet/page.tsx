@@ -21,14 +21,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/src/components/ui/select";
-import { ClientForm, Club } from "@/src/types&fields/types";
-import { fetchClubs, postClientData, updateGrimpeurSignature } from "@/src/services/api";
+import { GrimpeurForm, Club } from "@/src/types&fields/types";
+import { fetchClubs, postGrimpeurData, updateGrimpeurSignature } from "@/src/services/api";
 import SignaturePad from "signature_pad";
 import { toast } from "react-toastify";
-import { ConfirmButton } from "@/src/components/client_ui/buttonConfirm";
+import { ConfirmButton } from "@/src/components/grimpeur_ui/buttonConfirm";
 
 export default function DraftForm() {
-  const form = useForm<ClientForm>({
+  const form = useForm<GrimpeurForm>({
     defaultValues: {
       NomGrimpeur: "",
       PrenomGrimpeur: "",
@@ -137,14 +137,14 @@ export default function DraftForm() {
     loadData();
   }, []);
 
-  const handleSubmit = form.handleSubmit(async (data: ClientForm) => {
+  const handleSubmit = form.handleSubmit(async (data: GrimpeurForm) => {
     setIsSubmitting(true);
     try {
       if (padRef.current?.isEmpty()) {
         toast.error("Veuillez signer avant de créer le grimpeur !");
         return;
       }
-      const result = await postClientData(data);
+      const result = await postGrimpeurData(data);
       if (!result.success || !result.data) {
         toast.error(result.message + "");
         return;

@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { updateGrimpeurSignature } from "@/src/services/api";
 
 export default function TestSignature() {
-  const numClient = 1052; // exemple de numéro de client
+  const numGrimpeur = 1052; // exemple de numéro de grimpeur
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const padRef = useRef<SignaturePad | null>(null);
   const [isEmpty, setIsEmpty] = useState<boolean>(true);
@@ -22,7 +22,7 @@ export default function TestSignature() {
     setIsUpdatingSignature(true);
     try {
       const res = await updateGrimpeurSignature(
-        numClient,
+        numGrimpeur,
         signatureBase64,
         false
       );

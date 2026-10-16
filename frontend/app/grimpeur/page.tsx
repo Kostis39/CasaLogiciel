@@ -1,10 +1,10 @@
-import ClientPage from "@/src/components/client_ui/clientPage";
+import GrimpeurPage from "@/src/components/grimpeur_ui/grimpeurPage";
 import { Suspense } from "react";
 
 export default function Page() {
   return (
     <Suspense>
-      <ClientPage />
+      <GrimpeurPage />
     </Suspense>
   );
 }

@@ -1,4 +1,4 @@
-import { Abonnement, ApiResponse, Client, ClientForm, Club, ClubForm, Ticket, Transaction, TransactionForm } from "../types&fields/types";
+import { Abonnement, ApiResponse, Grimpeur, GrimpeurForm, Club, ClubForm, Ticket, Transaction, TransactionForm } from "../types&fields/types";
 import { getTodayPlusOneYear, isDateValid, haveDateJSON } from "./api";
 
 export const mockService = {
@@ -30,10 +30,10 @@ export const mockService = {
         };
     },
 
-    fetchClientById: async (id: number): Promise<ApiResponse<Client>> => {
+    fetchGrimpeurById: async (id: number): Promise<ApiResponse<Grimpeur>> => {
         await new Promise((resolve) => setTimeout(resolve, 100));
         
-        const clients: Record<number, Client> = {
+        const grimpeurs: Record<number, Grimpeur> = {
             1: {
                 CodePostGrimpeur: 38000,
                 NumGrimpeur: 1,
@@ -54,7 +54,7 @@ export const mockService = {
                 DateFinCoti: "2026-10-30",
                 TypeAbo: null,
                 StatutVoie: 1,
-            } as Client,
+            } as Grimpeur,
             2: {
                 CodePostGrimpeur: 75015,
                 NumGrimpeur: 2,
@@ -75,7 +75,7 @@ export const mockService = {
                 DateFinCoti: "2025-11-05",
                 TypeAbo: null,
                 StatutVoie: 2,
-            } as Client,
+            } as Grimpeur,
             3: {
                 CodePostGrimpeur: 69007,
                 NumGrimpeur: 3,
@@ -96,40 +96,40 @@ export const mockService = {
                 DateFinCoti: "2025-12-12",
                 TypeAbo: "Mensuel",
                 StatutVoie: 3,
-            } as Client,
+            } as Grimpeur,
         };
 
-        const client = clients[id];
+        const grimpeur = grimpeurs[id];
         
-        if (client) {
+        if (grimpeur) {
             return {
                 success: true,
-                message: "Mock client trouvé",
-                data: client
+                message: "Mock grimpeur trouvé",
+                data: grimpeur
             };
         }
 
         return {
             success: false,
-            message: "Client non trouvé",
-            data: null as unknown as Client
+            message: "Grimpeur non trouvé",
+            data: null as unknown as Grimpeur
         };
     },
 
-    fetchClientSearch: async (
+    fetchGrimpeurSearch: async (
     query: string,
     limit = 20,
     offset = 0
-    ): Promise<ApiResponse<Client[]>> => {
+    ): Promise<ApiResponse<Grimpeur[]>> => {
     console.log(query, limit, offset);
     return { success: true, message: "Mock search", data: [], total: 0 };
     },
 
 
-    fetchClients: async (limit: number, offset: number): Promise<ApiResponse<Client[]>> => {
+    fetchGrimpeurs: async (limit: number, offset: number): Promise<ApiResponse<Grimpeur[]>> => {
         await new Promise((resolve) => setTimeout(resolve, 150)); // simule délai
         const TOTAL = 100; // total fictif
-        const generated: Client[] = [];
+        const generated: Grimpeur[] = [];
 
         for (let i = 1; i <= TOTAL; i++) {
         generated.push({
@@ -154,7 +154,7 @@ export const mockService = {
 
         const data = generated.slice(offset, offset + limit);
 
-        return { success: true, message: "Mock clients", data, total: TOTAL };
+        return { success: true, message: "Mock grimpeurs", data, total: TOTAL };
     },
 
     fetchAbonnements: async (): Promise<ApiResponse<Abonnement[]>> => {
@@ -186,7 +186,7 @@ export const mockService = {
     },
 
 //----------------------------------- Posters -----------------------------------
-    postSeanceClient: async (id: number) => {
+    postSeanceGrimpeur: async (id: number) => {
         const date = haveDateJSON();
         const body = {
             NumGrimpeur: id,
@@ -221,13 +221,13 @@ export const mockService = {
         return {success: true, message: `Mock: ${JSON.stringify(produitData)}`};
     },
 
-    postClientData: async (data: ClientForm): Promise<ApiResponse<Client>> => {
-        console.log("MOCK postClientData:", data);
+    postGrimpeurData: async (data: GrimpeurForm): Promise<ApiResponse<Grimpeur>> => {
+        console.log("MOCK postGrimpeurData:", data);
         return new Promise((resolve) => {
         setTimeout(() => {
             resolve({
             success: true,
-            message: "Client ajouté avec succès (mock)",
+            message: "Grimpeur ajouté avec succès (mock)",
             data: {
             ...data,
             NumGrimpeur: Math.floor(Math.random() * 1000) + 1,
@@ -280,10 +280,10 @@ export const mockService = {
         return {success: true, message: `Mock: ${JSON.stringify(produitData)}`};
     },
 
-    updateCotisationClient: async (client: Client) =>{
-        const newClient = client;
-        newClient.DateFinCoti = isDateValid(newClient.DateFinCoti) ? null : getTodayPlusOneYear();
-        return {success: true, message: `Mock: ${JSON.stringify(newClient.DateFinCoti)}`};
+    updateCotisationGrimpeur: async (grimpeur: Grimpeur) =>{
+        const newGrimpeur = grimpeur;
+        newGrimpeur.DateFinCoti = isDateValid(newGrimpeur.DateFinCoti) ? null : getTodayPlusOneYear();
+        return {success: true, message: `Mock: ${JSON.stringify(newGrimpeur.DateFinCoti)}`};
     },
 
     updateGrimpeurSignature: async (
@@ -299,11 +299,11 @@ export const mockService = {
         };
     },
 
-    updateClientData: async (client: Client): Promise<ApiResponse> => {
+    updateGrimpeurData: async (grimpeur: Grimpeur): Promise<ApiResponse> => {
         return {
             success: true,
-            message: `Mock: Données du client mises à jour avec succès`,
-            data: { ...client, NumGrimpeur: client.NumGrimpeur},
+            message: `Mock: Données du grimpeur mises à jour avec succès`,
+            data: { ...grimpeur, NumGrimpeur: grimpeur.NumGrimpeur},
         };
     },
 
@@ -330,7 +330,7 @@ export const mockService = {
     },
 
     deleteSeance: async (NumGrimpeur: number) => {
-        return { success: true, message: `Mock: Seance supprimée pour le client ${NumGrimpeur}` };
+        return { success: true, message: `Mock: Seance supprimée pour le grimpeur ${NumGrimpeur}` };
     },
 
 //----------------------------------- Others -----------------------------------

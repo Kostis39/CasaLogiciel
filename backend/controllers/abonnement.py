@@ -1,6 +1,6 @@
 from flask import request, g
 from flask_restful import Resource
-from models import Clients
+from models import Grimpeurs
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,8 +15,8 @@ class Abonnements(Resource):
             limit = min(limit, 100)
             offset = max(offset, 0)
             
-            query = g.db_session.query(Clients.Abonnement).order_by(
-                Clients.Abonnement.IdAbo.desc()
+            query = g.db_session.query(Grimpeurs.Abonnement).order_by(
+                Grimpeurs.Abonnement.IdAbo.desc()
             )
             total = query.count()
             abos = query.offset(offset).limit(limit).all()
@@ -36,7 +36,7 @@ class Abonnements(Resource):
             if json is None:
                 return {"message": "No JSON data provided"}, 400
 
-            nouvel_abo = Clients.Abonnement()
+            nouvel_abo = Grimpeurs.Abonnement()
             for key, value in json.items():
                 if value is not None and hasattr(nouvel_abo, key):
                     setattr(nouvel_abo, key, value)
@@ -56,7 +56,7 @@ class Abonnement(Resource):
     def get(self, id):
         """Get a single abonnement by ID"""
         try:
-            abo = g.db_session.query(Clients.Abonnement).filter_by(IdAbo=id).first()
+            abo = g.db_session.query(Grimpeurs.Abonnement).filter_by(IdAbo=id).first()
             if not abo:
                 return {"message": "Abonnement not found"}, 404
             return abo.to_dict(), 200
@@ -71,7 +71,7 @@ class Abonnement(Resource):
             if not json_data:
                 return {"message": "No input data provided"}, 400
 
-            abo = g.db_session.query(Clients.Abonnement).filter_by(IdAbo=id).first()
+            abo = g.db_session.query(Grimpeurs.Abonnement).filter_by(IdAbo=id).first()
             if not abo:
                 return {"message": "Abonnement not found"}, 404
 
@@ -89,15 +89,15 @@ class Abonnement(Resource):
     def delete(self, id):
         """Delete an abonnement (with integrity checks)"""
         try:
-            abo = g.db_session.query(Clients.Abonnement).filter_by(IdAbo=id).first()
+            abo = g.db_session.query(Grimpeurs.Abonnement).filter_by(IdAbo=id).first()
             if not abo:
                 return {"message": "Abonnement not found"}, 404
 
             # Check if used in transactions
-            transaction_first = g.db_session.query(Clients.Transaction).filter_by(
+            transaction_first = g.db_session.query(Grimpeurs.Transaction).filter_by(
                 TypeObjet="abonnement", IdObjet=id
             ).first()
-            transaction_count = g.db_session.query(Clients.Transaction).filter_by(
+            transaction_count = g.db_session.query(Grimpeurs.Transaction).filter_by(
                 TypeObjet="abonnement", IdObjet=id
             ).count()
 
@@ -107,8 +107,8 @@ class Abonnement(Resource):
                 }, 400
 
             # Check if assigned to grimpeurs
-            grimpeur_first = g.db_session.query(Clients.Grimpeur).filter_by(AboId=id).first()
-            grimpeur_count = g.db_session.query(Clients.Grimpeur).filter_by(AboId=id).count()
+            grimpeur_first = g.db_session.query(Grimpeurs.Grimpeur).filter_by(AboId=id).first()
+            grimpeur_count = g.db_session.query(Grimpeurs.Grimpeur).filter_by(AboId=id).count()
 
             if grimpeur_first:
                 return {
@@ -116,8 +116,8 @@ class Abonnement(Resource):
                 }, 400
 
             # Check if used in seances
-            seance_first = g.db_session.query(Clients.Seance).filter_by(AboId=id).first()
-            seance_count = g.db_session.query(Clients.Seance).filter_by(AboId=id).count()
+            seance_first = g.db_session.query(Grimpeurs.Seance).filter_by(AboId=id).first()
+            seance_count = g.db_session.query(Grimpeurs.Seance).filter_by(AboId=id).count()
 
             if seance_first:
                 return {

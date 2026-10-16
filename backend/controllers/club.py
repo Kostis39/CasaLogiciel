@@ -1,6 +1,6 @@
 from flask import request, g
 from flask_restful import Resource
-from models import Clients
+from models import Grimpeurs
 import logging
 from sqlalchemy import func
 from models import Groupes
@@ -136,7 +136,7 @@ class ClubResource(Resource):
                 return {"message": "Club non trouvé"}, 404
 
             # Check if club has grimpeurs
-            grimpeur_count = g.db_session.query(func.count(Clients.Grimpeur.NumGrimpeur)).filter_by(
+            grimpeur_count = g.db_session.query(func.count(Grimpeurs.Grimpeur.NumGrimpeur)).filter_by(
                 ClubId=id
             ).scalar()
             
@@ -168,8 +168,8 @@ class ClubGrimpeurs(Resource):
             if not club:
                 return {"message": "Club non trouvé"}, 404
 
-            query = g.db_session.query(Clients.Grimpeur).filter_by(ClubId=id).order_by(
-                Clients.Grimpeur.NumGrimpeur.desc()
+            query = g.db_session.query(Grimpeurs.Grimpeur).filter_by(ClubId=id).order_by(
+                Grimpeurs.Grimpeur.NumGrimpeur.desc()
             )
             total = query.count()
             grimpeurs = query.offset(offset).limit(limit).all()

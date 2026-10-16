@@ -1,14 +1,14 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { fetchClients, fetchClientSearch } from "@/src/services/api";
-import { ClientCard } from "./clientCard";
+import { fetchGrimpeurs, fetchGrimpeurSearch } from "@/src/services/api";
+import { GrimpeurCard } from "./grimpeurCard";
 import { useSearchParams, useRouter } from "next/navigation";
 import LoadingSpinner from "./LoadingSpinner";
-import { ApiResponse, Client } from "@/src/types&fields/types";
+import { ApiResponse, Grimpeur } from "@/src/types&fields/types";
 import { toast } from "react-toastify";
 
-export const ClientListClientComponent = ({ query, refreshKey }: { query: string, refreshKey?: number; }) => {
-  const [grimpeurs, setGrimpeurs] = useState<Client[]>([]);
+export const GrimpeurListGrimpeurComponent = ({ query, refreshKey }: { query: string, refreshKey?: number; }) => {
+  const [grimpeurs, setGrimpeurs] = useState<Grimpeur[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasNext, setHasNext] = useState(true);
@@ -25,7 +25,7 @@ export const ClientListClientComponent = ({ query, refreshKey }: { query: string
   const searchParams = useSearchParams();
   const router = useRouter();
 
-const fetchGrimpeurs = useCallback(
+const loadGrimpeurs = useCallback(
   async (direction: "next" | "prev", reset = false) => {
     if (loading) return;
     setLoading(true);
@@ -43,18 +43,18 @@ const fetchGrimpeurs = useCallback(
       }
 
       // ✅ Récupérer la réponse complète
-      let response: ApiResponse<Client[]>;
-      let data: Client[] = [];
+      let response: ApiResponse<Grimpeur[]>;
+      let data: Grimpeur[] = [];
       let total = 0;
       if (query && query.trim() !== "") {
-        response = await fetchClientSearch(query, limit, newOffset);
+        response = await fetchGrimpeurSearch(query, limit, newOffset);
       } else {
-        response = await fetchClients(limit, newOffset);
+        response = await fetchGrimpeurs(limit, newOffset);
       }
 
       // ✅ Vérifier si l'appel a réussi
       if (!response.data) {
-        toast.error(response.message || "Erreur lors du chargement des clients.");
+        toast.error(response.message || "Erreur lors du chargement des grimpeurs.");
         setError("Erreur lors du chargement");
         setLoading(false);
         return;
@@ -65,7 +65,7 @@ const fetchGrimpeurs = useCallback(
       total = response.total || 0;
 
       setGrimpeurs((prev) => {
-        let combined: Client[] = [];
+        let combined: Grimpeur[] = [];
 
         if (reset) {
           combined = data;
@@ -95,7 +95,7 @@ const fetchGrimpeurs = useCallback(
       setHasNext(newOffset + limit < total);
       setError(null);
     } catch (err) {
-      console.error("Erreur fetchGrimpeurs:", err);
+      console.error("Erreur loadGrimpeurs:", err);
       setError("Une erreur est survenue lors du chargement.");
     } finally {
       setLoading(false);
@@ -110,7 +110,7 @@ const fetchGrimpeurs = useCallback(
     setGrimpeurs([]);
     setHasNext(true);
     setHasPrev(false);
-    fetchGrimpeurs("next", true);
+    loadGrimpeurs("next", true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, refreshKey]);
 
@@ -122,7 +122,7 @@ const fetchGrimpeurs = useCallback(
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasNext && !loading) {
-          fetchGrimpeurs("next");
+          loadGrimpeurs("next");
         }
       },
       { rootMargin: "200px" }
@@ -130,7 +130,7 @@ const fetchGrimpeurs = useCallback(
 
     observer.observe(bottom);
     return () => observer.disconnect();
-  }, [fetchGrimpeurs, hasNext, loading]);
+  }, [loadGrimpeurs, hasNext, loading]);
 
   // --- Observer haut (scroll vers le haut) ---
   useEffect(() => {
@@ -140,7 +140,7 @@ const fetchGrimpeurs = useCallback(
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasPrev && !loading) {
-          fetchGrimpeurs("prev");
+          loadGrimpeurs("prev");
         }
       },
       { rootMargin: "200px" }
@@ -148,7 +148,7 @@ const fetchGrimpeurs = useCallback(
 
     observer.observe(top);
     return () => observer.disconnect();
-  }, [fetchGrimpeurs, hasPrev, loading]);
+  }, [loadGrimpeurs, hasPrev, loading]);
 
   // --- Synchronisation du paramètre id ---
   useEffect(() => {
@@ -170,7 +170,7 @@ const fetchGrimpeurs = useCallback(
   if (grimpeurs.length === 0 && !loading && !error) {
     return (
       <div className="text-center text-gray-500 py-4">
-        Aucun client trouvé.
+        Aucun grimpeur trouvé.
       </div>
     );
   }
@@ -181,7 +181,7 @@ const fetchGrimpeurs = useCallback(
 
       {grimpeurs.map((g) => (
         <div key={g.NumGrimpeur} className="pl-2 pr-2 pt-2">
-          <ClientCard
+          <GrimpeurCard
             prenom={g.PrenomGrimpeur}
             nom={g.NomGrimpeur}
             num={g.NumGrimpeur}

@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { toast } from "react-toastify";
-import LoadingSpinner from "@/src/components/client_ui/LoadingSpinner";
+import LoadingSpinner from "@/src/components/grimpeur_ui/LoadingSpinner";
 import { Abonnement, ApiResponse, Seance, Ticket, Transaction } from "@/src/types&fields/types";
-import { ConfirmButton } from "@/src/components/client_ui/buttonConfirm";
+import { ConfirmButton } from "@/src/components/grimpeur_ui/buttonConfirm";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select";

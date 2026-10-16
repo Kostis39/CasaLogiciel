@@ -1,34 +1,34 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 import {
-  deleteSeance, fetchClientById, fetchClubById,
-  isAlreadyEntered, isDateValid, postSeanceClient,
-  postTransaction, updateClientData
+  deleteSeance, fetchGrimpeurById, fetchClubById,
+  isAlreadyEntered, isDateValid, postSeanceGrimpeur,
+  postTransaction, updateGrimpeurData
 } from "@/src/services/api";
-import { clientFields } from "@/src/types&fields/fields";
-import { Client, ApiResponse, Club } from "@/src/types&fields/types";
+import { grimpeurFields } from "@/src/types&fields/fields";
+import { Grimpeur, ApiResponse, Club } from "@/src/types&fields/types";
 import Image from "next/image";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Button } from "@/src/components/ui/button";
 import { toast } from "react-toastify";
 import { API_URL } from "@/src/services/real";
 import { ConfirmButton } from "./buttonConfirm";
-import LoadingSpinner from "@/src/components/client_ui/LoadingSpinner";
+import LoadingSpinner from "@/src/components/grimpeur_ui/LoadingSpinner";
 import { formatDate } from "@/src/lib/utils";
 
 // --------------------------------------------------------------------
 
-interface ClientGridProps {
-  numClient: number;
+interface GrimpeurGridProps {
+  numGrimpeur: number;
   onEdit: () => void;
   createSeance?: boolean;
   onSeanceCanceled?: () => void;
 }
 
-export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCanceled }: ClientGridProps) {
+export function GrimpeurGrid({ numGrimpeur, onEdit, createSeance = false, onSeanceCanceled }: GrimpeurGridProps) {
   const [inCasa, setInCasa] = useState(false);
   const [isLoading, setLoading] = useState(true);
-  const [clientInfo, setClientInfo] = useState<Client | null>(null);
+  const [grimpeurInfo, setGrimpeurInfo] = useState<Grimpeur | null>(null);
   const [cacheBuster, setCacheBuster] = useState(Date.now());
   const [clubName, setClubName] = useState<string>("");
   const lastNumRef = useRef<number | null>(null);
@@ -43,47 +43,47 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
   }, [createSeance]);
 
   // -------------------------------------------------------------
-  // ✅ Fonction factorisée pour recharger les infos du client
+  // ✅ Fonction factorisée pour recharger les infos du grimpeur
   // -------------------------------------------------------------
-  const reloadClientInfo = useCallback(async () => {
-    if (!numClient) return;
+  const reloadGrimpeurInfo = useCallback(async () => {
+    if (!numGrimpeur) return;
     try {
-      const response = await fetchClientById(numClient);
+      const response = await fetchGrimpeurById(numGrimpeur);
 
       // ✅ Vérifier le succès ET extraire les données
       if (!response.success || !response.data) {
-        toast.error(response.message || "Erreur lors du rechargement du client");
+        toast.error(response.message || "Erreur lors du rechargement du grimpeur");
         return;
       }
 
-      setClientInfo(response.data);
+      setGrimpeurInfo(response.data);
     } catch (error) {
       console.error(error);
-      toast.error("Erreur lors du rechargement du client");
+      toast.error("Erreur lors du rechargement du grimpeur");
     }
-  }, [numClient]);
+  }, [numGrimpeur]);
 
   // -------------------------------------------------------------
-  // Chargement initial du client + statut
+  // Chargement initial du grimpeur + statut
   // -------------------------------------------------------------
   useEffect(() => {
-    if (lastNumRef.current === numClient) return;
-    lastNumRef.current = numClient;
+    if (lastNumRef.current === numGrimpeur) return;
+    lastNumRef.current = numGrimpeur;
 
-    const loadClient = async () => {
+    const loadGrimpeur = async () => {
       setLoading(true);
       try {
-        const response = await fetchClientById(numClient);
+        const response = await fetchGrimpeurById(numGrimpeur);
 
         // ✅ Vérifier le succès ET extraire les données
         if (!response.success || !response.data) {
-          toast.error(response.message || "Erreur de chargement client");
+          toast.error(response.message || "Erreur de chargement grimpeur");
           setLoading(false);
           return;
         }
 
         const data = response.data;
-        setClientInfo(data);
+        setGrimpeurInfo(data);
 
         if (data?.ClubId) {
           try {
@@ -104,7 +104,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
           setClubName("—");
         }
       } catch {
-        toast.error("Erreur de chargement client");
+        toast.error("Erreur de chargement grimpeur");
         setLoading(false);
         return;
       } finally {
@@ -112,26 +112,26 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
       }
     };
 
-    if (numClient != null) {
-      loadClient();
+    if (numGrimpeur != null) {
+      loadGrimpeur();
     } else {
       setInCasa(false);
     }
     setCacheBuster(Date.now());
-  }, [numClient]);
+  }, [numGrimpeur]);
 
   // ✅ SÉPARATION : Un useEffect pour vérifier le statut d'entrée
   useEffect(() => {
     const fetchEnteredStatus = async () => {
       setLoadingEntree(true);
-      if (numClient == null || !clientInfo) {
+      if (numGrimpeur == null || !grimpeurInfo) {
         setInCasa(false);
         setLoadingEntree(false);
         return;
       }
 
       try {
-        const status = await isAlreadyEntered(numClient);
+        const status = await isAlreadyEntered(numGrimpeur);
         setInCasa(status.success && status.data ? true : false);
       } catch {
         toast.warning("Erreur lors de la vérification du statut d'entrée");
@@ -142,7 +142,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
     };
 
     fetchEnteredStatus();
-  }, [numClient, clientInfo]);
+  }, [numGrimpeur, grimpeurInfo]);
 
   useEffect(() => {
     if (!createSeanceRef.current) {
@@ -152,26 +152,26 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
 
     // ✅ Ne créer la séance QUE UNE FOIS
     if (seanceProcessedRef.current) return;
-    if (!numClient || !clientInfo || inCasa) return;
+    if (!numGrimpeur || !grimpeurInfo || inCasa) return;
 
     const createSeanceAuto = async () => {
       seanceProcessedRef.current = true;
 
-      if (isNotAllowedForEntrance(clientInfo, isFFME63)) {
+      if (isNotAllowedForEntrance(grimpeurInfo, isFFME63)) {
         toast.warning("Le grimpeur n'est pas autorisé à entrer en salle.");
         setInCasa(false);
         return;
       }
 
       try {
-        const result = await postSeanceClient(numClient);
+        const result = await postSeanceGrimpeur(numGrimpeur);
         if (!result.success) {
           toast.warning(result.message);
           setInCasa(false);
         } else {
           toast.success(result.message);
           setInCasa(true);
-          await reloadClientInfo();
+          await reloadGrimpeurInfo();
         }
       } catch {
         toast.error("Erreur lors de la création de la séance");
@@ -180,22 +180,22 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
     };
 
     createSeanceAuto();
-  }, [createSeanceRef.current, numClient, clientInfo, inCasa, reloadClientInfo]);
+  }, [createSeanceRef.current, numGrimpeur, grimpeurInfo, inCasa, reloadGrimpeurInfo]);
 
   // -------------------------------------------------------------
   // Boutons d’action
   // -------------------------------------------------------------
   const handleTicketUnique = async () => {
-    if (!clientInfo) return;
+    if (!grimpeurInfo) return;
     setLoadingEntree(true);
     try {
-      const updatedClient: Client = {
-        ...clientInfo,
-        NbSeanceRest: (clientInfo.NbSeanceRest ?? 0) + 1,
+      const updatedGrimpeur: Grimpeur = {
+        ...grimpeurInfo,
+        NbSeanceRest: (grimpeurInfo.NbSeanceRest ?? 0) + 1,
         TicketId: 1,
       };
 
-      const updateResult = await updateClientData(updatedClient);
+      const updateResult = await updateGrimpeurData(updatedGrimpeur);
       if (!updateResult.success) {
         toast.error(`Erreur mise à jour tickets : ${updateResult.message}`);
         return;
@@ -204,7 +204,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
       const ticketTransaction = await postTransaction({
         TypeObjet: "ticket",
         IdObjet: 1,
-        NumGrimpeur: numClient,
+        NumGrimpeur: numGrimpeur,
         NbSeanceTicket: 1,
       });
 
@@ -213,7 +213,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
         return;
       }
 
-      const seanceResult = await postSeanceClient(numClient);
+      const seanceResult = await postSeanceGrimpeur(numGrimpeur);
       if (!seanceResult.success) {
         toast.error(`Erreur création séance : ${seanceResult.message}`);
         setInCasa(false);
@@ -222,8 +222,8 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
         setInCasa(true);
       }
 
-      // ✅ Rechargement du client à la fin
-      await reloadClientInfo();
+      // ✅ Rechargement du grimpeur à la fin
+      await reloadGrimpeurInfo();
 
     } catch {
       toast.error("Erreur lors de l'entrée unique");
@@ -234,15 +234,15 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
   };
 
   const handleAnnulerEntree = async () => {
-    const response = await deleteSeance(numClient);
+    const response = await deleteSeance(numGrimpeur);
     if (response.success) {
       toast.success(response.message);
       setInCasa(false);
       setTimeout(async () => {
-        await reloadClientInfo();
+        await reloadGrimpeurInfo();
         onSeanceCanceled?.();
       }, 100);
-      await reloadClientInfo();
+      await reloadGrimpeurInfo();
       onSeanceCanceled?.();
     } else {
       toast.error(response.message);
@@ -255,14 +255,14 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
       if (inCasa) {
         toast.warning("Le grimpeur est déjà en salle");
       }
-      const result = await postSeanceClient(numClient);
+      const result = await postSeanceGrimpeur(numGrimpeur);
       if (!result.success) {
         toast.warning(result.message);
         setInCasa(false);
       } else {
         toast.success(result.message);
         setInCasa(true);
-        await reloadClientInfo(); // ✅ refresh ici aussi
+        await reloadGrimpeurInfo(); // ✅ refresh ici aussi
       }
     } catch {
       toast.error("Erreur lors de la création de la séance");
@@ -274,16 +274,16 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
   // -------------------------------------------------------------
   // Rendu
   // -------------------------------------------------------------
-  if (!clientInfo) return <p>Le Grimpeur n'existe pas ou est introuvable.</p>;
+  if (!grimpeurInfo) return <p>Le Grimpeur n'existe pas ou est introuvable.</p>;
   if (isLoading) return <LoadingSpinner />;
 
-  const fieldInfoClient = clientFields.map(f => {
+  const fieldInfoGrimpeur = grimpeurFields.map(f => {
     if (f.key === "ClubId") {
       return { label: f.label, value: clubName };
     }
     return {
       label: f.label,
-      value: f.format ? f.format(clientInfo[f.key]) : clientInfo[f.key] ?? "—",
+      value: f.format ? f.format(grimpeurInfo[f.key]) : grimpeurInfo[f.key] ?? "—",
     };
   });
 
@@ -316,11 +316,11 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
             <div className="text-red-500 font-bold">Hors salle</div>
           )}
           <Image src="/avatar.png" alt="Avatar" width={200} height={200} priority />
-          <p>{clientInfo.NumGrimpeur}</p>
+          <p>{grimpeurInfo.NumGrimpeur}</p>
         </div>
 
         <div className="flex-1 grid grid-cols-4 gap-2 h-full">
-          {fieldInfoClient.map(({ label, value }) => (
+          {fieldInfoGrimpeur.map(({ label, value }) => (
             <div key={label} className="flex flex-col justify-center break-words overflow-auto">
               <div className="break-words whitespace-pre-line w-full">
                 <p className={`text-sm font-semibold ${label === 'Club' && isFFME63 ? 'text-blue-600' : 'text-gray-700'
@@ -333,7 +333,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
           <div className="flex flex-col justify-center break-words col-span-2">
             <p className="text-sm font-semibold text-gray-700">Note</p>
             <div className="border border-gray-700 rounded p-2 max-h-24 overflow-y-auto whitespace-pre-line">
-              {clientInfo.Note || "—"}
+              {grimpeurInfo.Note || "—"}
             </div>
           </div>
 
@@ -345,37 +345,37 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
         {/* Suite des infos du grimpeur*/}
         <div className="grid grid-cols-3 grid-rows-2">
           <div className="flex flex-col items-center justify-center">
-            {CotisationInfo(clientInfo, isFFME63)}
+            {CotisationInfo(grimpeurInfo, isFFME63)}
           </div>
 
           <div className="flex flex-col items-center justify-center">
-            <SignatureClient
+            <SignatureGrimpeur
               typeSignature="Règlement Intérieur"
-              accord={clientInfo.AccordReglement}
-              cheminSignature={clientInfo.CheminSignature}
+              accord={grimpeurInfo.AccordReglement}
+              cheminSignature={grimpeurInfo.CheminSignature}
               cacheBuster={cacheBuster}
             />
           </div>
 
           <div className="flex flex-col items-center justify-center">
-            <SignatureClient
+            <SignatureGrimpeur
               typeSignature="Autorisation Parentale"
-              accord={clientInfo.AccordParental}
-              cheminSignature={clientInfo.CheminSignature}
+              accord={grimpeurInfo.AccordParental}
+              cheminSignature={grimpeurInfo.CheminSignature}
               cacheBuster={cacheBuster}
             />
           </div>
 
           <div className="flex flex-col items-center">
-            {AbonnementInfo(clientInfo)}
+            {AbonnementInfo(grimpeurInfo)}
           </div>
 
           <div className="flex flex-col items-center">
-            {EntreeInfo(clientInfo)}
+            {EntreeInfo(grimpeurInfo)}
           </div>
 
           <div className="flex flex-col items-center">
-            {AccesSalleInfo(clientInfo)}
+            {AccesSalleInfo(grimpeurInfo)}
           </div>
         </div>
 
@@ -385,7 +385,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
             <Button
               onClick={handleEntreeSimple}
               disabled={isLoadingEntree ||
-                isNotAllowedForEntrance(clientInfo, isFFME63)}
+                isNotAllowedForEntrance(grimpeurInfo, isFFME63)}
               variant="default"
               className="w-3/4 h-3/4 text-lg cursor-pointer"
             >
@@ -405,10 +405,10 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
                 inCasa ||
                 (
                   (
-                    !(isDateValid(clientInfo.DateFinCoti) || !!clientInfo.NumLicenceGrimpeur) &&
-                    !clientInfo.AccordReglement
+                    !(isDateValid(grimpeurInfo.DateFinCoti) || !!grimpeurInfo.NumLicenceGrimpeur) &&
+                    !grimpeurInfo.AccordReglement
                   ) ||
-                  (isDateValid(clientInfo.DateFinAbo) || !!clientInfo.NbSeanceRest)
+                  (isDateValid(grimpeurInfo.DateFinAbo) || !!grimpeurInfo.NbSeanceRest)
                 )
               }
               variant="default"
@@ -445,7 +445,7 @@ export function ClientGrid({ numClient, onEdit, createSeance = false, onSeanceCa
   );
 }
 
-function SignatureClient({
+function SignatureGrimpeur({
   typeSignature,
   accord,
   cheminSignature,
@@ -476,7 +476,7 @@ function SignatureClient({
 }
 
 
-function CotisationInfo(client: Client, isFFME63: boolean) {
+function CotisationInfo(grimpeur: Grimpeur, isFFME63: boolean) {
   let content;
   if (isFFME63) {
     content = (
@@ -485,18 +485,18 @@ function CotisationInfo(client: Client, isFFME63: boolean) {
         <p className="text-green-500 font-bold">CT63 en cours</p>
       </>
     );
-  } else if (client.DateFinCoti !== null && client.DateFinCoti !== undefined) {
+  } else if (grimpeur.DateFinCoti !== null && grimpeur.DateFinCoti !== undefined) {
     content = (
       <>
-        {isDateValid(client.DateFinCoti) ? (
+        {isDateValid(grimpeur.DateFinCoti) ? (
           <>
             <p className="text-green-500 font-bold">Cotisation Active</p>
-            <p>Fin le {formatDate(client.DateFinCoti)}</p>
+            <p>Fin le {formatDate(grimpeur.DateFinCoti)}</p>
           </>
         ) : (
           <>
             <p className="text-red-500 font-bold">Cotisation Expirée</p>
-            <p>Fin le {formatDate(client.DateFinCoti)}</p>
+            <p>Fin le {formatDate(grimpeur.DateFinCoti)}</p>
           </>
         )}
       </>
@@ -512,22 +512,22 @@ function CotisationInfo(client: Client, isFFME63: boolean) {
   );
 }
 
-function AbonnementInfo(client: Client) {
+function AbonnementInfo(grimpeur: Grimpeur) {
   let content;
-  if (client.DateFinAbo === null || client.DateFinAbo === undefined) {
+  if (grimpeur.DateFinAbo === null || grimpeur.DateFinAbo === undefined) {
     content = <p className="font-bold text-gray-700">Pas d'abonnement</p>;
-  } else if (isDateValid(client.DateFinAbo)) {
+  } else if (isDateValid(grimpeur.DateFinAbo)) {
     content = (
       <>
         <p className="text-green-500 font-bold">Abonnement Actif</p>
-        <p>Fin le {formatDate(client.DateFinAbo)}</p>
+        <p>Fin le {formatDate(grimpeur.DateFinAbo)}</p>
       </>
     );
   } else {
     content = (
       <>
         <p className="text-red-500 font-bold">Abonnement Expiré</p>
-        <p>Fin le {formatDate(client.DateFinAbo)}</p>
+        <p>Fin le {formatDate(grimpeur.DateFinAbo)}</p>
       </>
     );
   }
@@ -539,15 +539,15 @@ function AbonnementInfo(client: Client) {
   );
 }
 
-function EntreeInfo(client: Client) {
+function EntreeInfo(grimpeur: Grimpeur) {
   let content;
-  if (!client.NbSeanceRest || client.NbSeanceRest <= 0) {
+  if (!grimpeur.NbSeanceRest || grimpeur.NbSeanceRest <= 0) {
     content = <p className="font-bold text-gray-700">Pas d'entrées</p>;
   } else {
     content = (
       <>
         <p className="text-green-500 font-bold">Nombre d'entrée restantes</p>
-        <p>{client.NbSeanceRest}</p>
+        <p>{grimpeur.NbSeanceRest}</p>
       </>
     );
   }
@@ -558,11 +558,11 @@ function EntreeInfo(client: Client) {
   );
 }
 
-function AccesSalleInfo(client: Client) {
+function AccesSalleInfo(grimpeur: Grimpeur) {
   let content;
-  if (client.StatutVoie === 3) {
+  if (grimpeur.StatutVoie === 3) {
     content = <p className="font-bold">Tête</p>;
-  } else if (client.StatutVoie === 2) {
+  } else if (grimpeur.StatutVoie === 2) {
     content = <p className="font-bold">Moulinette</p>;
   } else {
     content = <p className="font-bold">Bloc</p>;
@@ -576,15 +576,15 @@ function AccesSalleInfo(client: Client) {
   );
 }
 
-function isNotAllowedForEntrance(client: Client, isFFME63: boolean): boolean {
+function isNotAllowedForEntrance(grimpeur: Grimpeur, isFFME63: boolean): boolean {
   const hasValidSubscription =
-    isDateValid(client.DateFinAbo) ||
-    (client.NbSeanceRest && client.NbSeanceRest > 0);
+    isDateValid(grimpeur.DateFinAbo) ||
+    (grimpeur.NbSeanceRest && grimpeur.NbSeanceRest > 0);
 
-  const hasSignature = !!client.AccordReglement;
+  const hasSignature = !!grimpeur.AccordReglement;
 
   const hasMembership =
-    isDateValid(client.DateFinCoti) ||
+    isDateValid(grimpeur.DateFinCoti) ||
     isFFME63;
 
   return !(hasValidSubscription && hasSignature && hasMembership);
