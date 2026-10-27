@@ -52,7 +52,9 @@ class Seances(Resource):
             heure_seance = now.time()
 
             # Check if grimpeur has valid subscription or tickets
-            if (grimpeur.DateFinAbo is None or grimpeur.DateFinAbo <= date.today()) and grimpeur.NbSeanceRest <= 0:
+            # L'abonnement reste valide le jour de sa date de fin : seule la
+            # date STRICTEMENT antérieure à aujourd'hui bloque l'entrée.
+            if (grimpeur.DateFinAbo is None or grimpeur.DateFinAbo < date.today()) and grimpeur.NbSeanceRest <= 0:
                 return {"message": "Le grimpeur n'a pas d'entrée valide."}, 403
 
             nouvelle_seance = Grimpeurs.Seance()

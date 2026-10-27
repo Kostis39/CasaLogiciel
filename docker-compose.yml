@@ -56,9 +56,6 @@ services:
     container_name: phpmyadmin
     environment:
       PMA_HOST: mariadb
-    # Authentification unique : le login MySQL de phpMyAdmin (identifiants
-    # MARIADB_USER / MARIADB_PASSWORD, saisis à chaque connexion).
-    # (La Basic Auth HTTP htpasswd a été retirée à la demande du propriétaire.)
     ports:
       - "8080:80"
     depends_on:
