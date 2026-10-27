@@ -1,7 +1,7 @@
 services:
   # ===== BASE DE DONNÉES =====
   mariadb:
-    image: mariadb:latest
+    image: mariadb:11.4
     container_name: mariadb
     environment:
       MARIADB_ROOT_PASSWORD: ${MARIADB_PASSWORD}
@@ -52,7 +52,7 @@ services:
 
   # ===== PHPMYADMIN =====
   phpmyadmin:
-    image: phpmyadmin:latest
+    image: phpmyadmin:5
     container_name: phpmyadmin
     environment:
       PMA_HOST: mariadb
@@ -74,7 +74,7 @@ services:
 
   # ===== BACKEND =====
   backend:
-    image: casabackend:latest
+    image: casabackend
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -104,7 +104,7 @@ services:
 
   # ===== FRONTEND =====
   frontend:
-    image: casafrontend:latest
+    image: casafrontend
     container_name: casafrontend
     build:
       context: ./frontend
@@ -125,7 +125,7 @@ services:
 
   # ===== METABASE (OUTILS D'ANALYSE DE DONNEES) =====
   metabase:
-    image: metabase/metabase:latest
+    image: metabase/metabase:v0.65.x
     container_name: metabase
     hostname: metabase
     volumes:
