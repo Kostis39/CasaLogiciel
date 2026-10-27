@@ -122,6 +122,23 @@ export function GrimpeurGrid({ numGrimpeur, onEdit, createSeance = false, onSean
   }, [numGrimpeur]);
 
   // ✅ SÉPARATION : Un useEffect pour vérifier le statut d'entrée
+  // Statut réel depuis le backend (source de vérité) — réutilisé aussi pour
+  // re-synchroniser l'affichage après un refus de création (ex : 2e entrée
+  // avec abonnement refusée par le backend, mais le grimpeur est en salle).
+  const syncEnteredStatus = useCallback(async () => {
+    if (numGrimpeur == null) {
+      setInCasa(false);
+      return;
+    }
+    try {
+      const status = await isAlreadyEntered(numGrimpeur);
+      setInCasa(status.success && status.data ? true : false);
+    } catch {
+      toast.warning("Erreur lors de la vérification du statut d'entrée");
+      setInCasa(false);
+    }
+  }, [numGrimpeur]);
+
   useEffect(() => {
     const fetchEnteredStatus = async () => {
       setLoadingEntree(true);
@@ -131,19 +148,12 @@ export function GrimpeurGrid({ numGrimpeur, onEdit, createSeance = false, onSean
         return;
       }
 
-      try {
-        const status = await isAlreadyEntered(numGrimpeur);
-        setInCasa(status.success && status.data ? true : false);
-      } catch {
-        toast.warning("Erreur lors de la vérification du statut d'entrée");
-        setInCasa(false);
-      } finally {
-        setLoadingEntree(false);
-      }
+      await syncEnteredStatus();
+      setLoadingEntree(false);
     };
 
     fetchEnteredStatus();
-  }, [numGrimpeur, grimpeurInfo]);
+  }, [numGrimpeur, grimpeurInfo, syncEnteredStatus]);
 
   useEffect(() => {
     if (!createSeanceRef.current) {
@@ -168,7 +178,7 @@ export function GrimpeurGrid({ numGrimpeur, onEdit, createSeance = false, onSean
         const result = await postSeanceGrimpeur(numGrimpeur);
         if (!result.success) {
           toast.warning(result.message);
-          setInCasa(false);
+          await syncEnteredStatus(); // statut réel, pas "hors salle" forcé
         } else {
           toast.success(result.message);
           setInCasa(true);
@@ -176,7 +186,7 @@ export function GrimpeurGrid({ numGrimpeur, onEdit, createSeance = false, onSean
         }
       } catch {
         toast.error("Erreur lors de la création de la séance");
-        setInCasa(false);
+        await syncEnteredStatus();
       }
     };
 
@@ -217,7 +227,7 @@ export function GrimpeurGrid({ numGrimpeur, onEdit, createSeance = false, onSean
       const seanceResult = await postSeanceGrimpeur(numGrimpeur);
       if (!seanceResult.success) {
         toast.error(`Erreur création séance : ${seanceResult.message}`);
-        setInCasa(false);
+        await syncEnteredStatus(); // statut réel, pas "hors salle" forcé
       } else {
         toast.success("Ticket ajouté et séance créée !");
         setInCasa(true);
@@ -228,7 +238,7 @@ export function GrimpeurGrid({ numGrimpeur, onEdit, createSeance = false, onSean
 
     } catch {
       toast.error("Erreur lors de l'entrée unique");
-      setInCasa(false);
+      await syncEnteredStatus();
     } finally {
       setLoadingEntree(false);
     }
@@ -253,13 +263,10 @@ export function GrimpeurGrid({ numGrimpeur, onEdit, createSeance = false, onSean
   const handleEntreeSimple = async () => {
     setLoadingEntree(true);
     try {
-      if (inCasa) {
-        toast.warning("Le grimpeur est déjà en salle");
-      }
       const result = await postSeanceGrimpeur(numGrimpeur);
       if (!result.success) {
         toast.warning(result.message);
-        setInCasa(false);
+        await syncEnteredStatus();
       } else {
         toast.success(result.message);
         setInCasa(true);
@@ -267,6 +274,7 @@ export function GrimpeurGrid({ numGrimpeur, onEdit, createSeance = false, onSean
       }
     } catch {
       toast.error("Erreur lors de la création de la séance");
+      await syncEnteredStatus();
     } finally {
       setLoadingEntree(false);
     }
