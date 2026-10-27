@@ -56,12 +56,9 @@ services:
     container_name: phpmyadmin
     environment:
       PMA_HOST: mariadb
-    volumes:
-      - ./config/phpmyadmin/default.conf:/etc/apache2/sites-enabled/000-default.conf:ro
-      - ./config/phpmyadmin/htpasswd:/etc/apache2/auth/htpasswd:ro
-    # Accessible depuis le réseau local, derrière double authentification :
-    #  1) Basic Auth HTTP (htpasswd bcrypt — voir config/phpmyadmin/)
-    #  2) login MySQL phpMyAdmin
+    # Authentification unique : le login MySQL de phpMyAdmin (identifiants
+    # MARIADB_USER / MARIADB_PASSWORD, saisis à chaque connexion).
+    # (La Basic Auth HTTP htpasswd a été retirée à la demande du propriétaire.)
     ports:
       - "8080:80"
     depends_on:

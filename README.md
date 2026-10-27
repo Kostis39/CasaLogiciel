@@ -48,22 +48,13 @@ sudo docker-compose up -d --build
 
 ### Accès phpMyAdmin depuis le réseau
 
-phpMyAdmin est accessible sur `http://<ip-serveur>:8080` avec **deux**
-authentifications successives :
+phpMyAdmin est accessible sur `http://<ip-serveur>:8080` avec une seule
+authentification : le **login MySQL** de phpMyAdmin. Identifiants :
+`MARIADB_USER` / `MARIADB_PASSWORD` du `.env` (par défaut root).
 
-1. **Basic Auth HTTP** — fenêtre de login du navigateur. Compte : `admin`,
-   mot de passe défini dans `config/phpmyadmin/htpasswd`.
-   Pour changer le mot de passe :
-   ```bash
-   docker run --rm httpd:2.4-alpine htpasswd -nbB admin 'NOUVEAU_MOT_DE_PASSE' \
-     | cut -d: -f2 > config/phpmyadmin/htpasswd
-   ```
-   (ou sans docker : `openssl passwd -apr1 'MOT_DE_PASSE' > config/phpmyadmin/htpasswd`)
-2. **Login MySQL** — identifiants MariaDB (`MARIADB_USER` / `MARIADB_PASSWORD`
-   du `.env`, par défaut root).
-
-> Le mot de passe Basic Auth livré par défaut (`ChangeMe-CasaAdmin-2026!`)
-> est **temporaire** : changez-le avant toute mise en production.
+> Pas d'auto-login : il faut saisir les identifiants MariaDB à chaque
+> connexion. Quiconque a le mot de passe `MARIADB_PASSWORD` a un accès
+> complet à la base — ne le partage qu'avec les personnes de confiance.
 
 ### Sécurité réseau : ce qui est exposé et pourquoi
 
@@ -71,7 +62,7 @@ authentifications successives :
 |---|---|---|---|
 | 3000 | Frontend | réseau local | mot de passe app + auth API (token 24h) |
 | 5000 | Backend API | réseau local | token Bearer signé requis sur toutes les routes |
-| 8080 | phpMyAdmin | réseau local | Basic Auth HTTP + login MySQL (pas d'auto-login) |
+| 8080 | phpMyAdmin | réseau local | login MySQL (identifiants MariaDB) |
 | 4000 | Metabase | réseau local | comptes Metabase + setup token |
 | 3306 | MariaDB | **non exposé** | conteneurs internes uniquement |
 
