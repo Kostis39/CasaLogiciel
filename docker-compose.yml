@@ -1,4 +1,3 @@
-
 services:
   # ===== BASE DE DONNÉES =====
   mariadb:
@@ -13,13 +12,8 @@ services:
     networks:
       casa_network:
         ipv4_address: 172.20.0.2
-    # Pas de port publié : MariaDB n'est joignable que par les conteneurs
-    # du réseau interne casa_network (backend, phpmyadmin, metabase, backup).
-    # Accès ponctuel depuis l'hôte :
-    #   docker compose exec mariadb mariadb -u root -p
-    # Ou temporairement : docker compose up -d mariadb --publish 127.0.0.1:3306:3306
     healthcheck:
-      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-p${MARIADB_PASSWORD}"]
+      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-p${MARIADB_PASSWORD}" ]
       timeout: 20s
       retries: 10
       start_period: 40s
@@ -39,8 +33,8 @@ services:
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
       TZ: Europe/Paris
     volumes:
-      - /home/casamur/backups:/backups  # Dossier pour stocker les backups
-      - /home/casamur/scripts:/scripts:ro  # Scripts en lecture seule
+      - /home/casamur/backups:/backups # Dossier pour stocker les backups
+      - /home/casamur/scripts:/scripts:ro # Scripts en lecture seule
     command: >
       'sh' '-c' '
         apk add --no-cache mariadb-client tzdata && 
@@ -56,18 +50,12 @@ services:
         condition: service_healthy
     restart: always
 
-
   # ===== PHPMYADMIN =====
   phpmyadmin:
     image: phpmyadmin:latest
     container_name: phpmyadmin
     environment:
       PMA_HOST: mariadb
-      # Auth MySQL classique (cookie) : pas d'auto-login. L'utilisateur saisit
-      # ses identifiants MariaDB à chaque connexion.
-      # (PMA_USER/PMA_PASSWORD volontairement RETIRÉS : ils auto-connectaient
-      #  quiconque atteignait la page, en root, sans aucun mot de passe.)
-      PMA_ABSOLUTE_URI: ${PMA_PUBLIC_URL:-}
     volumes:
       - ./config/phpmyadmin/default.conf:/etc/apache2/sites-enabled/000-default.conf:ro
       - ./config/phpmyadmin/htpasswd:/etc/apache2/auth/htpasswd:ro
@@ -91,8 +79,6 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: casabackend
-    # API consommée par le frontend (navigateur des postes clients) : doit
-    # rester joignable sur le réseau. L'authentification Bearer protège les routes.
     ports:
       - "5000:5000"
     environment:
