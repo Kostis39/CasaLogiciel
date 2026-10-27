@@ -249,10 +249,6 @@ export function GrimpeurGrid({ numGrimpeur, onEdit, createSeance = false, onSean
     if (response.success) {
       toast.success(response.message);
       setInCasa(false);
-      setTimeout(async () => {
-        await reloadGrimpeurInfo();
-        onSeanceCanceled?.();
-      }, 100);
       await reloadGrimpeurInfo();
       onSeanceCanceled?.();
     } else {
