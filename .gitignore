@@ -9,7 +9,4 @@ CasaCentral.code-workspace
 *.sql.gz
 .env.dev
 *.txt
-*.pdf# Hash du mot de passe Basic Auth phpMyAdmin — ne pas versionner le vrai
-
-# Ancienne config Basic Auth phpMyAdmin (retirée, conservée localement)
-.trash-old-config/
+*.pdf
