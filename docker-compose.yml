@@ -1,7 +1,7 @@
 services:
   # ===== BASE DE DONNÉES =====
   mariadb:
-    image: mariadb:11.4
+    image: mariadb:12.2
     container_name: mariadb
     environment:
       MARIADB_ROOT_PASSWORD: ${MARIADB_PASSWORD}
